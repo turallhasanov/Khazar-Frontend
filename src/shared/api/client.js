@@ -1,9 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
-export async function apiClient<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
+export async function apiClient(path, init) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
@@ -16,5 +13,5 @@ export async function apiClient<T>(
     throw new Error(`API request failed: ${response.status}`)
   }
 
-  return (await response.json()) as T
+  return response.json()
 }
