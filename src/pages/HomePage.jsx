@@ -1,3 +1,3 @@
 export function HomePage() {
-  return <main>merhaba</main>
+  return <main className="flex-1" />
 }
