@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { CartProvider } from '../../context/CartContext.jsx'
-import { Footer } from '../../shared/ui/Footer.jsx'
+import { Footer } from './Footer.jsx'
 import { Header } from './Header.jsx'
 
 /**
