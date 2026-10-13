@@ -1,4 +1,4 @@
-import { formatPrice } from '../../shared/lib/formatPrice.js'
+import { formatPrice } from '../../services/formatPrice.js'
 
 export function ProductCard({ product }) {
   return (
