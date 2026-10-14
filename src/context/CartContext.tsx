@@ -1,36 +1,51 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import type { Product } from '../types/product'
+import type { ColorOption, Product, Size } from '../types/product'
 
 /**
- * Mikro-Aşama 2 (minimal): Sepet rozeti (badge) için dinamik ürün sayısı.
- * Tam sepet mantığı (adet artır/azalt, varyant bazlı satırlar) Mikro-Aşama 9'da genişletilecek.
+ * Mikro-Aşama 9: Kapsamlı sepet state yönetimi.
+ * - Varyant bazlı satırlar (productId + rəng + ölçü)
+ * - addToCart / removeFromCart / updateQuantity / clearCart
+ * - Dinamik hesaplamalar (subtotal, endirim, total)
+ * - localStorage kalıcılığı
  */
 
 export interface CartLine {
-  id: string
+  /** Benzersiz satır kimliyi: productId + renk + beden. */
+  cartItemId: string
+  productId: string
   slug: string
   name: string
-  basePrice: number
-  currency: 'AZN'
+  color: ColorOption
+  size: Size
   image: string
-  variantKey: string
+  /** Birim satış fiyatı (indirimli). */
+  unitPrice: number
+  /** Varsa birim indirim öncesi fiyat. */
+  compareAtPrice?: number
+  currency: 'AZN'
   quantity: number
-}
-
-interface AddItemOptions {
-  quantity?: number
-  variantKey?: string
 }
 
 interface CartContextValue {
   items: CartLine[]
-  count: number
-  addItem: (product: Product, options?: AddItemOptions) => void
+  totalItemsCount: number
+  subtotalPrice: number
+  discountAmount: number
+  totalPrice: number
+  addToCart: (product: Product, color: ColorOption, size: Size, quantity?: number) => void
+  removeFromCart: (cartItemId: string) => void
+  updateQuantity: (cartItemId: string, newQuantity: number) => void
+  clearCart: () => void
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
 
-const STORAGE_KEY = 'khazar-cart'
+const STORAGE_KEY = 'khazar-cart-v2'
+
+/** Varyant kombinasyonundan benzersiz satır kimliyi üretir. */
+function buildCartItemId(productId: string, colorName: string, size: Size): string {
+  return `${productId}::${colorName}::${size}`
+}
 
 function readStoredItems(): CartLine[] {
   try {
@@ -45,44 +60,92 @@ function readStoredItems(): CartLine[] {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartLine[]>(readStoredItems)
 
+  // Kalıcılık: her değişiklikte localStorage'a yaz
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
   }, [items])
 
-  const count = useMemo(
-    () => items.reduce((total, item) => total + item.quantity, 0),
-    [items],
-  )
-
-  /** Aynı ürün+varyant varsa adedini artırır, yoksa yeni satır ekler. */
-  const addItem = (product: Product, options: AddItemOptions = {}) => {
-    const { quantity = 1, variantKey = 'default' } = options
+  const addToCart = (
+    product: Product,
+    color: ColorOption,
+    size: Size,
+    quantity = 1,
+  ) => {
+    const cartItemId = buildCartItemId(product.id, color.name, size)
     setItems((current) => {
-      const index = current.findIndex(
-        (item) => item.id === product.id && item.variantKey === variantKey,
-      )
+      const index = current.findIndex((item) => item.cartItemId === cartItemId)
       if (index === -1) {
         return [
           ...current,
           {
-            id: product.id,
+            cartItemId,
+            productId: product.id,
             slug: product.slug,
             name: product.name,
-            basePrice: product.basePrice,
-            currency: product.currency,
+            color,
+            size,
             image: product.images[0] ?? '',
-            variantKey,
+            unitPrice: product.basePrice,
+            compareAtPrice: product.compareAtPrice,
+            currency: product.currency,
             quantity,
           },
         ]
       }
       const next = [...current]
-      next[index] = { ...next[index], quantity: next[index].quantity + quantity }
+      next[index] = {
+        ...next[index],
+        quantity: next[index].quantity + quantity,
+      }
       return next
     })
   }
 
-  const value = useMemo(() => ({ items, count, addItem }), [items, count])
+  const removeFromCart = (cartItemId: string) => {
+    setItems((current) => current.filter((item) => item.cartItemId !== cartItemId))
+  }
+
+  const updateQuantity = (cartItemId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(cartItemId)
+      return
+    }
+    setItems((current) =>
+      current.map((item) =>
+        item.cartItemId === cartItemId ? { ...item, quantity: newQuantity } : item,
+      ),
+    )
+  }
+
+  const clearCart = () => setItems([])
+
+  const totals = useMemo(() => {
+    const totalItemsCount = items.reduce((sum, item) => sum + item.quantity, 0)
+    const subtotalPrice = items.reduce(
+      (sum, item) => sum + item.unitPrice * item.quantity,
+      0,
+    )
+    const discountAmount = items.reduce(
+      (sum, item) =>
+        sum +
+        (item.compareAtPrice ? (item.compareAtPrice - item.unitPrice) * item.quantity : 0),
+      0,
+    )
+    return { totalItemsCount, subtotalPrice, discountAmount, totalPrice: subtotalPrice }
+  }, [items])
+
+  const value = useMemo<CartContextValue>(
+    () => ({
+      items,
+      ...totals,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- metodlar setItems üzerinden stabil
+    [items, totals],
+  )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }

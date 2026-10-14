@@ -41,16 +41,6 @@ const defaultFilters: FilterState = {
   priceMax: priceCeiling,
 }
 
-function isDefaultFilters(filters: FilterState): boolean {
-  return (
-    filters.categories.length === 0 &&
-    filters.materials.length === 0 &&
-    filters.sizes.length === 0 &&
-    filters.priceMin === priceFloor &&
-    filters.priceMax === priceCeiling
-  )
-}
-
 function applyFilters(products: Product[], filters: FilterState): Product[] {
   return products.filter(
     (product) =>

@@ -87,7 +87,7 @@ function MobileDrawer({ open, onClose }) {
  */
 export function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const { count } = useCart()
+  const { totalItemsCount } = useCart()
 
   return (
     <>
@@ -135,9 +135,9 @@ export function Header() {
               className="relative p-1 text-ink-900 transition-colors hover:text-clay-600"
             >
               <ShoppingBag size={20} strokeWidth={1.5} />
-              {count > 0 && (
+              {totalItemsCount > 0 && (
                 <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay-500 px-1 text-[9px] font-semibold text-linen-50">
-                  {count}
+                  {totalItemsCount}
                 </span>
               )}
             </NavLink>

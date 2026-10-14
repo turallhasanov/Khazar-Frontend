@@ -66,7 +66,7 @@ export function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<Size | null>(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
-  const { addItem } = useCart()
+  const { addToCart } = useCart()
 
   const color = product?.colors[selectedColorIndex]
 
@@ -103,7 +103,7 @@ export function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!selectedSize || !color) return
-    addItem(product, { variantKey: `${selectedSize}/${color.name}` })
+    addToCart(product, color, selectedSize)
     setAdded(true)
     window.setTimeout(() => setAdded(false), 1800)
   }
