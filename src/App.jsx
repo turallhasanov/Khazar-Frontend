@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout.jsx'
 import { CartPage } from './features/cart/CartPage.jsx'
-import { CatalogPage } from './features/catalog/CatalogPage.jsx'
+import { CatalogPage } from './pages/CatalogPage.tsx'
 import { HomePage } from './pages/HomePage.jsx'
 
 export default function App() {
