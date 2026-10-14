@@ -25,7 +25,7 @@ export const mockProducts: Product[] = [
       { name: 'Qara', hex: '#26241f' },
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    images: [img('1556821840-3a63f95609a7'), img('1576871337622-98d48d1cf531')],
+    images: [img('1576871337622-98d48d1cf531'), img('1556821840-3a63f95609a7')],
     fabric: {
       material: '%80 Pambıq, %20 Polyester',
       weave: 'Üç iplik (three-thread)',
@@ -49,7 +49,7 @@ export const mockProducts: Product[] = [
       { name: 'Haki', hex: '#6d6a4f' },
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: [img('1521572163474-6864f9cf17ab'), img('1576566588028-4147f3842f27')],
+    images: [img('1521572163474-6864f9cf17ab'), img('1562157873-818bc0726f68')],
     fabric: {
       material: '%100 Pambıq',
       weave: 'Tək iplik, 220 q/m²',
@@ -93,7 +93,7 @@ export const mockProducts: Product[] = [
       { name: 'Krem', hex: '#ece5d8' },
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: [img('1620138546344-7b2c38516edf'), img('1556821840-3a63f95609a7')],
+    images: [img('1556821840-3a63f95609a7'), img('1576871337622-98d48d1cf531')],
     fabric: {
       material: '%85 Pambıq, %15 Polyester',
       weave: 'French terry, 400 q/m²',
@@ -184,7 +184,7 @@ export const mockProducts: Product[] = [
       { name: 'Qara', hex: '#1d1c1a' },
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    images: [img('1576566588028-4147f3842f27'), img('1562157873-818bc0726f68')],
+    images: [img('1562157873-818bc0726f68'), img('1603252109303-2751441dd157')],
     fabric: {
       material: '%100 Pambıq',
       weave: 'Tək iplik, 240 q/m²',
