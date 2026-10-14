@@ -1,15 +1,32 @@
-import type { Product } from '../types/product'
-
 /**
  * Mikro-Aşama 5: Gerçekçi hazır giyim mock verisi.
  * Editoryal ürün görselleri — Unsplash (moda çekimleri, tümü doğrulanmış).
  * NOT: Aşama 4'te NexusERP API'siyle değiştirilecek; görsel alanları API'ye uyarlanacak.
+ *
+ * Ürün şeması (JSDoc):
+ * @typedef {Object} Product
+ * @property {string} id
+ * @property {string} slug URL dostu ad
+ * @property {string} name
+ * @property {string} description
+ * @property {('Hoodie'|'T-Shirt'|'Pants'|'Sweatshirt'|'Longsleeve'|'Coat')} category
+ * @property {number} basePrice AZN cinsinden temel fiyat
+ * @property {number} [compareAtPrice] İndirim öncesi fiyat
+ * @property {'AZN'} currency
+ * @property {{name: string, hex: string}[]} colors
+ * @property {string[]} sizes XS…XXL
+ * @property {string[]} images
+ * @property {{material: string, [weave]: string, [care]: string[]}} fabric
+ * @property {Object<string, number>} stock Beden bazlı stok matrisi
+ * @property {boolean} [isNew]
+ * @property {boolean} [isBestseller]
  */
 
-const img = (id: string, w = 900) =>
+const img = (id, w = 900) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`
 
-export const mockProducts: Product[] = [
+/** @type {Product[]} */
+export const mockProducts = [
   {
     id: 'p-001',
     slug: 'zoho-oversize-sweatshirt',

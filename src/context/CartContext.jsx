@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import type { ColorOption, Product, Size } from '../types/product'
 
 /**
  * Mikro-Aşama 9: Kapsamlı sepet state yönetimi.
@@ -9,49 +8,32 @@ import type { ColorOption, Product, Size } from '../types/product'
  * - localStorage kalıcılığı
  */
 
-export interface CartLine {
-  /** Benzersiz satır kimliyi: productId + renk + beden. */
-  cartItemId: string
-  productId: string
-  slug: string
-  name: string
-  color: ColorOption
-  size: Size
-  image: string
-  /** Birim satış fiyatı (indirimli). */
-  unitPrice: number
-  /** Varsa birim indirim öncesi fiyat. */
-  compareAtPrice?: number
-  currency: 'AZN'
-  quantity: number
-}
+/**
+ * Sepet satırı (JSDoc).
+ * @typedef {Object} CartLine
+ * @property {string} cartItemId Benzersiz satır kimliyi: productId + renk + beden
+ * @property {string} productId
+ * @property {string} slug
+ * @property {string} name
+ * @property {{name: string, hex: string}} color
+ * @property {string} size
+ * @property {string} image
+ * @property {number} unitPrice Birim satış fiyatı (indirimli)
+ * @property {number} [compareAtPrice] Varsa birim indirim öncesi fiyat
+ * @property {'AZN'} currency
+ * @property {number} quantity
+ */
 
-interface CartContextValue {
-  items: CartLine[]
-  totalItemsCount: number
-  subtotalPrice: number
-  discountAmount: number
-  totalPrice: number
-  addToCart: (product: Product, color: ColorOption, size: Size, quantity?: number) => void
-  removeFromCart: (cartItemId: string) => void
-  updateQuantity: (cartItemId: string, newQuantity: number) => void
-  clearCart: () => void
-  /** Slide-over sepet paneli (Mikro-Aşama 10) */
-  isCartOpen: boolean
-  openCart: () => void
-  closeCart: () => void
-}
-
-const CartContext = createContext<CartContextValue | null>(null)
+const CartContext = createContext(null)
 
 const STORAGE_KEY = 'khazar-cart-v2'
 
 /** Varyant kombinasyonundan benzersiz satır kimliyi üretir. */
-function buildCartItemId(productId: string, colorName: string, size: Size): string {
+function buildCartItemId(productId, colorName, size) {
   return `${productId}::${colorName}::${size}`
 }
 
-function readStoredItems(): CartLine[] {
+function readStoredItems() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     const parsed = raw ? JSON.parse(raw) : []
@@ -61,8 +43,8 @@ function readStoredItems(): CartLine[] {
   }
 }
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartLine[]>(readStoredItems)
+export function CartProvider({ children }) {
+  const [items, setItems] = useState(readStoredItems)
   const [isCartOpen, setIsCartOpen] = useState(false)
 
   // Kalıcılık: her değişiklikte localStorage'a yaz
@@ -70,12 +52,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
   }, [items])
 
-  const addToCart = (
-    product: Product,
-    color: ColorOption,
-    size: Size,
-    quantity = 1,
-  ) => {
+  const addToCart = (product, color, size, quantity = 1) => {
     const cartItemId = buildCartItemId(product.id, color.name, size)
     setItems((current) => {
       const index = current.findIndex((item) => item.cartItemId === cartItemId)
@@ -106,11 +83,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
-  const removeFromCart = (cartItemId: string) => {
+  const removeFromCart = (cartItemId) => {
     setItems((current) => current.filter((item) => item.cartItemId !== cartItemId))
   }
 
-  const updateQuantity = (cartItemId: string, newQuantity: number) => {
+  const updateQuantity = (cartItemId, newQuantity) => {
     if (newQuantity <= 0) {
       removeFromCart(cartItemId)
       return
@@ -139,7 +116,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return { totalItemsCount, subtotalPrice, discountAmount, totalPrice: subtotalPrice }
   }, [items])
 
-  const value = useMemo<CartContextValue>(
+  const value = useMemo(
     () => ({
       items,
       ...totals,
@@ -159,7 +136,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 }
 
 // oxlint-disable-next-line react/only-export-components -- provider + hook birlikte tutulur (fast-refresh uyarısı bilinçli bastırıldı)
-export function useCart(): CartContextValue {
+export function useCart() {
   const context = useContext(CartContext)
   if (!context) {
     throw new Error('useCart must be used within a CartProvider')

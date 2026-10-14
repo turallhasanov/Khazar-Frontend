@@ -4,18 +4,15 @@ import { Link, useParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { mockProducts } from '../data/mockProducts'
 import { formatPrice } from '../services/formatPrice.js'
-import type { Product, Size } from '../types/product'
-
-type StockTone = 'out' | 'low' | 'in'
 
 /** Seçili bedenin stok durumuna göre gösterge metni ve tonu. */
-function stockStatus(stock: number | undefined): { label: string; tone: StockTone } {
+function stockStatus(stock) {
   if (!stock || stock <= 0) return { label: 'Tükəndi', tone: 'out' }
   if (stock <= 3) return { label: `Stokda son ${stock} ədəd`, tone: 'low' }
   return { label: 'Stokda var', tone: 'in' }
 }
 
-const toneClass: Record<StockTone, string> = {
+const toneClass = {
   out: 'text-clay-600',
   low: 'text-clay-600',
   in: 'text-sage-600',
@@ -25,10 +22,6 @@ function AccordionSection({
   title,
   children,
   defaultOpen = false,
-}: {
-  title: string
-  children: React.ReactNode
-  defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
@@ -59,11 +52,11 @@ function AccordionSection({
  * değiştirir. Rəng+beden kombinasiyası stoku NexusERP entegrasyonunda (Aşama 4) gelecek.
  */
 export function ProductDetailPage() {
-  const { slug } = useParams<{ slug: string }>()
-  const product: Product | undefined = mockProducts.find((entry) => entry.slug === slug)
+  const { slug } = useParams()
+  const product = mockProducts.find((entry) => entry.slug === slug)
 
   const [selectedColorIndex, setSelectedColorIndex] = useState(0)
-  const [selectedSize, setSelectedSize] = useState<Size | null>(null)
+  const [selectedSize, setSelectedSize] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
   const { addToCart, openCart } = useCart()
@@ -95,7 +88,7 @@ export function ProductDetailPage() {
     ? Math.round((1 - product.basePrice / product.compareAtPrice) * 100)
     : null
 
-  const selectColor = (index: number) => {
+  const selectColor = (index) => {
     setSelectedColorIndex(index)
     // Renk seçimine göre ana görseli değiştir (mock: renk sırası ↔ görsel sırası)
     setActiveImage(index % product.images.length)

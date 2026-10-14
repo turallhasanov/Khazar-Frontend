@@ -1,27 +1,21 @@
-import type { Category, Size } from '../../types/product'
+/** Filtre durumu — CatalogPage tarafından yönetilir.
+ * @typedef {Object} FilterState
+ * @property {string[]} categories
+ * @property {string[]} materials
+ * @property {string[]} sizes
+ * @property {number} priceMin
+ * @property {number} priceMax
+ */
 
-/** Filtre durumu — CatalogPage tarafından yönetilir. */
-export interface FilterState {
-  categories: Category[]
-  materials: string[]
-  sizes: Size[]
-  priceMin: number
-  priceMax: number
-}
+/**
+ * @typedef {Object} FilterSidebarProps
+ * @property {FilterState} filters
+ * @property {{priceFloor: number, priceCeiling: number}} bounds
+ * @property {string[]} materials
+ * @property {(next: FilterState) => void} onChange
+ */
 
-export interface FilterBounds {
-  priceFloor: number
-  priceCeiling: number
-}
-
-interface FilterSidebarProps {
-  filters: FilterState
-  bounds: FilterBounds
-  materials: string[]
-  onChange: (next: FilterState) => void
-}
-
-const CATEGORY_OPTIONS: Category[] = [
+const CATEGORY_OPTIONS = [
   'Hoodie',
   'T-Shirt',
   'Pants',
@@ -30,13 +24,13 @@ const CATEGORY_OPTIONS: Category[] = [
   'Coat',
 ]
 
-const SIZE_OPTIONS: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 const sectionTitle = 'text-[10px] font-medium uppercase tracking-[0.3em] text-ink-400'
 const checkboxLabel =
   'flex cursor-pointer items-center gap-2.5 py-1 text-xs tracking-wide text-ink-700 transition-colors hover:text-ink-900'
 
-function toggleList<T>(list: T[], item: T): T[] {
+function toggleList(list, item) {
   return list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]
 }
 
@@ -44,7 +38,7 @@ function toggleList<T>(list: T[], item: T): T[] {
  * Mikro-Aşama 7: Filtre paneli (kategori, material, beden, fiyat aralığı).
  * Masaüstünde sidebar, mobilde drawer içinde kullanılır.
  */
-export function FilterSidebar({ filters, bounds, materials, onChange }: FilterSidebarProps) {
+export function FilterSidebar({ filters, bounds, materials, onChange }) {
   return (
     <div className="space-y-9">
       {/* Kateqoriya */}

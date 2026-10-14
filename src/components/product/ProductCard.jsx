@@ -1,10 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { Product } from '../../types/product'
 import { formatPrice } from '../../services/formatPrice.js'
-
-interface ProductCardProps {
-  product: Product
-}
 
 /**
  * Mikro-Aşama 6: Editoryal Ürün Kartı.
@@ -14,7 +9,7 @@ interface ProductCardProps {
  * - Kumaş etiketi, fiyat (indirimli eski fiyat çizili)
  * - "Quick View" hover butonu (mobilde kart altında)
  */
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product }) {
   const [primaryImage, secondaryImage] = product.images
   const discountPercent = product.compareAtPrice
     ? Math.round((1 - product.basePrice / product.compareAtPrice) * 100)

@@ -2,22 +2,18 @@ import { SlidersHorizontal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FilterSidebar } from '../components/catalog/FilterSidebar'
-import type { FilterBounds, FilterState } from '../components/catalog/FilterSidebar'
 import { ProductCard } from '../components/product/ProductCard'
 import { mockProducts } from '../data/mockProducts'
-import type { Category, Product } from '../types/product'
 
-type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'newest'
-
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+const SORT_OPTIONS = [
   { value: 'featured', label: 'Önə çıxanlar' },
   { value: 'price-asc', label: 'Qiymət: aşağıdan yuxarı' },
   { value: 'price-desc', label: 'Qiymət: yuxarıdan aşağı' },
   { value: 'newest', label: 'Ən yenilər' },
 ]
 
-/** Header/Footer linklərindəki ?kateqoriya= dəyərlərinin Category-yə qarşılığı. */
-const QUERY_CATEGORY_MAP: Record<string, Category> = {
+/** Header/Footer linklərindəki ?kateqoriya= dəyərlərinin kateqoriya adına qarşılığı. */
+const QUERY_CATEGORY_MAP = {
   hoodie: 'Hoodie',
   't-shirt': 'T-Shirt',
   salvar: 'Pants',
@@ -33,7 +29,7 @@ const priceCeiling = Math.ceil(Math.max(...mockProducts.map((p) => p.basePrice))
 
 const MATERIALS = [...new Set(mockProducts.map((p) => p.fabric.material))].sort()
 
-const defaultFilters: FilterState = {
+const defaultFilters = {
   categories: [],
   materials: [],
   sizes: [],
@@ -41,7 +37,7 @@ const defaultFilters: FilterState = {
   priceMax: priceCeiling,
 }
 
-function applyFilters(products: Product[], filters: FilterState): Product[] {
+function applyFilters(products, filters) {
   return products.filter(
     (product) =>
       (filters.categories.length === 0 || filters.categories.includes(product.category)) &&
@@ -54,7 +50,7 @@ function applyFilters(products: Product[], filters: FilterState): Product[] {
   )
 }
 
-function applySort(products: Product[], sort: SortKey): Product[] {
+function applySort(products, sort) {
   const sorted = [...products]
   switch (sort) {
     case 'price-asc':
@@ -77,10 +73,10 @@ function applySort(products: Product[], sort: SortKey): Product[] {
 
 /** Aktiv filtrelerin rozete dönüştürülmesi. */
 function buildBadges(
-  filters: FilterState,
-  clear: (patch: Partial<FilterState>) => void,
+  filters,
+  clear,
 ) {
-  const badges: { key: string; label: string; remove: () => void }[] = []
+  const badges = []
   filters.categories.forEach((category) =>
     badges.push({
       key: `cat-${category}`,
@@ -116,11 +112,11 @@ function buildBadges(
 
 /**
  * Mikro-Aşama 7: Katalog səhifəsi — sidebar/modal filtre sistemi, sıralama,
- * aktiv filtre rozeti, məhsul sayı. Yeni mockProducts.ts verisi ilə.
+ * aktiv filtre rozeti, məhsul sayı. Yeni mockProducts.js verisi ilə.
  */
 export function CatalogPage() {
   const [searchParams] = useSearchParams()
-  const [filters, setFilters] = useState<FilterState>(() => ({
+  const [filters, setFilters] = useState(() => ({
     ...defaultFilters,
     // Header/Footer kateqoriya linklərini filtre ilə aç
     categories: (() => {
@@ -129,10 +125,10 @@ export function CatalogPage() {
       return mapped ? [mapped] : []
     })(),
   }))
-  const [sort, setSort] = useState<SortKey>('featured')
+  const [sort, setSort] = useState('featured')
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const bounds: FilterBounds = useMemo(
+  const bounds = useMemo(
     () => ({ priceFloor, priceCeiling }),
     [],
   )
@@ -181,7 +177,7 @@ export function CatalogPage() {
             <span className="hidden uppercase tracking-[0.2em] sm:inline">Sırala</span>
             <select
               value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
+              onChange={(event) => setSort(event.target.value)}
               className="cursor-pointer border border-ink-900/20 bg-linen-50 px-3 py-2 text-xs tracking-wide text-ink-900 outline-none transition-colors hover:border-ink-900"
             >
               {SORT_OPTIONS.map((option) => (
