@@ -36,6 +36,10 @@ interface CartContextValue {
   removeFromCart: (cartItemId: string) => void
   updateQuantity: (cartItemId: string, newQuantity: number) => void
   clearCart: () => void
+  /** Slide-over sepet paneli (Mikro-Aşama 10) */
+  isCartOpen: boolean
+  openCart: () => void
+  closeCart: () => void
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
@@ -59,6 +63,7 @@ function readStoredItems(): CartLine[] {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartLine[]>(readStoredItems)
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
   // Kalıcılık: her değişiklikte localStorage'a yaz
   useEffect(() => {
@@ -142,9 +147,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeFromCart,
       updateQuantity,
       clearCart,
+      isCartOpen,
+      openCart: () => setIsCartOpen(true),
+      closeCart: () => setIsCartOpen(false),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- metodlar setItems üzerinden stabil
-    [items, totals],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- metodlar setItems/setState üzerinden stabil
+    [items, totals, isCartOpen],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

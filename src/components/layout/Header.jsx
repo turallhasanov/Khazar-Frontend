@@ -87,7 +87,7 @@ function MobileDrawer({ open, onClose }) {
  */
 export function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const { totalItemsCount } = useCart()
+  const { totalItemsCount, openCart } = useCart()
 
   return (
     <>
@@ -129,9 +129,10 @@ export function Header() {
             <span className="hidden cursor-pointer text-[11px] font-medium uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600 sm:block">
               Giriş / Qeydiyyat
             </span>
-            <NavLink
-              to="/sebet"
-              aria-label="Səbət"
+            <button
+              type="button"
+              aria-label="Səbəti aç"
+              onClick={openCart}
               className="relative p-1 text-ink-900 transition-colors hover:text-clay-600"
             >
               <ShoppingBag size={20} strokeWidth={1.5} />
@@ -140,7 +141,7 @@ export function Header() {
                   {totalItemsCount}
                 </span>
               )}
-            </NavLink>
+            </button>
           </div>
         </div>
       </header>

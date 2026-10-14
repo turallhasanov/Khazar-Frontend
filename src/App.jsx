@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout.jsx'
-import { CartPage } from './features/cart/CartPage.jsx'
+import { CartPage } from './pages/CartPage.tsx'
 import { CatalogPage } from './pages/CatalogPage.tsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { ProductDetailPage } from './pages/ProductDetailPage.tsx'

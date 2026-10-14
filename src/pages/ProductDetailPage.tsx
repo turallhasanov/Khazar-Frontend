@@ -66,7 +66,7 @@ export function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<Size | null>(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
-  const { addToCart } = useCart()
+  const { addToCart, openCart } = useCart()
 
   const color = product?.colors[selectedColorIndex]
 
@@ -106,6 +106,7 @@ export function ProductDetailPage() {
     addToCart(product, color, selectedSize)
     setAdded(true)
     window.setTimeout(() => setAdded(false), 1800)
+    openCart()
   }
 
   return (
