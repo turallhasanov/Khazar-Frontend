@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Product } from '../../types/product'
 import { formatPrice } from '../../services/formatPrice.js'
 
@@ -18,6 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const discountPercent = product.compareAtPrice
     ? Math.round((1 - product.basePrice / product.compareAtPrice) * 100)
     : null
+  const detailPath = `/mehsul/${product.slug}`
   const fabricLabel = [product.fabric.material, product.fabric.weave]
     .filter(Boolean)
     .join(' · ')
@@ -26,21 +28,23 @@ export function ProductCard({ product }: ProductCardProps) {
     <article className="group">
       {/* Görsel alanı */}
       <div className="relative aspect-[3/4] overflow-hidden bg-linen-100">
-        <img
-          src={primaryImage}
-          alt={product.name}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-        />
-        {secondaryImage && (
+        <Link to={detailPath} aria-label={product.name} className="absolute inset-0 block">
           <img
-            src={secondaryImage}
-            alt=""
-            aria-hidden="true"
+            src={primaryImage}
+            alt={product.name}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
           />
-        )}
+          {secondaryImage && (
+            <img
+              src={secondaryImage}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
+            />
+          )}
+        </Link>
 
         {/* Rozetler */}
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
@@ -62,18 +66,25 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Quick View — hover (masaüstü) */}
-        <div className="absolute inset-x-0 bottom-0 hidden translate-y-full bg-linen-50/90 py-3 text-center backdrop-blur-sm transition-transform duration-300 ease-out group-hover:translate-y-0 md:block">
+        <Link
+          to={detailPath}
+          className="absolute inset-x-0 bottom-0 hidden translate-y-full bg-linen-50/90 py-3 text-center backdrop-blur-sm transition-transform duration-300 ease-out hover:bg-linen-50 group-hover:translate-y-0 md:block"
+        >
           <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ink-900">
             Quick View
           </span>
-        </div>
+        </Link>
       </div>
 
       {/* Bilgi alanı */}
       <div className="pt-4">
         <p className="text-[9px] uppercase tracking-[0.25em] text-ink-400">{fabricLabel}</p>
         <div className="mt-1.5 flex items-baseline justify-between gap-3">
-          <h3 className="text-sm font-medium tracking-wide text-ink-900">{product.name}</h3>
+          <h3 className="text-sm font-medium tracking-wide text-ink-900">
+          <Link to={detailPath} className="transition-colors hover:text-clay-600">
+            {product.name}
+          </Link>
+        </h3>
           <div className="flex shrink-0 items-baseline gap-2 text-sm">
             {product.compareAtPrice && (
               <span className="text-xs text-ink-400 line-through">
@@ -99,12 +110,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Quick View — mobil (hover olmadığı için daima görünür) */}
-        <button
-          type="button"
-          className="mt-3 w-full border border-ink-900/20 py-2 text-[10px] font-medium uppercase tracking-[0.3em] text-ink-700 transition-colors hover:border-ink-900 hover:text-ink-900 md:hidden"
+        <Link
+          to={detailPath}
+          className="mt-3 block w-full border border-ink-900/20 py-2 text-center text-[10px] font-medium uppercase tracking-[0.3em] text-ink-700 transition-colors hover:border-ink-900 hover:text-ink-900 md:hidden"
         >
           Quick View
-        </button>
+        </Link>
       </div>
     </article>
   )

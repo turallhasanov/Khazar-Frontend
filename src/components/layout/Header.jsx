@@ -1,7 +1,7 @@
 import { Menu, ShoppingBag, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { useCart } from '../../context/CartContext.jsx'
+import { useCart } from '../../context/CartContext'
 
 /** Giyim kategorileri — Mikro-Aşama 7'deki katalog filtreleriyle eşleştirilecek. */
 const categories = [

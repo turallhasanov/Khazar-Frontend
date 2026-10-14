@@ -3,6 +3,7 @@ import { Layout } from './components/layout/Layout.jsx'
 import { CartPage } from './features/cart/CartPage.jsx'
 import { CatalogPage } from './pages/CatalogPage.tsx'
 import { HomePage } from './pages/HomePage.jsx'
+import { ProductDetailPage } from './pages/ProductDetailPage.tsx'
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/katalog" element={<CatalogPage />} />
+        <Route path="/mehsul/:slug" element={<ProductDetailPage />} />
         <Route path="/sebet" element={<CartPage />} />
       </Route>
     </Routes>
