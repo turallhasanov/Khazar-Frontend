@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { CartDrawer } from '../cart/CartDrawer'
 import { CartProvider } from '../../context/CartContext'
+import { EditorialProvider } from '../../context/EditorialContext'
 import { Footer } from './Footer.jsx'
 import { Header } from './Header.jsx'
 
@@ -21,13 +22,15 @@ function ScrollToTop() {
 export function Layout() {
   return (
     <CartProvider>
-      <div className="flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased">
-        <ScrollToTop />
-        <Header />
-        <Outlet />
-        <Footer />
-        <CartDrawer />
-      </div>
+      <EditorialProvider>
+        <div className="flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased">
+          <ScrollToTop />
+          <Header />
+          <Outlet />
+          <Footer />
+          <CartDrawer />
+        </div>
+      </EditorialProvider>
     </CartProvider>
   )
 }

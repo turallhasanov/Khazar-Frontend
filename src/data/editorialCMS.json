@@ -1,0 +1,34 @@
+{
+  "hero": {
+    "kicker": "Yeni Kolleksiya — FW 2026",
+    "titleTop": "KHAZAR —",
+    "titleLine1": "OVERSIZE",
+    "titleLine2": "SWEATSHIRT",
+    "priceLabel": "84,00 ₼",
+    "ctaLabel": "Ölçü Seç",
+    "ctaLink": "/katalog",
+    "imageUrl": ""
+  },
+  "slogan": {
+    "lines": [
+      "OVERSIZE SWEATSHIRT — *EUROPEAN*",
+      "THREE-THREAD — REINFORCED CUFF",
+      "ELASTIC — *LIMITED NUMBER*"
+    ]
+  },
+  "featureBlocks": {
+    "shipping": {
+      "title": "SHIPPING",
+      "text": "Bakı daxili 1-2 iş günü, regionlara 3-5 iş günü ərzində çatdırılma. 150 ₼ üzəri sifarişlərdə çatdırılma pulsuzdur.",
+      "linkLabel": "Ətraflı",
+      "linkTo": "/katalog"
+    },
+    "faq": {
+      "title": "FAQ TOPICS",
+      "text": "Ölçü cədvəli, parça qayğısı və geri qaytarma şərtləri haqqında tez-tez verilən suallar.",
+      "linkLabel": "Ətraflı",
+      "linkTo": "/katalog",
+      "imageUrl": ""
+    }
+  }
+}
