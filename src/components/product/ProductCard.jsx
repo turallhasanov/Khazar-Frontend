@@ -20,7 +20,7 @@ export function ProductCard({ product }) {
   return (
     <article className="group">
       {/* Görsel alanı — çerçevesiz, crossfade hover */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-linen-100">
+      <div className="relative aspect-[2/3] overflow-hidden bg-linen-100">
         <Link to={detailPath} aria-label={product.name} className="absolute inset-0 block">
           <img
             src={primaryImage}

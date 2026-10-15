@@ -1,7 +1,8 @@
-import { Menu, ShoppingBag, X } from 'lucide-react'
+import { Menu, Search, ShoppingBag, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
+import { SearchModal } from '../search/SearchModal'
 
 /** Giyim kategorileri — Mikro-Aşama 7'deki katalog filtreleriyle eşleştirilecek. */
 const categories = [
@@ -87,6 +88,7 @@ function MobileDrawer({ open, onClose }) {
  */
 export function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const { totalItemsCount, openCart } = useCart()
 
   return (
@@ -124,11 +126,19 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Sağ: giriş + sepet */}
+          {/* Sağ: giriş + arama + sepet */}
           <div className="flex items-center gap-6">
             <span className="hidden cursor-pointer text-[11px] font-medium uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600 sm:block">
               Giriş / Qeydiyyat
             </span>
+            <button
+              type="button"
+              aria-label="Axtarışı aç"
+              onClick={() => setSearchOpen(true)}
+              className="p-1 text-ink-900 transition-colors hover:text-clay-600"
+            >
+              <Search size={20} strokeWidth={1.5} />
+            </button>
             <button
               type="button"
               aria-label="Səbəti aç"
@@ -147,6 +157,7 @@ export function Header() {
       </header>
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   )
 }
