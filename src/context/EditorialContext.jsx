@@ -23,6 +23,11 @@ function loadContent() {
         shipping: { ...defaultContent.featureBlocks.shipping, ...stored.featureBlocks?.shipping },
         faq: { ...defaultContent.featureBlocks.faq, ...stored.featureBlocks?.faq },
       },
+      // Yeni ana sayfa bölümleri (diziler override'ta tamamen değiştirilir)
+      manifesto: { ...defaultContent.manifesto, ...stored.manifesto },
+      lookbook: { ...defaultContent.lookbook, ...stored.lookbook },
+      craftsmanship: { ...defaultContent.craftsmanship, ...stored.craftsmanship },
+      journal: { ...defaultContent.journal, ...stored.journal },
     }
   } catch {
     return defaultContent

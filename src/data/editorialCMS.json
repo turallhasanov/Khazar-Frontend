@@ -30,5 +30,81 @@
       "linkTo": "/katalog",
       "imageUrl": ""
     }
+  },
+  "manifesto": {
+    "eyebrow": "Brend Manifesti",
+    "title": "Zamansız siluetlər,\n*yüksək keyfiyyət*",
+    "paragraphs": [
+      "Khazar hər parçanı bir fikirlə qurur: geyim trendin arxasınca getməməlidir — sizi illərlə müşayiət etməlidir. Avropa pambığı, üç iplik toxuma, möhkəmləndirilmiş tikiş: detallar sadə görünür, amma hər biri sınaqdan keçib.",
+      "Biz az şey istehsal edirik və daha yaxşısını edirik. Limited seriyalar, tələsik olmayan dizayn və geyindiyiniz gün deyil, illərlə xidmət edən qarderob."
+    ],
+    "signature": "— Khazar Studio, Bakı"
+  },
+  "lookbook": {
+    "eyebrow": "Editorial Lookbook",
+    "title": "FW 2026 — Kombinlər",
+    "looks": [
+      {
+        "number": "01",
+        "title": "Urban Minimalism",
+        "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80",
+        "ctaLabel": "Kolleksiyanı kəşf et",
+        "ctaLink": "/katalog"
+      },
+      {
+        "number": "02",
+        "title": "Essential Layers",
+        "image": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=900&q=80",
+        "ctaLabel": "Kolleksiyanı kəşf et",
+        "ctaLink": "/katalog"
+      },
+      {
+        "number": "03",
+        "title": "Tailored Ease",
+        "image": "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=900&q=80",
+        "ctaLabel": "Kolleksiyanı kəşf et",
+        "ctaLink": "/katalog"
+      }
+    ]
+  },
+  "craftsmanship": {
+    "eyebrow": "Ustalıq",
+    "title": "Parça birinci dərəcəlidir",
+    "text": "Yüksək qramajlı pambıq, ikiqat yaxa və sıx tikiş — hər parça istifadə tarixçəsini nəzərə alınaraq qurulur. Yaxından baxanda fərq görünür: kənarlar temiz, toxuma sıx, formasını saxlayır.",
+    "image": "https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=900&q=80",
+    "highlights": [
+      {
+        "title": "Toxuma",
+        "text": "220–400 q/m² qramaj, üç iplik və french terry toxuma növləri."
+      },
+      {
+        "title": "Davamlılıq",
+        "text": "Möhkəmləndirilmiş yaxa və mansetlər — forma uzunömürlü qalır."
+      },
+      {
+        "title": "Rahatlıq",
+        "text": "Fırçalanmış iç səth, düşük omuz — gün boyu rahat fit."
+      }
+    ]
+  },
+  "journal": {
+    "eyebrow": "Jurnal",
+    "title": "Stil qeydləri",
+    "articles": [
+      {
+        "title": "Kapsul qarderob təlimatı",
+        "excerpt": "12 parça, sonsuz kombin: minimal qarderobu necə qurmalı — rəng palitrasından ölçü məntiqinə qədər.",
+        "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=900&q=80",
+        "meta": "Dərgi · 5 dəqiqə",
+        "link": "/katalog"
+      },
+      {
+        "title": "Mövsümün əsas siluetləri",
+        "excerpt": "Oversize-dən geniş bacaqlı şalvara: FW 2026-nın daşıyıcı formaları və onları gündəliyə uyğunlaşdırma qaydası.",
+        "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=900&q=80",
+        "meta": "Dərgi · 7 dəqiqə",
+        "link": "/katalog"
+      }
+    ]
   }
 }

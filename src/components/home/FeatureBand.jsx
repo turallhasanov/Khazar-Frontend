@@ -5,8 +5,9 @@ import { useEditorial } from '../../context/EditorialContext'
 /**
  * Slogan satırı — *...* ile işaretlenen bölümler vurgu (clay) renginde
  * gösterilir; HTML kullanılmaz, CMS metni düz metin olarak düzenlenir.
+ * (Manifesto ve jurnal başlıklarında da yeniden kullanılır.)
  */
-function AccentLine({ text }) {
+export function AccentLine({ text }) {
   return text.split('*').map((part, index) =>
     index % 2 === 1 ? (
       <span key={index} className="text-clay-400">
