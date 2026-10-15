@@ -228,7 +228,7 @@ export function CatalogPage() {
 
           {/* Məhsul grid */}
           {visibleProducts.length > 0 ? (
-            <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {visibleProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

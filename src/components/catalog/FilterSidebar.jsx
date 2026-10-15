@@ -26,25 +26,27 @@ const CATEGORY_OPTIONS = [
 
 const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
-const sectionTitle = 'text-[10px] font-medium uppercase tracking-[0.3em] text-ink-400'
+const sectionTitle = 'text-[10px] font-medium uppercase tracking-[0.4em] text-ink-400'
 const checkboxLabel =
-  'flex cursor-pointer items-center gap-2.5 py-1 text-xs tracking-wide text-ink-700 transition-colors hover:text-ink-900'
+  'flex cursor-pointer items-center gap-3 py-1 text-xs font-light tracking-[0.08em] text-ink-600 transition-colors hover:text-ink-900'
+const checkboxInput =
+  'h-3 w-3 shrink-0 appearance-none border border-ink-900/30 bg-transparent accent-ink-900 checked:border-ink-900 checked:bg-ink-900'
 
 function toggleList(list, item) {
   return list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]
 }
 
 /**
- * Mikro-Aşama 7: Filtre paneli (kategori, material, beden, fiyat aralığı).
+ * Lüks katalog filtresi — inceltedilmiş, zarif kontroller.
  * Masaüstünde sidebar, mobilde drawer içinde kullanılır.
  */
 export function FilterSidebar({ filters, bounds, materials, onChange }) {
   return (
-    <div className="space-y-9">
+    <div className="space-y-10">
       {/* Kateqoriya */}
       <fieldset>
         <legend className={sectionTitle}>Kateqoriya</legend>
-        <div className="mt-3">
+        <div className="mt-4">
           {CATEGORY_OPTIONS.map((category) => (
             <label key={category} className={checkboxLabel}>
               <input
@@ -56,7 +58,7 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
                     categories: toggleList(filters.categories, category),
                   })
                 }
-                className="h-3.5 w-3.5 accent-clay-500"
+                className={checkboxInput}
               />
               {category}
             </label>
@@ -67,7 +69,7 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
       {/* Material */}
       <fieldset>
         <legend className={sectionTitle}>Material</legend>
-        <div className="mt-3">
+        <div className="mt-4">
           {materials.map((material) => (
             <label key={material} className={checkboxLabel}>
               <input
@@ -76,7 +78,7 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
                 onChange={() =>
                   onChange({ ...filters, materials: toggleList(filters.materials, material) })
                 }
-                className="h-3.5 w-3.5 accent-clay-500"
+                className={checkboxInput}
               />
               {material}
             </label>
@@ -87,7 +89,7 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
       {/* Ölçü */}
       <fieldset>
         <legend className={sectionTitle}>Ölçü</legend>
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-3 gap-2">
           {SIZE_OPTIONS.map((size) => {
             const active = filters.sizes.includes(size)
             return (
@@ -96,10 +98,10 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => onChange({ ...filters, sizes: toggleList(filters.sizes, size) })}
-                className={`border py-2 text-xs tracking-[0.15em] transition-colors ${
+                className={`border py-2 text-[11px] font-light tracking-[0.2em] transition-colors ${
                   active
-                    ? 'border-ink-900 bg-ink-900 text-linen-50'
-                    : 'border-ink-900/20 text-ink-700 hover:border-ink-900'
+                    ? 'border-ink-900 text-ink-900'
+                    : 'border-ink-900/15 text-ink-600 hover:border-ink-900/50'
                 }`}
               >
                 {size}
@@ -109,10 +111,10 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
         </div>
       </fieldset>
 
-      {/* Qiymət aralığı */}
+      {/* Qiymət aralığı — ince lux-range kontrolü */}
       <fieldset>
         <legend className={sectionTitle}>Qiymət</legend>
-        <div className="mt-4 space-y-3">
+        <div className="mt-5 space-y-4">
           <input
             type="range"
             min={bounds.priceFloor}
@@ -126,7 +128,7 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
                 priceMin: Math.min(Number(event.target.value), filters.priceMax),
               })
             }
-            className="w-full accent-clay-500"
+            className="lux-range"
           />
           <input
             type="range"
@@ -141,9 +143,9 @@ export function FilterSidebar({ filters, bounds, materials, onChange }) {
                 priceMax: Math.max(Number(event.target.value), filters.priceMin),
               })
             }
-            className="w-full accent-clay-500"
+            className="lux-range"
           />
-          <p className="text-xs tracking-wide text-ink-500">
+          <p className="text-xs font-light tracking-[0.15em] text-ink-500">
             {filters.priceMin} ₼ — {filters.priceMax} ₼
           </p>
         </div>

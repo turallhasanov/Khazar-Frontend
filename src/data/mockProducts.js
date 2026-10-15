@@ -110,7 +110,7 @@ export const mockProducts = [
       { name: 'Krem', hex: '#ece5d8' },
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: [img('1556821840-3a63f95609a7'), img('1576871337622-98d48d1cf531')],
+    images: [img('1620799140408-edc6dcb6d633'), img('1556821840-3a63f95609a7')],
     fabric: {
       material: '%85 Pambıq, %15 Polyester',
       weave: 'French terry, 400 q/m²',
