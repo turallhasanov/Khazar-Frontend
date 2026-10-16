@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 
-/** Sol sütun: kurumsal navigasyon (yalnız mevcut rotalar bağlantılıdır). */
+/** Sol sütun: kurumsal navigasyon — tüm linkler aktif rotalara bağlıdır. */
 const navLinks = [
   { label: 'HOME', to: '/' },
   { label: 'CATALOGS', to: '/katalog' },
-  { label: 'ABOUT KHAZAR', to: null },
-  { label: 'SHIPPING', to: null },
-  { label: 'CONTACTS', to: null },
+  { label: 'ABOUT KHAZAR', to: '/haqqimizda' },
+  { label: 'SHIPPING', to: '/catdirilma-ve-iade' },
+  { label: 'FAQ', to: '/tez-tez-verilen-suallar' },
+  { label: 'CONTACTS', to: '/elaqe' },
 ]
 
 /** Orta sütun: yalnız hazır giyim kategorileri (Mikro-Aşama 7 filtresiyle eşleşir). */
@@ -39,22 +40,11 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-[1fr_1fr_1.3fr]">
           {/* Sol: kurumsal navigasyon */}
           <nav aria-label="Korporativ">
-            {navLinks.map((link) =>
-              link.to ? (
-                <Link key={link.label} to={link.to} className={linkClass}>
-                  {link.label}
-                </Link>
-              ) : (
-                <span
-                  key={link.label}
-                  className={`${linkClass} cursor-pointer`}
-                  role="link"
-                  tabIndex={0}
-                >
-                  {link.label}
-                </span>
-              ),
-            )}
+            {navLinks.map((link) => (
+              <Link key={link.label} to={link.to} className={linkClass}>
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Orta: hazır geyim kategorileri */}
