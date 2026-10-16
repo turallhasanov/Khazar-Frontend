@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { mockProducts } from '../data/mockProducts'
+import { CompleteTheLook } from '../components/product/CompleteTheLook'
+import { SizeGuideModal } from '../components/product/SizeGuideModal'
 import { formatPrice } from '../services/formatPrice.js'
 
 /** Seçili bedenin stok durumuna göre gösterge metni ve tonu. */
@@ -59,6 +61,7 @@ export function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const { addToCart, openCart } = useCart()
 
   const color = product?.colors[selectedColorIndex]
@@ -203,6 +206,13 @@ export function ProductDetailPage() {
             <div className="mt-8">
               <div className="flex items-baseline justify-between">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-ink-400">Ölçü</p>
+                <button
+                  type="button"
+                  onClick={() => setSizeGuideOpen(true)}
+                  className="text-[10px] uppercase tracking-[0.2em] text-ink-400 underline decoration-ink-900/30 underline-offset-4 transition-colors hover:text-clay-600"
+                >
+                  Beden Ölçü Rehberi
+                </button>
                 {!selectedSize && (
                   <p className="text-[10px] uppercase tracking-[0.2em] text-clay-600">
                     Ölçü seçin
@@ -287,7 +297,17 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Stili tamamla — kategoriye göre editoryal kombin önerileri */}
+        <CompleteTheLook currentProduct={product} />
       </div>
+
+      <SizeGuideModal
+        open={sizeGuideOpen}
+        onClose={() => setSizeGuideOpen(false)}
+        modelSize="M"
+        modelHeight={185}
+      />
     </main>
   )
 }
