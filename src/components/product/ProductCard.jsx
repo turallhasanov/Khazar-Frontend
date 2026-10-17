@@ -1,4 +1,6 @@
+import { Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useWishlist } from '../../context/WishlistContext'
 import { formatPrice } from '../../services/formatPrice.js'
 
 /**
@@ -8,6 +10,8 @@ import { formatPrice } from '../../services/formatPrice.js'
  * - Serif (ad) + sans-serif (detay/fiyat) ince ağırlık dengesi
  */
 export function ProductCard({ product }) {
+  const { isInWishlist, toggleWishlist } = useWishlist()
+  const wished = isInWishlist(product.id)
   const [primaryImage, secondaryImage] = product.images
   const discountPercent = product.compareAtPrice
     ? Math.round((1 - product.basePrice / product.compareAtPrice) * 100)
@@ -38,6 +42,21 @@ export function ProductCard({ product }) {
             />
           )}
         </Link>
+
+        {/* Wishlist kalbi — sağ üst köşe */}
+        <button
+          type="button"
+          aria-label={wished ? `${product.name} istək siyahısından sil` : `${product.name} istək siyahısına əlavə et`}
+          aria-pressed={wished}
+          onClick={() => toggleWishlist(product.id)}
+          className="absolute right-4 top-4 z-10 p-1 text-ink-900 transition-colors hover:text-clay-600"
+        >
+          <Heart
+            size={18}
+            strokeWidth={1.5}
+            className={wished ? 'fill-clay-600 text-clay-600' : ''}
+          />
+        </button>
 
         {/* İnce tipografik etiketler */}
         <div className="absolute left-4 top-4 flex flex-col items-start gap-1.5">

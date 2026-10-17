@@ -3,8 +3,10 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { CartDrawer } from '../cart/CartDrawer'
 import { CartProvider } from '../../context/CartContext'
 import { EditorialProvider } from '../../context/EditorialContext'
+import { WishlistProvider } from '../../context/WishlistContext'
 import { Footer } from './Footer.jsx'
 import { Header } from './Header.jsx'
+import { WishlistDrawer } from '../wishlist/WishlistDrawer.jsx'
 
 /** Rota değişiminde sayfayı en üste kaydırır (footer linkleri dahil). */
 function ScrollToTop() {
@@ -22,15 +24,18 @@ function ScrollToTop() {
 export function Layout() {
   return (
     <CartProvider>
-      <EditorialProvider>
-        <div className="flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased">
-          <ScrollToTop />
-          <Header />
-          <Outlet />
-          <Footer />
-          <CartDrawer />
-        </div>
-      </EditorialProvider>
+      <WishlistProvider>
+        <EditorialProvider>
+          <div className="flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased">
+            <ScrollToTop />
+            <Header />
+            <Outlet />
+            <Footer />
+            <CartDrawer />
+            <WishlistDrawer />
+          </div>
+        </EditorialProvider>
+      </WishlistProvider>
     </CartProvider>
   )
 }
