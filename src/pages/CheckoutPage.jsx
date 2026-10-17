@@ -126,13 +126,65 @@ export function CheckoutPage() {
     const nextErrors = validate(form)
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
+
+    const orderNumber = `#KHZ-${Math.floor(10000 + Math.random() * 90000)}`
+
+    // Aşama 4'te NexusERP'ye gönderilecek tam sipariş yükü (mock checkout)
+    const orderPayload = {
+      source: 'khazar-web',
+      orderNumber,
+      createdAt: new Date().toISOString(),
+      customer: {
+        type: 'B2C',
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+      },
+      shipping: {
+        city: form.city,
+        address: form.address.trim(),
+        postalCode: form.postalCode.trim(),
+        courier: form.courier,
+        courierLabel: COURIER_OPTIONS.find((option) => option.id === form.courier)?.label,
+      },
+      payment: {
+        method: form.payment,
+        methodLabel: PAYMENT_OPTIONS.find((option) => option.id === form.payment)?.label,
+        status: 'pending',
+        transactionId: null,
+      },
+      items: items.map((item) => ({
+        productId: item.productId,
+        // Varyant kimliyi + stok matris karşılığı (renk+beden)
+        variantId: item.cartItemId,
+        stockRef: { color: item.color.name, size: item.size },
+        slug: item.slug,
+        name: item.name,
+        unitPrice: item.unitPrice,
+        compareAtPrice: item.compareAtPrice ?? null,
+        quantity: item.quantity,
+        lineTotal: Number((item.unitPrice * item.quantity).toFixed(2)),
+      })),
+      totals: {
+        currency: 'AZN',
+        subtotal: Number(subtotalPrice.toFixed(2)),
+        discount: Number(discountAmount.toFixed(2)),
+        shipping: shippingFee,
+        total: Number(totalPrice.toFixed(2)),
+      },
+    }
+
+    console.info('[Khazar] NexusERP order payload (mock):', orderPayload)
+
     setOrder({
-      number: `#KHZ-${Math.floor(10000 + Math.random() * 90000)}`,
+      number: orderNumber,
       total: totalPrice,
       itemCount: totalItemsCount,
       name: `${form.firstName.trim()} ${form.lastName.trim()}`,
       city: form.city,
       payment: PAYMENT_OPTIONS.find((option) => option.id === form.payment)?.label ?? '',
+      payload: orderPayload,
     })
     clearCart()
   }
@@ -167,6 +219,16 @@ export function CheckoutPage() {
           >
             Kataloqa qayıt
           </Link>
+
+          {/* NexusERP payload önizlemesi (Aşama 4 entegrasyon paneli) */}
+          <details className="mt-8 w-full border border-linen-200 bg-linen-50 text-left">
+            <summary className="cursor-pointer px-5 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-ink-500 transition-colors hover:text-ink-900">
+              NexusERP ödəniş payload-u (dev)
+            </summary>
+            <pre className="max-h-72 overflow-auto border-t border-linen-200 px-5 py-4 text-[11px] leading-relaxed text-ink-700">
+              {JSON.stringify(order.payload, null, 2)}
+            </pre>
+          </details>
         </div>
       </main>
     )

@@ -1,8 +1,11 @@
-import { ChevronDown, ShoppingBag } from 'lucide-react'
+import { ChevronDown, Heart, ShoppingBag } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import { mockProducts } from '../data/mockProducts'
+import { CompleteTheLook } from '../components/product/CompleteTheLook'
+import { SizeGuideModal } from '../components/product/SizeGuideModal'
 import { formatPrice } from '../services/formatPrice.js'
 
 /** Seçili bedenin stok durumuna göre gösterge metni ve tonu. */
@@ -59,7 +62,9 @@ export function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const { addToCart, openCart } = useCart()
+  const { isInWishlist, toggleWishlist } = useWishlist()
 
   const color = product?.colors[selectedColorIndex]
 
@@ -203,6 +208,13 @@ export function ProductDetailPage() {
             <div className="mt-8">
               <div className="flex items-baseline justify-between">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-ink-400">Ölçü</p>
+                <button
+                  type="button"
+                  onClick={() => setSizeGuideOpen(true)}
+                  className="text-[10px] uppercase tracking-[0.2em] text-ink-400 underline decoration-ink-900/30 underline-offset-4 transition-colors hover:text-clay-600"
+                >
+                  Beden Ölçü Rehberi
+                </button>
                 {!selectedSize && (
                   <p className="text-[10px] uppercase tracking-[0.2em] text-clay-600">
                     Ölçü seçin
@@ -247,20 +259,43 @@ export function ProductDetailPage() {
               )}
             </div>
 
-            {/* Sepete ekle */}
-            <button
-              type="button"
-              disabled={!selectedSize || status?.tone === 'out'}
-              onClick={handleAddToCart}
-              className={`mt-6 flex w-full items-center justify-center gap-3 py-4 text-[11px] font-medium uppercase tracking-[0.35em] transition-colors ${
-                added
-                  ? 'bg-sage-600 text-linen-50'
-                  : 'bg-ink-900 text-linen-50 hover:bg-clay-600'
-              } disabled:cursor-not-allowed disabled:opacity-40`}
-            >
-              <ShoppingBag size={16} strokeWidth={1.5} />
-              {added ? 'Səbətə əlavə edildi' : 'Səbətə əlavə et'}
-            </button>
+            {/* Sepete ekle + wishlist */}
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                disabled={!selectedSize || status?.tone === 'out'}
+                onClick={handleAddToCart}
+                className={`flex flex-1 items-center justify-center gap-3 py-4 text-[11px] font-medium uppercase tracking-[0.35em] transition-colors ${
+                  added
+                    ? 'bg-sage-600 text-linen-50'
+                    : 'bg-ink-900 text-linen-50 hover:bg-clay-600'
+                } disabled:cursor-not-allowed disabled:opacity-40`}
+              >
+                <ShoppingBag size={16} strokeWidth={1.5} />
+                {added ? 'Səbətə əlavə edildi' : 'Səbətə əlavə et'}
+              </button>
+              <button
+                type="button"
+                aria-pressed={isInWishlist(product.id)}
+                aria-label={
+                  isInWishlist(product.id)
+                    ? 'İstək siyahısından sil'
+                    : 'İstək siyahısına əlavə et'
+                }
+                onClick={() => toggleWishlist(product.id)}
+                className={`flex w-14 shrink-0 items-center justify-center border transition-colors ${
+                  isInWishlist(product.id)
+                    ? 'border-clay-600 text-clay-600'
+                    : 'border-ink-900/25 text-ink-700 hover:border-ink-900 hover:text-clay-600'
+                }`}
+              >
+                <Heart
+                  size={18}
+                  strokeWidth={1.5}
+                  className={isInWishlist(product.id) ? 'fill-clay-600' : ''}
+                />
+              </button>
+            </div>
             {!selectedSize && (
               <p className="mt-2 text-[11px] text-ink-400">
                 Davam etmək üçün ölçü seçməlisiniz.
@@ -287,7 +322,17 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Stili tamamla — kategoriye göre editoryal kombin önerileri */}
+        <CompleteTheLook currentProduct={product} />
       </div>
+
+      <SizeGuideModal
+        open={sizeGuideOpen}
+        onClose={() => setSizeGuideOpen(false)}
+        modelSize="M"
+        modelHeight={185}
+      />
     </main>
   )
 }

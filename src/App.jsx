@@ -1,10 +1,15 @@
 import { Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout.jsx'
+import { AboutPage } from './pages/AboutPage.jsx'
 import { CartPage } from './pages/CartPage.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
 import { CheckoutPage } from './pages/CheckoutPage.jsx'
+import { ContactPage } from './pages/ContactPage.jsx'
+import { EditorialAdminPage } from './pages/EditorialAdminPage.jsx'
+import { FaqPage } from './pages/FaqPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { ProductDetailPage } from './pages/ProductDetailPage.jsx'
+import { ShippingReturnsPage } from './pages/ShippingReturnsPage.jsx'
 
 export default function App() {
   return (
@@ -15,6 +20,11 @@ export default function App() {
         <Route path="/mehsul/:slug" element={<ProductDetailPage />} />
         <Route path="/sebet" element={<CartPage />} />
         <Route path="/odeme" element={<CheckoutPage />} />
+        <Route path="/haqqimizda" element={<AboutPage />} />
+        <Route path="/tez-tez-verilen-suallar" element={<FaqPage />} />
+        <Route path="/catdirilma-ve-iade" element={<ShippingReturnsPage />} />
+        <Route path="/elaqe" element={<ContactPage />} />
+        <Route path="/admin/editorial" element={<EditorialAdminPage />} />
       </Route>
     </Routes>
   )

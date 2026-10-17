@@ -47,3 +47,44 @@ body,
 body {
   margin: 0;
 }
+
+/* ------------------------------------------------------------------
+   Lüks katalog kontrolleri — ince fiyat aralığı çubuğu (Mikro-13)
+------------------------------------------------------------------- */
+input[type='range'].lux-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--color-linen-200);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type='range'].lux-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 11px;
+  width: 11px;
+  border-radius: 9999px;
+  background: var(--color-ink-900);
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+input[type='range'].lux-range::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+input[type='range'].lux-range::-moz-range-thumb {
+  height: 11px;
+  width: 11px;
+  border-radius: 9999px;
+  background: var(--color-ink-900);
+  border: none;
+}
+
+input[type='range'].lux-range::-moz-range-track {
+  height: 2px;
+  background: var(--color-linen-200);
+}
