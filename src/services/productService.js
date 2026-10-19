@@ -45,9 +45,13 @@ export function normalizeProduct(product) {
   }
 }
 
-/** GET /products — full catalog. */
-export async function getProducts({ signal } = {}) {
-  const products = await apiClient('/products', { signal })
+/**
+ * GET /products — full catalog, or GET /products?category={category} when a category is given.
+ * An unknown category yields an empty list, not a 404.
+ */
+export async function getProducts({ category, signal } = {}) {
+  const query = category ? `?${new URLSearchParams({ category })}` : ''
+  const products = await apiClient(`/products${query}`, { signal })
   return products.map(normalizeProduct)
 }
 

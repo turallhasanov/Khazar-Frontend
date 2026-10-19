@@ -64,7 +64,7 @@ function PageMessage({ title, children }) {
   )
 }
 
-/** Loads the product from GET /api/v1/products/slug/{slug}; a 404 shows the "not found" screen. */
+/** Loads the product from GET /api/products/slug/{slug}; a 404 shows the "not found" screen. */
 export function ProductDetailPage() {
   const { slug } = useParams()
   const [attempt, setAttempt] = useState(0)

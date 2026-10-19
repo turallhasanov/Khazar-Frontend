@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { getProducts } from '../services/productService.js'
 
 /**
- * Catalog loaded once from GET /api/v1/products and shared by the catalog, search,
+ * Catalog loaded once from GET /api/products and shared by the catalog, search,
  * wishlist, lookbook and "complete the look" components.
  * status: 'loading' | 'ready' | 'error'
  */

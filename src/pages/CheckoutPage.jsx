@@ -113,7 +113,7 @@ function Field({ label, error, children }) {
 /**
  * Mikro-Aşama 11: Ödəniş səhifəsi (/odeme) — müştəri, çatdırılma və ödəniş
  * bölmələri, canlı sifariş xülasəsi, form doğrulaması və təsdiq ekranı.
- * Orders are placed with POST /api/v1/orders; the confirmation shows the server's order number
+ * Orders are placed with POST /api/orders; the confirmation shows the server's order number
  * and recalculated item total. Card fields are validated locally only and never sent to the API.
  */
 export function CheckoutPage() {

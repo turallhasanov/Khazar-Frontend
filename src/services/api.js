@@ -1,9 +1,9 @@
 /**
- * Base URL of the Khazar WebAPI v1 endpoints. Override with VITE_API_BASE_URL in .env;
+ * Base URL of the Khazar WebAPI endpoints. Override with VITE_API_BASE_URL in .env;
  * the default matches the "http" profile in Khazar.WebAPI/Properties/launchSettings.json.
  */
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5293/api/v1'
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5293/api'
 ).replace(/\/+$/, '')
 
 /**
