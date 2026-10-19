@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useEditorial } from '../../context/EditorialContext'
-import { mockProducts } from '../../data/mockProducts'
+import { useProducts } from '../../context/ProductsContext'
 import { formatPrice } from '../../services/formatPrice'
 
 /**
@@ -21,7 +21,8 @@ function firstInStockSize(product) {
 
 function LookHotspot({ hotspot, open, onToggle, onClose }) {
   const { addToCart, openCart } = useCart()
-  const product = mockProducts.find((entry) => entry.slug === hotspot.productSlug)
+  const { products } = useProducts()
+  const product = products.find((entry) => entry.slug === hotspot.productSlug)
   const quickSize = product ? firstInStockSize(product) : null
 
   const quickAdd = () => {

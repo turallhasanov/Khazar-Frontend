@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { FREE_SHIPPING_THRESHOLD } from '../components/cart/CartDrawer'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../services/formatPrice.js'
+import { createOrder } from '../services/orderService.js'
 
 const CITIES = ['Bakı', 'Sumqayıt', 'Gəncə', 'Lənkəran', 'Mingəçevir', 'Şəki', 'Quba', 'Naxçıvan']
 
@@ -83,6 +84,22 @@ function validate(form) {
   return errors
 }
 
+/** Maps a failed POST /orders to a customer-facing message (ProblemDetails status codes). */
+function describeOrderError(error) {
+  switch (error.status) {
+    case 0:
+      return 'Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.'
+    case 400:
+      return 'Sifariş məlumatlarında xəta var. Formu yoxlayıb yenidən cəhd edin.'
+    case 404:
+      return 'Səbətinizdəki bəzi məhsullar artıq mövcud deyil. Səbəti yeniləyin.'
+    case 409:
+      return 'Səbətinizdəki bəzi məhsullar üçün kifayət qədər stok yoxdur. Miqdarı azaldın.'
+    default:
+      return 'Sifariş yaradılmadı. Bir az sonra yenidən cəhd edin.'
+  }
+}
+
 function Field({ label, error, children }) {
   return (
     <div>
@@ -95,14 +112,17 @@ function Field({ label, error, children }) {
 
 /**
  * Mikro-Aşama 11: Ödəniş səhifəsi (/odeme) — müştəri, çatdırılma və ödəniş
- * bölmələri, canlı sifariş xülasəsi, form doğrulaması və mockup təsdiq ekranı.
- * Kart ödənişi tamamen mockdur; real emal NexusERP/API inteqrasiyasında (Aşama 4) gələcək.
+ * bölmələri, canlı sifariş xülasəsi, form doğrulaması və təsdiq ekranı.
+ * Orders are placed with POST /api/v1/orders; the confirmation shows the server's order number
+ * and recalculated item total. Card fields are validated locally only and never sent to the API.
  */
 export function CheckoutPage() {
   const { items, totalItemsCount, subtotalPrice, discountAmount, clearCart } = useCart()
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [order, setOrder] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
 
   const shippingFee =
     subtotalPrice >= FREE_SHIPPING_THRESHOLD
@@ -121,72 +141,51 @@ export function CheckoutPage() {
     if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    if (submitting) return
     const nextErrors = validate(form)
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    const orderNumber = `#KHZ-${Math.floor(10000 + Math.random() * 90000)}`
+    setSubmitting(true)
+    setSubmitError(null)
+    try {
+      const created = await createOrder({
+        customer: {
+          type: 'B2C',
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+        },
+        shipping: {
+          city: form.city,
+          address: form.address.trim(),
+          postalCode: form.postalCode.trim(),
+          courier: form.courier,
+        },
+        payment: { method: form.payment },
+        items,
+      })
 
-    // Aşama 4'te NexusERP'ye gönderilecek tam sipariş yükü (mock checkout)
-    const orderPayload = {
-      source: 'khazar-web',
-      orderNumber,
-      createdAt: new Date().toISOString(),
-      customer: {
-        type: 'B2C',
-        firstName: form.firstName.trim(),
-        lastName: form.lastName.trim(),
-        email: form.email.trim(),
-        phone: form.phone.trim(),
-      },
-      shipping: {
+      setOrder({
+        number: `#${created.orderNumber}`,
+        // The server total covers items only; shipping is still priced by the storefront.
+        total: created.totalAmount + shippingFee,
+        itemCount: created.itemCount,
+        name: created.customerName,
         city: form.city,
-        address: form.address.trim(),
-        postalCode: form.postalCode.trim(),
-        courier: form.courier,
-        courierLabel: COURIER_OPTIONS.find((option) => option.id === form.courier)?.label,
-      },
-      payment: {
-        method: form.payment,
-        methodLabel: PAYMENT_OPTIONS.find((option) => option.id === form.payment)?.label,
-        status: 'pending',
-        transactionId: null,
-      },
-      items: items.map((item) => ({
-        productId: item.productId,
-        // Varyant kimliyi + stok matris karşılığı (renk+beden)
-        variantId: item.cartItemId,
-        stockRef: { color: item.color.name, size: item.size },
-        slug: item.slug,
-        name: item.name,
-        unitPrice: item.unitPrice,
-        compareAtPrice: item.compareAtPrice ?? null,
-        quantity: item.quantity,
-        lineTotal: Number((item.unitPrice * item.quantity).toFixed(2)),
-      })),
-      totals: {
-        currency: 'AZN',
-        subtotal: Number(subtotalPrice.toFixed(2)),
-        discount: Number(discountAmount.toFixed(2)),
-        shipping: shippingFee,
-        total: Number(totalPrice.toFixed(2)),
-      },
+        payment: PAYMENT_OPTIONS.find((option) => option.id === form.payment)?.label ?? '',
+        response: created,
+      })
+      clearCart()
+    } catch (error) {
+      console.error('[Khazar] Order creation failed:', error)
+      setSubmitError(describeOrderError(error))
+    } finally {
+      setSubmitting(false)
     }
-
-    console.info('[Khazar] NexusERP order payload (mock):', orderPayload)
-
-    setOrder({
-      number: orderNumber,
-      total: totalPrice,
-      itemCount: totalItemsCount,
-      name: `${form.firstName.trim()} ${form.lastName.trim()}`,
-      city: form.city,
-      payment: PAYMENT_OPTIONS.find((option) => option.id === form.payment)?.label ?? '',
-      payload: orderPayload,
-    })
-    clearCart()
   }
 
   // Təsdiq ekranı
@@ -220,13 +219,13 @@ export function CheckoutPage() {
             Kataloqa qayıt
           </Link>
 
-          {/* NexusERP payload önizlemesi (Aşama 4 entegrasyon paneli) */}
+          {/* Raw POST /orders response, for development */}
           <details className="mt-8 w-full border border-linen-200 bg-linen-50 text-left">
             <summary className="cursor-pointer px-5 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-ink-500 transition-colors hover:text-ink-900">
-              NexusERP ödəniş payload-u (dev)
+              API cavabı (dev)
             </summary>
             <pre className="max-h-72 overflow-auto border-t border-linen-200 px-5 py-4 text-[11px] leading-relaxed text-ink-700">
-              {JSON.stringify(order.payload, null, 2)}
+              {JSON.stringify(order.response, null, 2)}
             </pre>
           </details>
         </div>
@@ -503,14 +502,20 @@ export function CheckoutPage() {
               </div>
             </dl>
 
+            {submitError && (
+              <p role="alert" className="mt-6 border border-clay-600/40 px-4 py-3 text-xs leading-relaxed text-clay-600">
+                {submitError}
+              </p>
+            )}
             <button
               type="submit"
-              className="mt-6 w-full bg-ink-900 py-4 text-[11px] font-medium uppercase tracking-[0.35em] text-linen-50 transition-colors hover:bg-clay-600"
+              disabled={submitting}
+              className="mt-6 w-full bg-ink-900 py-4 text-[11px] font-medium uppercase tracking-[0.35em] text-linen-50 transition-colors hover:bg-clay-600 disabled:cursor-wait disabled:opacity-60"
             >
-              Sifarişi təsdiqlə
+              {submitting ? 'Göndərilir…' : 'Sifarişi təsdiqlə'}
             </button>
             <p className="mt-4 text-center text-[10px] leading-relaxed tracking-wide text-ink-400">
-              Demo ödənişdir — real kart çəkilişi olunmur. Sifariş yalnız mockup təsdiqi yaradır.
+              Demo ödənişdir — kart məlumatları serverə göndərilmir və kart çəkilişi olunmur.
             </p>
           </aside>
         </form>

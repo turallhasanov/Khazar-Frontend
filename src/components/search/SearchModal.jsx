@@ -1,7 +1,7 @@
 import { ArrowUpRight, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { mockProducts } from '../../data/mockProducts'
+import { useProducts } from '../../context/ProductsContext'
 import { formatPrice } from '../../services/formatPrice'
 
 /** Boş sorguda gösterilen trend arama önerileri. */
@@ -20,10 +20,10 @@ const POPULAR_CATEGORIES = [
 const MAX_RESULTS = 8
 
 /** Ürün alanlarında küçük harfli içerme araması. */
-function searchProducts(query) {
+function searchProducts(products, query) {
   const needle = query.trim().toLowerCase()
   if (!needle) return []
-  return mockProducts
+  return products
     .filter((product) =>
       [
         product.name,
@@ -50,6 +50,7 @@ export function SearchModal({ open, onClose }) {
   const [query, setQuery] = useState('')
   const inputRef = useRef(null)
   const navigate = useNavigate()
+  const { products, status } = useProducts()
 
   /** Sorguyu sıfırlayarak kapatır (ESC, perde, buton ve ürün seçimi). */
   const close = useCallback(() => {
@@ -73,7 +74,7 @@ export function SearchModal({ open, onClose }) {
     }
   }, [open, close])
 
-  const results = useMemo(() => searchProducts(query), [query])
+  const results = useMemo(() => searchProducts(products, query), [products, query])
   const showDiscovery = query.trim().length === 0
 
   const goToProduct = (slug) => {
@@ -173,7 +174,11 @@ export function SearchModal({ open, onClose }) {
             /* Canlı sonuçlar */
             <div className="mt-8">
               <p className="text-[10px] uppercase tracking-[0.3em] text-ink-400">
-                {results.length > 0 ? `${results.length} nəticə` : 'Nəticə tapılmadı'}
+                {status === 'loading'
+                  ? 'Yüklənir…'
+                  : results.length > 0
+                    ? `${results.length} nəticə`
+                    : 'Nəticə tapılmadı'}
               </p>
               {results.length > 0 ? (
                 <ul className="mt-5 divide-y divide-linen-200 border-y border-linen-200">
@@ -205,7 +210,7 @@ export function SearchModal({ open, onClose }) {
                     </li>
                   ))}
                 </ul>
-              ) : (
+              ) : status === 'loading' ? null : (
                 <p className="mt-5 text-sm font-light text-ink-500">
                   &ldquo;{query.trim()}&rdquo; üçün nəticə yoxdur — fərqli açar söz yoxlayın.
                 </p>

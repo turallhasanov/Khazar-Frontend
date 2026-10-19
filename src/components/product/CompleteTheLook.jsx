@@ -2,7 +2,7 @@ import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
-import { mockProducts } from '../../data/mockProducts'
+import { useProducts } from '../../context/ProductsContext'
 import { formatPrice } from '../../services/formatPrice'
 
 /**
@@ -22,11 +22,11 @@ const COMPLEMENT_CATEGORIES = {
 }
 
 /** Kategori için ideal tamamlayıcı ürünleri seçer (mevcut ürünü hariç tutar). */
-function pickComplements(currentProduct, limit = 2) {
+function pickComplements(products, currentProduct, limit = 2) {
   const priorities = COMPLEMENT_CATEGORIES[currentProduct.category] ?? ['Pants', 'T-Shirt']
   const picks = []
   for (const category of priorities) {
-    const candidate = mockProducts.find(
+    const candidate = products.find(
       (product) => product.id !== currentProduct.id && product.category === category,
     )
     if (candidate) picks.push(candidate)
@@ -99,7 +99,8 @@ function LookCard({ product }) {
 }
 
 export function CompleteTheLook({ currentProduct }) {
-  const complements = pickComplements(currentProduct)
+  const { products } = useProducts()
+  const complements = pickComplements(products, currentProduct)
 
   if (complements.length === 0) return null
 

@@ -26,7 +26,8 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 const CartContext = createContext(null)
 
-const STORAGE_KEY = 'khazar-cart-v2'
+// v3: product ids are API GUIDs; v2 lines held mock ids that POST /orders would reject.
+const STORAGE_KEY = 'khazar-cart-v3'
 
 /** Varyant kombinasyonundan benzersiz satır kimliyi üretir. */
 function buildCartItemId(productId, colorName, size) {

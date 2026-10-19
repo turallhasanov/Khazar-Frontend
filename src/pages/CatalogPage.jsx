@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CatalogFilterBar } from '../components/catalog/CatalogFilterBar'
 import { ProductCard } from '../components/product/ProductCard'
-import { mockProducts } from '../data/mockProducts'
+import { useProducts } from '../context/ProductsContext'
 
 /** Header/Footer linklərindəki ?kateqoriya= dəyərlərinin kateqoriya adına qarşılığı. */
 const QUERY_CATEGORY_MAP = {
@@ -21,17 +21,23 @@ const QUERY_CATEGORY_MAP = {
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&w=1600&q=80'
 
-const priceFloor = Math.floor(Math.min(...mockProducts.map((p) => p.basePrice)))
-const priceCeiling = Math.ceil(Math.max(...mockProducts.map((p) => p.basePrice)))
+/** Price slider range derived from the loaded catalog. */
+function computeBounds(products) {
+  const prices = products.map((p) => p.basePrice)
+  return {
+    priceFloor: prices.length ? Math.floor(Math.min(...prices)) : 0,
+    priceCeiling: prices.length ? Math.ceil(Math.max(...prices)) : 0,
+  }
+}
 
-const MATERIALS = [...new Set(mockProducts.map((p) => p.fabric.material))].sort()
-
-const defaultFilters = {
-  categories: [],
-  materials: [],
-  sizes: [],
-  priceMin: priceFloor,
-  priceMax: priceCeiling,
+function buildDefaultFilters({ priceFloor, priceCeiling }) {
+  return {
+    categories: [],
+    materials: [],
+    sizes: [],
+    priceMin: priceFloor,
+    priceMax: priceCeiling,
+  }
 }
 
 function applyFilters(products, filters) {
@@ -67,7 +73,7 @@ function applySort(products, sort) {
 }
 
 /** Aktif filtrelerin rozete dönüştürülmesi. */
-function buildBadges(filters, clear) {
+function buildBadges(filters, clear, { priceFloor, priceCeiling }) {
   const badges = []
   filters.categories.forEach((category) =>
     badges.push({
@@ -104,9 +110,16 @@ function buildBadges(filters, clear) {
  * Radikal editoryal katalog — sidebar'sız tam genişlik düzen:
  * üstte sinematik kapak başlığı, altında yatay filtre şeridi ve
  * ilk ürünün iki kolon kapladığı asimetrik dergi grid'i.
+ * Mounted only after the catalog has loaded, so filter state starts from the real price bounds.
  */
-export function CatalogPage() {
+function CatalogBrowser({ products }) {
   const [searchParams] = useSearchParams()
+  const bounds = useMemo(() => computeBounds(products), [products])
+  const materials = useMemo(
+    () => [...new Set(products.map((p) => p.fabric.material))].sort(),
+    [products],
+  )
+  const defaultFilters = useMemo(() => buildDefaultFilters(bounds), [bounds])
   const [filters, setFilters] = useState(() => ({
     ...defaultFilters,
     // Header/Footer kateqoriya linklərini filtre ilə aç
@@ -118,17 +131,121 @@ export function CatalogPage() {
   }))
   const [sort, setSort] = useState('featured')
 
-  const bounds = useMemo(() => ({ priceFloor, priceCeiling }), [])
-
   const visibleProducts = useMemo(
-    () => applySort(applyFilters(mockProducts, filters), sort),
-    [filters, sort],
+    () => applySort(applyFilters(products, filters), sort),
+    [products, filters, sort],
   )
 
   const badges = useMemo(
-    () => buildBadges(filters, (patch) => setFilters((current) => ({ ...current, ...patch }))),
-    [filters],
+    () =>
+      buildBadges(
+        filters,
+        (patch) => setFilters((current) => ({ ...current, ...patch })),
+        bounds,
+      ),
+    [filters, bounds],
   )
+
+  return (
+    <div className="mx-auto max-w-[1440px] px-6 pb-20">
+      {/* 2. Yatay filtre şeridi */}
+      <div className="mt-2">
+        <CatalogFilterBar
+          filters={filters}
+          bounds={bounds}
+          materials={materials}
+          sort={sort}
+          onSortChange={setSort}
+          onFiltersChange={setFilters}
+        />
+      </div>
+
+      {/* 3. Aktif filtre rozetleri */}
+      {badges.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {badges.map((badge) => (
+            <button
+              key={badge.key}
+              type="button"
+              onClick={badge.remove}
+              className="flex items-center gap-2 border border-ink-900/20 px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] text-ink-700 transition-colors hover:border-clay-600 hover:text-clay-600"
+            >
+              {badge.label}
+              <X size={12} strokeWidth={2} />
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setFilters(defaultFilters)}
+            className="text-[10px] uppercase tracking-[0.2em] text-ink-500 underline-offset-4 transition-colors hover:text-clay-600 hover:underline"
+          >
+            Hamısını təmizlə
+          </button>
+          <span className="ml-auto text-[10px] uppercase tracking-[0.25em] text-ink-400">
+            {visibleProducts.length} məhsul
+          </span>
+        </div>
+      )}
+
+      {/* 4. Asimetrik tam genişlik grid — ilk ürün 2 kolon */}
+      {visibleProducts.length > 0 ? (
+        <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-16 md:gap-x-8 lg:grid-cols-3 xl:grid-cols-4">
+          {visibleProducts.map((product, index) => (
+            <div key={product.id} className={index === 0 ? 'col-span-2' : ''}>
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-10 flex flex-col items-center justify-center border border-ink-900/10 py-28 text-center">
+          <p className="font-display text-2xl font-light text-ink-700">
+            Heç bir məhsul tapılmadı
+          </p>
+          <p className="mt-2 text-sm font-light text-ink-400">
+            Filtre parametrlərini dəyişməyi yoxlayın.
+          </p>
+          <button
+            type="button"
+            onClick={() => setFilters(defaultFilters)}
+            className="mt-8 border border-ink-900 px-8 py-3 text-[10px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
+          >
+            Filtreleri sıfırla
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Shown in place of the grid while the catalog loads or when the API is unreachable. */
+function CatalogStatus({ status, onRetry }) {
+  return (
+    <div className="mx-auto max-w-[1440px] px-6 pb-20">
+      <div className="mt-10 flex flex-col items-center justify-center border border-ink-900/10 py-28 text-center">
+        {status === 'loading' ? (
+          <p className="text-[10px] uppercase tracking-[0.35em] text-ink-400">Kataloq yüklənir…</p>
+        ) : (
+          <>
+            <p className="font-display text-2xl font-light text-ink-700">Kataloq yüklənmədi</p>
+            <p className="mt-2 text-sm font-light text-ink-400">
+              Serverə qoşulmaq mümkün olmadı. Bir az sonra yenidən yoxlayın.
+            </p>
+            <button
+              type="button"
+              onClick={onRetry}
+              className="mt-8 border border-ink-900 px-8 py-3 text-[10px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
+            >
+              Yenidən yoxla
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function CatalogPage() {
+  const { products, status, reload } = useProducts()
 
   return (
     <main className="flex-1">
@@ -157,73 +274,11 @@ export function CatalogPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1440px] px-6 pb-20">
-        {/* 2. Yatay filtre şeridi */}
-        <div className="mt-2">
-          <CatalogFilterBar
-            filters={filters}
-            bounds={bounds}
-            materials={MATERIALS}
-            sort={sort}
-            onSortChange={setSort}
-            onFiltersChange={setFilters}
-          />
-        </div>
-
-        {/* 3. Aktif filtre rozetleri */}
-        {badges.length > 0 && (
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            {badges.map((badge) => (
-              <button
-                key={badge.key}
-                type="button"
-                onClick={badge.remove}
-                className="flex items-center gap-2 border border-ink-900/20 px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] text-ink-700 transition-colors hover:border-clay-600 hover:text-clay-600"
-              >
-                {badge.label}
-                <X size={12} strokeWidth={2} />
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setFilters(defaultFilters)}
-              className="text-[10px] uppercase tracking-[0.2em] text-ink-500 underline-offset-4 transition-colors hover:text-clay-600 hover:underline"
-            >
-              Hamısını təmizlə
-            </button>
-            <span className="ml-auto text-[10px] uppercase tracking-[0.25em] text-ink-400">
-              {visibleProducts.length} məhsul
-            </span>
-          </div>
-        )}
-
-        {/* 4. Asimetrik tam genişlik grid — ilk ürün 2 kolon */}
-        {visibleProducts.length > 0 ? (
-          <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-16 md:gap-x-8 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleProducts.map((product, index) => (
-              <div key={product.id} className={index === 0 ? 'col-span-2' : ''}>
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-10 flex flex-col items-center justify-center border border-ink-900/10 py-28 text-center">
-            <p className="font-display text-2xl font-light text-ink-700">
-              Heç bir məhsul tapılmadı
-            </p>
-            <p className="mt-2 text-sm font-light text-ink-400">
-              Filtre parametrlərini dəyişməyi yoxlayın.
-            </p>
-            <button
-              type="button"
-              onClick={() => setFilters(defaultFilters)}
-              className="mt-8 border border-ink-900 px-8 py-3 text-[10px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
-            >
-              Filtreleri sıfırla
-            </button>
-          </div>
-        )}
-      </div>
+      {status === 'ready' ? (
+        <CatalogBrowser products={products} />
+      ) : (
+        <CatalogStatus status={status} onRetry={reload} />
+      )}
     </main>
   )
 }

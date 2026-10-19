@@ -1,12 +1,12 @@
 import { ChevronDown, Heart, ShoppingBag } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
-import { mockProducts } from '../data/mockProducts'
 import { CompleteTheLook } from '../components/product/CompleteTheLook'
 import { SizeGuideModal } from '../components/product/SizeGuideModal'
 import { formatPrice } from '../services/formatPrice.js'
+import { getProductBySlug } from '../services/productService.js'
 
 /** Seçili bedenin stok durumuna göre gösterge metni ve tonu. */
 function stockStatus(stock) {
@@ -47,17 +47,85 @@ function AccordionSection({
   )
 }
 
+function PageMessage({ title, children }) {
+  return (
+    <main className="flex-1">
+      <div className="mx-auto max-w-6xl px-6 py-32 text-center">
+        <h1 className="font-display text-3xl text-ink-900">{title}</h1>
+        {children}
+        <Link
+          to="/katalog"
+          className="mt-8 inline-block border border-ink-900 px-8 py-3 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
+        >
+          Kataloqa qayıt
+        </Link>
+      </div>
+    </main>
+  )
+}
+
+/** Loads the product from GET /api/v1/products/slug/{slug}; a 404 shows the "not found" screen. */
+export function ProductDetailPage() {
+  const { slug } = useParams()
+  const [attempt, setAttempt] = useState(0)
+  const [result, setResult] = useState({ key: null, product: null, status: 'loading' })
+  const requestKey = `${slug}#${attempt}`
+
+  useEffect(() => {
+    const controller = new AbortController()
+    getProductBySlug(slug, { signal: controller.signal })
+      .then((product) => setResult({ key: requestKey, product, status: 'ready' }))
+      .catch((error) => {
+        if (error.name === 'AbortError') return
+        setResult({
+          key: requestKey,
+          product: null,
+          status: error.status === 404 ? 'not-found' : 'error',
+        })
+      })
+    return () => controller.abort()
+  }, [slug, requestKey])
+
+  // A result from a previous slug (or attempt) counts as loading until the new response arrives.
+  const status = result.key === requestKey ? result.status : 'loading'
+
+  if (status === 'loading') {
+    return (
+      <main className="flex-1">
+        <div className="mx-auto max-w-6xl px-6 py-32 text-center text-[10px] uppercase tracking-[0.35em] text-ink-400">
+          Yüklənir…
+        </div>
+      </main>
+    )
+  }
+
+  if (status === 'not-found') return <PageMessage title="Məhsul tapılmadı" />
+
+  if (status === 'error') {
+    return (
+      <PageMessage title="Məhsul yüklənmədi">
+        <p className="mt-3 text-sm text-ink-400">Serverə qoşulmaq mümkün olmadı.</p>
+        <button
+          type="button"
+          onClick={() => setAttempt((current) => current + 1)}
+          className="mt-6 block w-full text-[11px] uppercase tracking-[0.3em] text-ink-500 underline-offset-4 hover:text-clay-600 hover:underline"
+        >
+          Yenidən yoxla
+        </button>
+      </PageMessage>
+    )
+  }
+
+  // Keyed by id so color/size selection resets when navigating to another product.
+  return <ProductDetailView key={result.product.id} product={result.product} />
+}
+
 /**
  * Mikro-Aşama 8: Ürün detay sayfası — editoryal galeri, beden/renk matrisi,
  * dinamik stok göstergesi, kumaş & bakım akordeonu.
- *
- * NOT: Mock veride stok beden bazlıdır (StockMatrix); renk seçimi ana görseli
- * değiştirir. Rəng+beden kombinasiyası stoku NexusERP entegrasyonunda (Aşama 4) gelecek.
+ * Stock is resolved per color + size from the API's variants, falling back to the per-size matrix.
  */
-export function ProductDetailPage() {
-  const { slug } = useParams()
-  const product = mockProducts.find((entry) => entry.slug === slug)
-
+function ProductDetailView({ product }) {
   const [selectedColorIndex, setSelectedColorIndex] = useState(0)
   const [selectedSize, setSelectedSize] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
@@ -66,28 +134,17 @@ export function ProductDetailPage() {
   const { addToCart, openCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
 
-  const color = product?.colors[selectedColorIndex]
+  const color = product.colors[selectedColorIndex]
 
-  const status = useMemo(
-    () => (product && selectedSize ? stockStatus(product.stock[selectedSize]) : null),
-    [product, selectedSize],
-  )
+  // The detail payload carries per-variant stock, so availability reflects the selected color too.
+  const variantStock = (size) =>
+    color
+      ? (product.variants?.find((v) => v.color === color.name && v.size === size)?.stockQuantity ??
+        product.stock[size] ??
+        0)
+      : (product.stock[size] ?? 0)
 
-  if (!product) {
-    return (
-      <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-6 py-32 text-center">
-          <h1 className="font-display text-3xl text-ink-900">Məhsul tapılmadı</h1>
-          <Link
-            to="/katalog"
-            className="mt-8 inline-block border border-ink-900 px-8 py-3 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
-          >
-            Kataloqa qayıt
-          </Link>
-        </div>
-      </main>
-    )
-  }
+  const status = selectedSize ? stockStatus(variantStock(selectedSize)) : null
 
   const discountPercent = product.compareAtPrice
     ? Math.round((1 - product.basePrice / product.compareAtPrice) * 100)
@@ -95,8 +152,10 @@ export function ProductDetailPage() {
 
   const selectColor = (index) => {
     setSelectedColorIndex(index)
-    // Renk seçimine göre ana görseli değiştir (mock: renk sırası ↔ görsel sırası)
-    setActiveImage(index % product.images.length)
+    // Images are not per color yet: cycle through the gallery by color index.
+    if (product.images.length > 0) setActiveImage(index % product.images.length)
+    // The chosen size may be sold out in the new color.
+    setSelectedSize(null)
   }
 
   const handleAddToCart = () => {
@@ -223,7 +282,7 @@ export function ProductDetailPage() {
               </div>
               <div className="mt-3 grid grid-cols-6 gap-2">
                 {product.sizes.map((size) => {
-                  const inStock = (product.stock[size] ?? 0) > 0
+                  const inStock = variantStock(size) > 0
                   const active = selectedSize === size
                   return (
                     <button
