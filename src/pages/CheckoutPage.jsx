@@ -2,6 +2,7 @@ import { Banknote, Check, CreditCard, Landmark, ShoppingBag } from 'lucide-react
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FREE_SHIPPING_THRESHOLD } from '../components/cart/CartDrawer'
+import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../services/formatPrice.js'
 import { createOrder } from '../services/orderService.js'
@@ -118,7 +119,11 @@ function Field({ label, error, children }) {
  */
 export function CheckoutPage() {
   const { items, totalItemsCount, subtotalPrice, discountAmount, clearCart } = useCart()
-  const [form, setForm] = useState(initialForm)
+  const { user } = useAuth()
+  // A signed-in customer's details are prefilled; the API links the order to the account via the access token.
+  const [form, setForm] = useState(() =>
+    user ? { ...initialForm, firstName: user.firstName, lastName: user.lastName, email: user.email } : initialForm,
+  )
   const [errors, setErrors] = useState({})
   const [order, setOrder] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -272,6 +277,18 @@ export function CheckoutPage() {
             {/* Müştəri məlumatları */}
             <section>
               <h2 className={sectionTitleClass}>01 — Müştəri məlumatları</h2>
+              <p className="mt-2 text-xs text-ink-400">
+                {user ? (
+                  'Sifariş hesabınıza bağlanacaq.'
+                ) : (
+                  <>
+                    <Link to="/giris" state={{ from: '/odeme' }} className="text-ink-900 underline underline-offset-4">
+                      Daxil olun
+                    </Link>{' '}
+                    — sifarişləriniz hesabınızda saxlanılsın. Qonaq kimi də davam edə bilərsiniz.
+                  </>
+                )}
+              </p>
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <Field label="Ad" error={errors.firstName}>
                   <input

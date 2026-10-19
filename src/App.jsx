@@ -8,8 +8,11 @@ import { ContactPage } from './pages/ContactPage.jsx'
 import { EditorialAdminPage } from './pages/EditorialAdminPage.jsx'
 import { FaqPage } from './pages/FaqPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
+import { LoginPage } from './pages/LoginPage.jsx'
 import { ProductDetailPage } from './pages/ProductDetailPage.jsx'
+import { RegisterPage } from './pages/RegisterPage.jsx'
 import { ShippingReturnsPage } from './pages/ShippingReturnsPage.jsx'
+import { VerifyEmailPage } from './pages/VerifyEmailPage.jsx'
 
 export default function App() {
   return (
@@ -24,6 +27,9 @@ export default function App() {
         <Route path="/tez-tez-verilen-suallar" element={<FaqPage />} />
         <Route path="/catdirilma-ve-iade" element={<ShippingReturnsPage />} />
         <Route path="/elaqe" element={<ContactPage />} />
+        <Route path="/giris" element={<LoginPage />} />
+        <Route path="/qeydiyyat" element={<RegisterPage />} />
+        <Route path="/e-poct-tesdiqi" element={<VerifyEmailPage />} />
         <Route path="/admin/editorial" element={<EditorialAdminPage />} />
       </Route>
     </Routes>

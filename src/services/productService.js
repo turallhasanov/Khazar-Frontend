@@ -1,5 +1,7 @@
 import { apiClient } from './api.js'
 
+// The catalog is public: requests go without the access token, so they stay CORS "simple" requests.
+
 /**
  * Catalog adapter for the Khazar WebAPI.
  * The API's ProductListDto / ProductDetailDto already mirror the storefront Product shape;
@@ -51,12 +53,12 @@ export function normalizeProduct(product) {
  */
 export async function getProducts({ category, signal } = {}) {
   const query = category ? `?${new URLSearchParams({ category })}` : ''
-  const products = await apiClient(`/products${query}`, { signal })
+  const products = await apiClient(`/products${query}`, { signal, auth: false })
   return products.map(normalizeProduct)
 }
 
 /** GET /products/slug/{slug} — product page payload; throws ApiError with status 404 when unknown. */
 export async function getProductBySlug(slug, { signal } = {}) {
-  const product = await apiClient(`/products/slug/${encodeURIComponent(slug)}`, { signal })
+  const product = await apiClient(`/products/slug/${encodeURIComponent(slug)}`, { signal, auth: false })
   return normalizeProduct(product)
 }

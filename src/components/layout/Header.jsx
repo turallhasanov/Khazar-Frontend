@@ -1,6 +1,7 @@
 import { Heart, Menu, Search, ShoppingBag, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useWishlist } from '../../context/WishlistContext'
 import { SearchModal } from '../search/SearchModal'
@@ -19,6 +20,8 @@ const drawerLinkClass =
   'block py-2 text-sm uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600'
 
 function MobileDrawer({ open, onClose }) {
+  const { user, logout } = useAuth()
+
   useEffect(() => {
     if (!open) return undefined
     document.documentElement.style.overflow = 'hidden'
@@ -73,9 +76,25 @@ function MobileDrawer({ open, onClose }) {
           <NavLink to="/sebet" onClick={onClose} className={drawerLinkClass}>
             Səbət
           </NavLink>
-          <span className="mt-4 block text-xs uppercase tracking-[0.2em] text-ink-400">
-            Giriş / Qeydiyyat
-          </span>
+          {user ? (
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-[0.2em] text-ink-400">{user.firstName}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  logout()
+                  onClose()
+                }}
+                className="text-xs uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600"
+              >
+                Çıxış
+              </button>
+            </div>
+          ) : (
+            <NavLink to="/giris" onClick={onClose} className={`${drawerLinkClass} mt-4`}>
+              Giriş / Qeydiyyat
+            </NavLink>
+          )}
         </div>
       </div>
     </div>
@@ -92,6 +111,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const { totalItemsCount, openCart } = useCart()
   const { count: wishlistCount, openWishlist } = useWishlist()
+  const { user, logout } = useAuth()
 
   return (
     <>
@@ -130,9 +150,25 @@ export function Header() {
 
           {/* Sağ: giriş + arama + sepet */}
           <div className="flex items-center gap-6">
-            <span className="hidden cursor-pointer text-[11px] font-medium uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600 sm:block">
-              Giriş / Qeydiyyat
-            </span>
+            {user ? (
+              <div className="hidden items-center gap-3 text-[11px] font-medium uppercase tracking-[0.2em] sm:flex">
+                <span className="text-ink-400">Salam, {user.firstName}</span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600"
+                >
+                  Çıxış
+                </button>
+              </div>
+            ) : (
+              <NavLink
+                to="/giris"
+                className="hidden text-[11px] font-medium uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600 sm:block"
+              >
+                Giriş / Qeydiyyat
+              </NavLink>
+            )}
             <button
               type="button"
               aria-label="Axtarışı aç"
