@@ -4,9 +4,12 @@ import { Link, useParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { CompleteTheLook } from '../components/product/CompleteTheLook'
+import { ProductReviews, RatingSummaryLink } from '../components/product/ProductReviews'
 import { SizeGuideModal } from '../components/product/SizeGuideModal'
+import { useProductReviews } from '../hooks/useProductReviews.js'
 import { formatPrice } from '../services/formatPrice.js'
 import { getProductBySlug } from '../services/productService.js'
+import { hideBrokenImage } from '../services/imageFallback.js'
 
 /** Seçili bedenin stok durumuna göre gösterge metni ve tonu. */
 function stockStatus(stock) {
@@ -133,6 +136,8 @@ function ProductDetailView({ product }) {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const { addToCart, openCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
+  // Shared by the star summary under the title and the reviews section.
+  const reviews = useProductReviews(product.id)
 
   const color = product.colors[selectedColorIndex]
 
@@ -182,6 +187,7 @@ function ProductDetailView({ product }) {
             <div className="aspect-[3/4] overflow-hidden bg-linen-100">
               <img
                 src={product.images[activeImage]}
+                onError={hideBrokenImage}
                 alt={product.name}
                 className="h-full w-full object-cover"
               />
@@ -200,7 +206,7 @@ function ProductDetailView({ product }) {
                         : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={image} alt="" className="h-full w-full object-cover" />
+                    <img src={image} alt="" onError={hideBrokenImage} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -217,6 +223,7 @@ function ProductDetailView({ product }) {
             <h1 className="mt-3 font-display text-4xl leading-tight tracking-[0.02em] text-ink-900">
               {product.name}
             </h1>
+            <RatingSummaryLink reviews={reviews} />
 
             <div className="mt-4 flex items-baseline gap-3">
               <span
@@ -384,6 +391,9 @@ function ProductDetailView({ product }) {
 
         {/* Stili tamamla — kategoriye göre editoryal kombin önerileri */}
         <CompleteTheLook currentProduct={product} />
+
+        {/* Rəylər — orta bal, rəy siyahısı və "Rəy yaz" forması */}
+        <ProductReviews productId={product.id} reviews={reviews} />
       </div>
 
       <SizeGuideModal

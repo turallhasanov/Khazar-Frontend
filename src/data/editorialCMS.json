@@ -47,31 +47,31 @@
       {
         "number": "01",
         "title": "Urban Minimalism",
-        "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80",
+        "image": "https://images.unsplash.com/photo-1666443762372-c86511e64151?auto=format&fit=crop&w=900&q=80",
         "ctaLabel": "Kolleksiyanı kəşf et",
         "ctaLink": "/katalog",
         "hotspots": [
-          { "productSlug": "zoho-oversize-sweatshirt", "x": 50, "y": 46 }
+          { "productSlug": "zoho-oversize-sweatshirt", "x": 48, "y": 44 }
         ]
       },
       {
         "number": "02",
         "title": "Essential Layers",
-        "image": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=900&q=80",
+        "image": "https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?auto=format&fit=crop&w=900&q=80",
         "ctaLabel": "Kolleksiyanı kəşf et",
         "ctaLink": "/katalog",
         "hotspots": [
-          { "productSlug": "merino-longsleeve", "x": 50, "y": 40 }
+          { "productSlug": "merino-longsleeve", "x": 50, "y": 46 }
         ]
       },
       {
         "number": "03",
         "title": "Tailored Ease",
-        "image": "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=900&q=80",
+        "image": "https://images.unsplash.com/photo-1633821879282-0c4e91f96232?auto=format&fit=crop&w=900&q=80",
         "ctaLabel": "Kolleksiyanı kəşf et",
         "ctaLink": "/katalog",
         "hotspots": [
-          { "productSlug": "tailored-wool-coat", "x": 52, "y": 48 }
+          { "productSlug": "tailored-wool-coat", "x": 44, "y": 58 }
         ]
       }
     ]
@@ -80,7 +80,7 @@
     "eyebrow": "Ustalıq",
     "title": "Parça birinci dərəcəlidir",
     "text": "Yüksək qramajlı pambıq, ikiqat yaxa və sıx tikiş — hər parça istifadə tarixçəsini nəzərə alınaraq qurulur. Yaxından baxanda fərq görünür: kənarlar temiz, toxuma sıx, formasını saxlayır.",
-    "image": "https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=900&q=80",
+    "image": "https://images.unsplash.com/photo-1603906650843-b58e94d9df4d?auto=format&fit=crop&w=900&q=80",
     "highlights": [
       {
         "title": "Toxuma",
@@ -101,18 +101,87 @@
     "title": "Stil qeydləri",
     "articles": [
       {
+        "slug": "kapsul-qarderob-telimati",
+        "href": "/journal/kapsul-qarderob-telimati",
         "title": "Kapsul qarderob təlimatı",
         "excerpt": "12 parça, sonsuz kombin: minimal qarderobu necə qurmalı — rəng palitrasından ölçü məntiqinə qədər.",
-        "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=900&q=80",
+        "image": "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=900&q=80",
         "meta": "Dərgi · 5 dəqiqə",
-        "link": "/katalog"
+        "body": [
+          {
+            "paragraphs": [
+              "Kapsul qarderob az sayda, bir-biri ilə rahat birləşən parçadan ibarət qarderobdur. Məqsəd daha az almaq deyil, hər səhər daha az düşünməkdir: şkafdakı hər parça digərləri ilə uyğun gəlirsə, 12 parçadan onlarla kombin çıxır."
+            ]
+          },
+          {
+            "heading": "1. Rəng palitrasını daraldın",
+            "paragraphs": [
+              "İki-üç neytral əsas rəng seçin — məsələn, krem, antrasit və qəhvəyi. Bunların üzərinə bir və ya iki vurğu rəngi əlavə edin. Neytral baza nə qədər sabit olsa, vurğu rəngləri bir o qədər asan dəyişdirilir.",
+              "Qayda sadədir: yeni parça mövcud parçalardan ən azı üçü ilə birləşmirsə, kapsula daxil deyil."
+            ]
+          },
+          {
+            "heading": "2. Əsas 12 parça",
+            "paragraphs": [
+              "Üst: iki sadə T-shirt, bir uzunqol, bir sweatshirt, bir köynək. Alt: bir geniş bacaqlı şalvar, bir düz kəsim şalvar, bir rahat şalvar. Üst geyim: bir yüngül gödəkcə və bir palto. Tamamlayıcı: bir trikotaj və bir lay kimi geyilən jilet və ya kardiqan."
+            ],
+            "image": "https://images.unsplash.com/photo-1603906650843-b58e94d9df4d?auto=format&fit=crop&w=900&q=80",
+            "imageAlt": "Yaxından parça toxuması"
+          },
+          {
+            "heading": "3. Ölçü məntiqi",
+            "paragraphs": [
+              "Kapsulda siluetlər bir-birini balanslaşdırmalıdır: oversize üst parçanı daha dar alt parça ilə, geniş şalvarı isə daha yığcam üst ilə geyinin. Hər kateqoriyada ən azı bir rahat və bir strukturlu parça saxlamaq kombin sayını ikiqat artırır."
+            ]
+          },
+          {
+            "heading": "4. Keyfiyyət sayından vacibdir",
+            "paragraphs": [
+              "Az parça daha çox geyinilir, ona görə də yüksək qramajlı pambıq, möhkəmləndirilmiş yaxa və sıx tikiş burada əsas şərtdir. Formasını saxlayan parça mövsümlərlə kapsulun bir hissəsi olaraq qalır."
+            ]
+          }
+        ]
       },
       {
+        "slug": "movsumun-esas-siluetleri",
+        "href": "/journal/movsumun-esas-siluetleri",
         "title": "Mövsümün əsas siluetləri",
         "excerpt": "Oversize-dən geniş bacaqlı şalvara: FW 2026-nın daşıyıcı formaları və onları gündəliyə uyğunlaşdırma qaydası.",
-        "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=900&q=80",
+        "image": "https://images.unsplash.com/photo-1573545289441-827c028f7a3b?auto=format&fit=crop&w=900&q=80",
         "meta": "Dərgi · 7 dəqiqə",
-        "link": "/katalog"
+        "body": [
+          {
+            "paragraphs": [
+              "FW 2026 mövsümü rahatlığı strukturla birləşdirir. Formalar genişlənir, amma diqqətlə qurulur: hər siluetin bir aparıcı xətti var və qalan parçalar onu tamamlayır."
+            ]
+          },
+          {
+            "heading": "Oversize üst",
+            "paragraphs": [
+              "Düşük çiyin, geniş gövdə və bir az uzun kəsim mövsümün ən tanınan formasıdır. Gündəlik həyatda onu balanslaşdırmaq üçün alt hissədə daha düz və ya daralan xətt seçin, qolları isə bir-iki dəfə qatlayın ki, bilək görünsün."
+            ]
+          },
+          {
+            "heading": "Geniş bacaqlı şalvar",
+            "paragraphs": [
+              "Yüksək bel və yerə qədər düşən geniş bacaq ayağı uzadır. Yığcam T-shirt və ya içəri salınmış köynəklə geyinildikdə silueti ən təmiz görünür. Ayaqqabı seçərkən burnu görünən modellərə üstünlük verin."
+            ],
+            "image": "https://images.unsplash.com/photo-1666443762372-c86511e64151?auto=format&fit=crop&w=900&q=80",
+            "imageAlt": "Mövsümün siluetləri"
+          },
+          {
+            "heading": "Strukturlu palto",
+            "paragraphs": [
+              "Mövsümün üst qatı düz çiyinli, diz səviyyəsinə qədər uzanan yun paltodur. O, rahat parçaları bir araya gətirib ofisdən axşama qədər daşıyan bir çərçivə rolunu oynayır."
+            ]
+          },
+          {
+            "heading": "Gündəliyə uyğunlaşdırma qaydası",
+            "paragraphs": [
+              "Bir kombində yalnız bir həcmli parça olsun. Rəngləri tonda saxlayın ki, forma ön plana çıxsın. Toxuma fərqi — trikotaj, yun, pambıq — monoton rəng palitrasına dərinlik verir."
+            ]
+          }
+        ]
       }
     ]
   }

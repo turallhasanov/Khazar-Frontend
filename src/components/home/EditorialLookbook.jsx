@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext'
 import { useEditorial } from '../../context/EditorialContext'
 import { useProducts } from '../../context/ProductsContext'
 import { formatPrice } from '../../services/formatPrice'
+import { hideBrokenImage } from '../../services/imageFallback.js'
 
 /**
  * Ana səhifə zənginləşdirməsi — Editoryal Lookbook.
@@ -63,6 +64,7 @@ function LookHotspot({ hotspot, open, onToggle, onClose }) {
           <div className="flex gap-3">
             <img
               src={product.images[0]}
+              onError={hideBrokenImage}
               alt={product.name}
               className="h-16 w-12 shrink-0 object-cover"
             />
@@ -135,6 +137,7 @@ export function EditorialLookbook() {
                 <div className="overflow-hidden bg-linen-100">
                   <img
                     src={look.image}
+                    onError={hideBrokenImage}
                     alt={`Look ${look.number} — ${look.title}`}
                     loading="lazy"
                     className={`w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${

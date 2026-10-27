@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useProducts } from '../../context/ProductsContext'
 import { formatPrice } from '../../services/formatPrice'
+import { hideBrokenImage } from '../../services/imageFallback.js'
 
 /**
  * "Stili tamamla" bloku — ürün detayının altında editoryal kombin önerileri.
@@ -59,6 +60,7 @@ function LookCard({ product }) {
         <div className="aspect-[3/4] overflow-hidden bg-linen-100">
           <img
             src={product.images[0]}
+            onError={hideBrokenImage}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"

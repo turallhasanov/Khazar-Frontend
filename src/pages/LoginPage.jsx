@@ -74,6 +74,16 @@ export function LoginPage() {
           value={form.password}
           onChange={update('password')}
         />
+        <div className="-mt-2 text-right">
+          <Link
+            to="/sifremi-unutdum"
+            state={{ email: form.email.trim() }}
+            className="text-[11px] tracking-wide text-ink-500 underline-offset-4 hover:text-ink-900 hover:underline"
+          >
+            Şifrəni unutmusunuz?
+          </Link>
+        </div>
+        <AuthAlert tone="success">{location.state?.notice}</AuthAlert>
         <AuthAlert>{error}</AuthAlert>
         <button type="submit" disabled={submitting} className={authButtonClass}>
           {submitting ? 'Yoxlanılır…' : 'Daxil ol'}

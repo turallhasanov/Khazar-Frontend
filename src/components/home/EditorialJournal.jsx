@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useEditorial } from '../../context/EditorialContext'
+import { hideBrokenImage } from '../../services/imageFallback.js'
 
 /**
  * Ana səhifə zənginləşdirməsi — Editoryal Jurnal.
@@ -29,10 +30,11 @@ export function EditorialJournal() {
 
         <div className="mt-12 grid gap-8 md:grid-cols-2 md:gap-6">
           {journal.articles.map((article) => (
-            <article key={article.title} className="group border border-linen-200 bg-linen-100/50">
+            <article key={article.slug} className="group border border-linen-200 bg-linen-100/50">
               <div className="overflow-hidden">
                 <img
                   src={article.image}
+                  onError={hideBrokenImage}
                   alt={article.title}
                   loading="lazy"
                   className="aspect-[16/9] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
@@ -47,7 +49,7 @@ export function EditorialJournal() {
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-ink-500">{article.excerpt}</p>
                 <Link
-                  to={article.link || '/katalog'}
+                  to={article.href}
                   className="mt-6 inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.3em] text-ink-900 underline-offset-4 transition-colors hover:text-clay-600 hover:underline"
                 >
                   Oxu

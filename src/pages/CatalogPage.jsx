@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { CatalogFilterBar } from '../components/catalog/CatalogFilterBar'
 import { ProductCard } from '../components/product/ProductCard'
 import { useProducts } from '../context/ProductsContext'
+import { hideBrokenImage } from '../services/imageFallback.js'
 
 /** Header/Footer linklərindəki ?kateqoriya= dəyərlərinin kateqoriya adına qarşılığı. */
 const QUERY_CATEGORY_MAP = {
@@ -17,9 +18,10 @@ const QUERY_CATEGORY_MAP = {
   coat: 'Coat',
 }
 
-/** Editoryal kapak görseli — doğrulanmış Unsplash moda çekimi (geniş). */
-const COVER_IMAGE =
-  'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&w=1600&q=80'
+/** Beige knit on a warm studio wall (Unsplash License) — full-width cover, served at the width the screen needs. */
+const COVER_PHOTO = 'https://images.unsplash.com/photo-1759229874914-c1ffdb3ebd0c?auto=format&fit=crop&q=80'
+const COVER_IMAGE = `${COVER_PHOTO}&w=1600`
+const COVER_SRCSET = [800, 1200, 1600, 2400].map((width) => `${COVER_PHOTO}&w=${width} ${width}w`).join(', ')
 
 /** Price slider range derived from the loaded catalog. */
 function computeBounds(products) {
@@ -251,10 +253,14 @@ export function CatalogPage() {
     <main className="flex-1">
       {/* 1. Editoryal kapak — tam genişlik sinematik başlık */}
       <section className="relative h-[420px] overflow-hidden md:h-[540px]">
+        {/* Crop from the upper third: the face then sits above the centred title instead of behind it. */}
         <img
           src={COVER_IMAGE}
-          alt="Khazar kolleksiya — editoryal kapak"
-          className="h-full w-full object-cover"
+          onError={hideBrokenImage}
+          srcSet={COVER_SRCSET}
+          sizes="100vw"
+          alt="Bej trikotaj sviter geyinmiş model — Khazar kolleksiyası"
+          className="h-full w-full object-cover object-[center_30%]"
         />
         <div className="absolute inset-0 bg-ink-900/40" />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">

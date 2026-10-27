@@ -8,6 +8,7 @@ const MESSAGES = {
   invalid_verification_code: 'Təsdiq kodu yanlışdır.',
   verification_code_expired: 'Təsdiq kodunun vaxtı bitib. Yeni kod istəyin.',
   too_many_attempts: 'Çox sayda yanlış cəhd. Yeni kod istəyin.',
+  invalid_reset_token: 'Şifrə bərpası linki etibarsızdır və ya vaxtı bitib. Yeni link istəyin.',
   invalid_refresh_token: 'Sessiyanın vaxtı bitib. Yenidən daxil olun.',
 }
 

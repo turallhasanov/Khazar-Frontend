@@ -33,6 +33,8 @@ export function AuthProvider({ children }) {
       register: authService.register,
       verifyEmail: authService.verifyEmail,
       resendVerification: authService.resendVerification,
+      forgotPassword: authService.forgotPassword,
+      resetPassword: authService.resetPassword,
       logout: authService.logout,
     }),
     [session],

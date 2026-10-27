@@ -36,6 +36,66 @@
   --color-sage-500: #6f7d5e;
   --color-sage-600: #59684a;
   --color-sage-700: #46523a;
+
+  /* Hareket — kısa ve sakin; prefers-reduced-motion aşağıda hepsini kapatır */
+  --ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --animate-fade-up: fade-up 280ms var(--ease-soft) both;
+  --animate-fade-in: fade-in 200ms ease-out both;
+  --animate-row-flash: row-flash 1400ms ease-out;
+  --animate-toast-in: toast-in 260ms var(--ease-soft) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Durumu değişen satırı kısa süre vurgular */
+  @keyframes row-flash {
+    from {
+      background-color: var(--color-clay-50);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Hareket azaltma: animasyonlar ve geçişler anında tamamlanır */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html,

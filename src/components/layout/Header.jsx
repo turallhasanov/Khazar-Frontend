@@ -116,9 +116,11 @@ export function Header() {
   return (
     <>
       <header className="border-b border-linen-200 bg-linen-50">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        {/* 1fr / auto / 1fr grid: logo ortada qalır, amma absolute deyil — gap-x-4 loqo ilə ikonlar arasında
+            minimum 16px məsafəni zəmanət edir; dar ekranda logo üst-üstə düşmək əvəzinə sola sürüşür. */}
+        <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-x-4 px-4 sm:gap-x-6 sm:px-6">
           {/* Sol: hamburger + kataloq */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 justify-self-start">
             <button
               type="button"
               aria-label="Menyunu aç"
@@ -135,12 +137,9 @@ export function Header() {
             </NavLink>
           </div>
 
-          {/* Orta: logo (mobilde sol dizilime karışmaması için küçük) */}
-          <Link
-            to="/"
-            className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-center leading-none"
-          >
-            <span className="font-display text-xl tracking-[0.08em] text-ink-900 sm:text-2xl">
+          {/* Orta: logo */}
+          <Link to="/" className="whitespace-nowrap text-center leading-none">
+            <span className="font-display text-xl tracking-[0.08em] text-ink-900 max-[359px]:text-lg sm:text-2xl">
               Khazar
             </span>
             <span className="mt-0.5 block text-[7px] uppercase tracking-[0.5em] text-ink-400 sm:text-[8px]">
@@ -148,8 +147,8 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Sağ: giriş + arama + sepet */}
-          <div className="flex items-center gap-6">
+          {/* Sağ: giriş + axtarış + istək siyahısı + səbət */}
+          <div className="flex items-center gap-3 justify-self-end sm:gap-6">
             {user ? (
               <div className="hidden items-center gap-3 text-[11px] font-medium uppercase tracking-[0.2em] sm:flex">
                 <span className="text-ink-400">Salam, {user.firstName}</span>

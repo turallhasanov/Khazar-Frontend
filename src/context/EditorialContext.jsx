@@ -23,11 +23,13 @@ function loadContent() {
         shipping: { ...defaultContent.featureBlocks.shipping, ...stored.featureBlocks?.shipping },
         faq: { ...defaultContent.featureBlocks.faq, ...stored.featureBlocks?.faq },
       },
-      // Yeni ana sayfa bölümleri (diziler override'ta tamamen değiştirilir)
-      manifesto: { ...defaultContent.manifesto, ...stored.manifesto },
-      lookbook: { ...defaultContent.lookbook, ...stored.lookbook },
-      craftsmanship: { ...defaultContent.craftsmanship, ...stored.craftsmanship },
-      journal: { ...defaultContent.journal, ...stored.journal },
+      // The admin panel cannot edit these sections, so they always come from editorialCMS.json. Reading them from
+      // storage would pin every returning visitor to the snapshot saved on their first visit (the effect below
+      // stores the whole content), and changes to the JSON — new lookbook or journal images — would never show.
+      manifesto: defaultContent.manifesto,
+      lookbook: defaultContent.lookbook,
+      craftsmanship: defaultContent.craftsmanship,
+      journal: defaultContent.journal,
     }
   } catch {
     return defaultContent

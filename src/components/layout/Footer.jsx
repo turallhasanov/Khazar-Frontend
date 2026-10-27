@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { NewsletterSignup } from './NewsletterSignup'
 
 /** Sol sütun: kurumsal navigasyon — tüm linkler aktif rotalara bağlıdır. */
 const navLinks = [
@@ -31,12 +32,17 @@ const linkClass =
 
 /**
  * Mikro-Aşama 3: Footer — koyu zeminli editoryal tasarım.
- * Sol: kurumsal linklər · Orta: hazır geyim kateqoriyaları · Sağ: GET IN TOUCH.
+ * Üst: xəbər bülleteni abunəliyi · Sol: kurumsal linklər · Orta: hazır geyim kateqoriyaları · Sağ: GET IN TOUCH.
  */
 export function Footer() {
   return (
     <footer className="bg-ink-900 text-linen-100">
       <div className="mx-auto max-w-6xl px-6 pb-8 pt-16">
+        {/* Üst: xəbərlərə abunə ol */}
+        <div className="mb-16">
+          <NewsletterSignup />
+        </div>
+
         <div className="grid gap-12 md:grid-cols-[1fr_1fr_1.3fr]">
           {/* Sol: kurumsal navigasyon */}
           <nav aria-label="Korporativ">

@@ -29,6 +29,16 @@ export async function login({ email, password }) {
   return setSession(await post('/login', { email, password }))
 }
 
+/** POST /auth/forgot-password — emails a reset link; answers the same (202) for unknown addresses. */
+export function forgotPassword(email) {
+  return post('/forgot-password', { email })
+}
+
+/** POST /auth/reset-password — sets the new password and signs out every session of the account. */
+export function resetPassword({ email, token, newPassword }) {
+  return post('/reset-password', { email, token, newPassword })
+}
+
 /** POST /auth/logout — revokes the refresh token. The local session is cleared even when the API is unreachable. */
 export async function logout() {
   const session = getSession()

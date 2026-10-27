@@ -2,6 +2,7 @@ import { Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useWishlist } from '../../context/WishlistContext'
 import { formatPrice } from '../../services/formatPrice.js'
+import { hideBrokenImage } from '../../services/imageFallback.js'
 
 /**
  * Lüks katalog kartı — sınırsız, ultra-clean editoryal görünüm.
@@ -28,6 +29,7 @@ export function ProductCard({ product }) {
         <Link to={detailPath} aria-label={product.name} className="absolute inset-0 block">
           <img
             src={primaryImage}
+            onError={hideBrokenImage}
             alt={product.name}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out group-hover:opacity-0"
@@ -35,6 +37,7 @@ export function ProductCard({ product }) {
           {secondaryImage && (
             <img
               src={secondaryImage}
+              onError={hideBrokenImage}
               alt=""
               aria-hidden="true"
               loading="lazy"

@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/layout/PageHeader'
+import { hideBrokenImage } from '../services/imageFallback.js'
 
-/** Doğrulanmış Unsplash editoryal çekimi — tam genişlik kapak. */
-const COVER_IMAGE =
-  'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=1600&q=80'
+/** Atelier with dress forms (Unsplash License) — full-width cover, served at the width the screen needs. */
+const COVER_PHOTO = 'https://images.unsplash.com/photo-1680835099030-9c7532f744f1?auto=format&fit=crop&q=80'
+const COVER_IMAGE = `${COVER_PHOTO}&w=1600`
+const COVER_SRCSET = [800, 1200, 1600, 2400].map((width) => `${COVER_PHOTO}&w=${width} ${width}w`).join(', ')
 
 const pillars = [
   {
@@ -40,7 +42,10 @@ export function AboutPage() {
       <section className="relative h-[380px] overflow-hidden md:h-[480px]">
         <img
           src={COVER_IMAGE}
-          alt="Khazar kolleksiyası — editoryal çəkiliş"
+          onError={hideBrokenImage}
+          srcSet={COVER_SRCSET}
+          sizes="100vw"
+          alt="Khazar atelyesi — manekenlər və tikiş masaları"
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-ink-900/25" />

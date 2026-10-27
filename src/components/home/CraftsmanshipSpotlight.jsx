@@ -1,5 +1,6 @@
 import { Award, Feather, Layers } from 'lucide-react'
 import { useEditorial } from '../../context/EditorialContext'
+import { hideBrokenImage } from '../../services/imageFallback.js'
 
 const HIGHLIGHT_ICONS = [Layers, Award, Feather]
 
@@ -18,6 +19,7 @@ export function CraftsmanshipSpotlight() {
         <div className="relative">
           <img
             src={craft.image}
+            onError={hideBrokenImage}
             alt="Khazar parça detayı — yaxın çəkiliş"
             loading="lazy"
             className="aspect-[4/5] w-full object-cover"
