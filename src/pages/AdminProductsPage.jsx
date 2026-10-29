@@ -18,6 +18,7 @@ import { ListSkeleton, Pagination } from '../components/admin/reviews/ReviewsLis
 import {
   archiveProduct,
   deleteProduct,
+  getAdminCategories,
   getAdminProducts,
   restoreProduct,
 } from '../services/adminService.js'
@@ -55,7 +56,7 @@ const formatTime = (date) => `${String(date.getHours()).padStart(2, '0')}:${Stri
 function matchesQuery(product, query) {
   if (!query) return true
   const haystack = norm(
-    `${product.name} ${product.slug} ${product.category} ${product.fabric} ${product.variants.map((v) => v.sku).join(' ')}`,
+    `${product.name} ${product.slug} ${product.category} ${product.categoryLabel ?? ''} ${product.fabric} ${product.variants.map((v) => v.sku).join(' ')}`,
   )
   return haystack.includes(norm(query.trim()))
 }
@@ -69,6 +70,8 @@ export function AdminProductsPage() {
   const { toast } = useAdminToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const [state, setState] = useState({ status: 'loading', products: [], error: null, loadedAt: null, refreshing: false })
+  // Categories feed the filter and the editor's dropdown; a failed load only empties them, the list still works.
+  const [categories, setCategories] = useState([])
   const [reloadKey, setReloadKey] = useState(0)
   const [editor, setEditor] = useState({ open: false, productId: null, snapshot: null, key: 0 })
   const [confirm, setConfirm] = useState(null)
@@ -79,6 +82,11 @@ export function AdminProductsPage() {
 
   useEffect(() => {
     const controller = new AbortController()
+    getAdminCategories({ signal: controller.signal })
+      .then(setCategories)
+      .catch((error) => {
+        if (error.name !== 'AbortError') setCategories([])
+      })
     getAdminProducts({ signal: controller.signal })
       .then((products) => setState({ status: 'ready', products, error: null, loadedAt: new Date(), refreshing: false }))
       .catch((error) => {
@@ -121,7 +129,6 @@ export function AdminProductsPage() {
   const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE))
   const page = Math.min(Math.max(Number(filters.page) || 1, 1), pageCount)
   const pageItems = shown.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const categories = [...new Set(products.map((product) => product.category))].sort((a, b) => a.localeCompare(b, 'az'))
 
   // ---------- list updates with motion ----------
   const replaceProduct = useCallback((updated) => {
@@ -349,7 +356,7 @@ export function AdminProductsPage() {
                 <Select value={filters.category} onChange={(event) => changeFilter('category', event.target.value)}>
                   <option value="">Bütün kateqoriyalar</option>
                   {categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category.id} value={category.name}>{category.label}</option>
                   ))}
                 </Select>
               </FilterField>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useLiveRefresh } from '../services/liveUpdates.js'
 import { getProductReviews } from '../services/reviewService.js'
 
 /**
@@ -22,6 +23,9 @@ export function useProductReviews(productId) {
   }, [productId, requestKey])
 
   const reload = useCallback(() => setAttempt((current) => current + 1), [])
+
+  // A review approved, rejected or deleted in the admin panel shows without a page reload.
+  useLiveRefresh('reviews', reload)
 
   // Keep showing the previous data while a reload is in flight.
   const status = result.key === requestKey ? result.status : result.data ? 'ready' : 'loading'

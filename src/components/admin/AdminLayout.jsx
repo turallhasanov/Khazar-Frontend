@@ -1,9 +1,23 @@
-import { ArrowUpRight, LogOut, Menu, MessageSquareText, Package, PenLine } from 'lucide-react'
+import {
+  ArrowUpRight,
+  BookOpen,
+  FileText,
+  HelpCircle,
+  Images,
+  Inbox,
+  LogOut,
+  Mail,
+  Menu,
+  MessageSquareText,
+  Package,
+  ShoppingBag,
+  Tags,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { AdminInboxProvider, useAdminInbox } from '../../context/AdminInboxContext'
 import { AdminReviewsProvider, useAdminReviews } from '../../context/AdminReviewsContext'
 import { AuthProvider, useAuth } from '../../context/AuthContext'
-import { EditorialProvider } from '../../context/EditorialContext'
 import { getAdminSession } from '../../services/adminService.js'
 import { ApiError } from '../../services/api.js'
 import { describeAuthError } from '../../services/authErrors.js'
@@ -11,24 +25,49 @@ import { AuthAlert, AuthField, AuthShell, authButtonClass } from '../auth/AuthSh
 import { AdminToastProvider } from './AdminToasts.jsx'
 import { Avatar, Drawer, DrawerCloseButton, microLabelClass } from './adminUi.jsx'
 
-const NAV_ITEMS = [
-  { to: '/admin/reyler', label: 'Rəylər', icon: MessageSquareText, badge: 'pendingReviews' },
-  { to: '/admin/mehsullar', label: 'Məhsullar', icon: Package },
-  { to: '/admin/editorial', label: 'Editorial', icon: PenLine },
+/** Sidebar sections. Every page reads and writes the API; nothing in the panel is stored only in the browser. */
+const NAV_GROUPS = [
+  {
+    label: 'Satış',
+    items: [
+      { to: '/admin/sifarisler', label: 'Sifarişlər', icon: ShoppingBag },
+      { to: '/admin/reyler', label: 'Rəylər', icon: MessageSquareText, badge: 'pendingReviews' },
+    ],
+  },
+  {
+    label: 'Kataloq',
+    items: [
+      { to: '/admin/mehsullar', label: 'Məhsullar', icon: Package },
+      { to: '/admin/kateqoriyalar', label: 'Kateqoriyalar', icon: Tags },
+    ],
+  },
+  {
+    label: 'Məzmun',
+    items: [
+      { to: '/admin/mezmun', label: 'Səhifələr', icon: FileText },
+      { to: '/admin/lookbook', label: 'Lookbook', icon: Images },
+      { to: '/admin/jurnal', label: 'Jurnal', icon: BookOpen },
+      { to: '/admin/faq', label: 'FAQ', icon: HelpCircle },
+    ],
+  },
+  {
+    label: 'Müştərilər',
+    items: [
+      { to: '/admin/mesajlar', label: 'Mesajlar', icon: Inbox, badge: 'unreadMessages' },
+      { to: '/admin/abuneciler', label: 'Abunəçilər', icon: Mail },
+    ],
+  },
 ]
+
+const NAV_ITEMS = NAV_GROUPS.flatMap((group) => group.items)
 
 const screenClass = 'flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased'
 
-/**
- * /admin/* — outside the storefront layout (no cart, search or footer), with its own providers.
- * Editorial content still comes from EditorialContext, so the Editorial page keeps working.
- */
+/** /admin/* — outside the storefront layout (no cart, search or footer), with its own providers. */
 export function AdminRoot() {
   return (
     <AuthProvider>
-      <EditorialProvider>
-        <AdminLayout />
-      </EditorialProvider>
+      <AdminLayout />
     </AuthProvider>
   )
 }
@@ -68,7 +107,9 @@ function AdminLayout() {
     return (
       <AdminToastProvider>
         <AdminReviewsProvider>
-          <AdminShell />
+          <AdminInboxProvider>
+            <AdminShell />
+          </AdminInboxProvider>
         </AdminReviewsProvider>
       </AdminToastProvider>
     )
@@ -185,18 +226,25 @@ function AdminShell() {
 function SidebarContent({ onNavigate }) {
   const { user, logout } = useAuth()
   const { reviews } = useAdminReviews()
-  const badges = { pendingReviews: reviews.filter((review) => review.status === 'Pending').length }
+  const { items: messages } = useAdminInbox()
+  const badges = {
+    pendingReviews: reviews.filter((review) => review.status === 'Pending').length,
+    unreadMessages: messages.filter((message) => !message.isRead).length,
+  }
 
   return (
-    <div className="flex h-full flex-col px-5 py-6">
+    <div className="flex h-full flex-col overflow-y-auto px-5 py-6">
       <div className="flex items-center justify-between">
         <Wordmark caption="Admin" />
         {onNavigate && <DrawerCloseButton onClick={onNavigate} />}
       </div>
 
-      <p className={`${microLabelClass} mt-10 px-3`}>İdarəetmə</p>
-      <nav aria-label="Admin bölmələri" className="mt-3 flex flex-col gap-1">
-        {NAV_ITEMS.map((item) => {
+      <nav aria-label="Admin bölmələri" className="mt-8">
+        {NAV_GROUPS.map((group) => (
+        <div key={group.label} className="mt-5 first:mt-0">
+        <p className={`${microLabelClass} px-3`}>{group.label}</p>
+        <div className="mt-2 flex flex-col gap-0.5">
+        {group.items.map((item) => {
           const Icon = item.icon
           const count = item.badge ? badges[item.badge] : 0
           return (
@@ -222,7 +270,7 @@ function SidebarContent({ onNavigate }) {
                   <span className="flex-1">{item.label}</span>
                   {count > 0 && (
                     <span
-                      aria-label={`${count} gözləyən`}
+                      aria-label={`${count} ${item.badge === 'unreadMessages' ? 'oxunmamış' : 'gözləyən'}`}
                       className="flex h-5 min-w-5 items-center justify-center bg-clay-500 px-1.5 text-[9px] font-semibold tracking-normal text-linen-50"
                     >
                       {count}
@@ -233,6 +281,9 @@ function SidebarContent({ onNavigate }) {
             </NavLink>
           )
         })}
+        </div>
+        </div>
+        ))}
       </nav>
 
       <div className="mt-auto border-t border-linen-200 pt-5">

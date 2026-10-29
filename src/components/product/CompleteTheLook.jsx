@@ -70,7 +70,7 @@ function LookCard({ product }) {
       <div className="mt-4 flex items-start justify-between gap-4">
         <div>
           <p className="text-[9px] uppercase tracking-[0.3em] text-ink-400">
-            {product.category}
+            {product.categoryLabel || product.category}
           </p>
           <Link
             to={`/mehsul/${product.slug}`}

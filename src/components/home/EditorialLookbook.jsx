@@ -2,17 +2,18 @@ import { ArrowRight, Plus, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
-import { useEditorial } from '../../context/EditorialContext'
 import { useProducts } from '../../context/ProductsContext'
+import { useContentSection, useSiteContent } from '../../context/SiteContentContext'
 import { formatPrice } from '../../services/formatPrice'
 import { hideBrokenImage } from '../../services/imageFallback.js'
+import { Reveal } from '../motion/Reveal.jsx'
 
 /**
  * Ana səhifə zənginləşdirməsi — Editoryal Lookbook.
- * Asimetrik 3'lü grid: orta kart aşağı kayar, yan kartlar farklı en/oranlarda.
+ * Asimetrik 12 sütunlu grid: 5/4/3 genişlikte, farklı yüksekliklerden başlayan kadrlar.
  * Shoppable hotspots: görsel üzerindeki noktaya tıklayınca ürün popover'ı açılır
- * (ad, fiyat, hızlı sepete ekle). CMS JSON'daki `look.hotspots` verisinden beslenir;
- * eski localStorage içeriklerinde alan yoksa boş dizi ile güvenli devam eder.
+ * (ad, fiyat, hızlı sepete ekle). Kadrlar və hotspot-lar admin panelinin Lookbook səhifəsindən gəlir
+ * (yalnız dərc olunanlar, panelindəki sıra ilə); nömrələr bu sıradan çıxır.
  */
 
 /** Ürünün stokta olan ilk ölçüsünü döndürür (yoksa null). */
@@ -59,7 +60,7 @@ function LookHotspot({ hotspot, open, onToggle, onClose }) {
           role="dialog"
           aria-label={product.name}
           onClick={(event) => event.stopPropagation()}
-          className="absolute left-1/2 top-full z-20 mt-3 w-56 -translate-x-1/2 border border-linen-200 bg-linen-50 p-4 shadow-xl"
+          className="absolute left-1/2 top-full z-20 mt-3 w-60 -translate-x-1/2 animate-fade-up border border-linen-200 bg-linen-50 p-4 shadow-lg shadow-ink-900/10"
         >
           <div className="flex gap-3">
             <img
@@ -76,7 +77,7 @@ function LookHotspot({ hotspot, open, onToggle, onClose }) {
               >
                 {product.name}
               </Link>
-              <p className="mt-0.5 text-xs text-ink-400">{product.fabric.material}</p>
+              <p className="mt-0.5 text-xs text-ink-500">{product.fabric.material}</p>
               <p className="mt-1 text-sm text-ink-900">{formatPrice(product.basePrice)}</p>
             </div>
           </div>
@@ -84,7 +85,7 @@ function LookHotspot({ hotspot, open, onToggle, onClose }) {
             type="button"
             onClick={quickAdd}
             disabled={!quickSize}
-            className="mt-3 flex w-full items-center justify-center gap-2 border border-ink-900 py-2.5 text-[9px] font-medium uppercase tracking-[0.25em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="btn-primary mt-4 min-h-10 w-full px-4 text-[11px]"
           >
             <ShoppingBag size={12} strokeWidth={1.5} />
             Səbətə əlavə et
@@ -96,32 +97,46 @@ function LookHotspot({ hotspot, open, onToggle, onClose }) {
 }
 
 export function EditorialLookbook() {
-  const { content } = useEditorial()
-  const lookbook = content.lookbook
+  const lookbook = useContentSection('lookbook')
+  const looks = useSiteContent().content?.lookbook ?? []
+  const { products } = useProducts()
   const [openKey, setOpenKey] = useState(null)
+
+  if (!lookbook || looks.length === 0) return null
+
+  // A hotspot whose product was archived or deleted is not shown (until the catalog loads, none are).
+  const hasProduct = (hotspot) => products.some((product) => product.slug === hotspot.productSlug)
+
+  // Masaüstü: tək sırada 5 / 4 / 3 sütun, hər kadr fərqli hündürlükdən başlayır — jurnal səhifəsi ritmi
+  const layout = [
+    { card: 'md:col-span-5', image: 'md:aspect-[4/5]', delay: 0 },
+    { card: 'md:col-span-4 md:mt-32', image: 'md:aspect-[3/4]', delay: 120 },
+    { card: 'md:col-span-3 md:mt-12', image: 'md:aspect-[2/3]', delay: 240 },
+  ]
 
   return (
     <section className="bg-linen-50">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-        <div className="flex items-baseline justify-between">
+      <div className="shell py-24 md:py-32">
+        <Reveal className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-ink-400">
-              {lookbook.eyebrow}
-            </p>
-            <h2 className="mt-4 font-display text-3xl tracking-[0.02em] text-ink-900 md:text-4xl">
-              {lookbook.title}
-            </h2>
+            <p className="eyebrow">{lookbook.eyebrow}</p>
+            <h2 className="heading-section mt-4">{lookbook.title}</h2>
           </div>
-          <span className="hidden text-[10px] uppercase tracking-[0.3em] text-ink-400 md:block">
-            {String(lookbook.looks.length).padStart(2, '0')} look
+          <span className="font-display text-lg italic text-ink-500">
+            {String(looks.length).padStart(2, '0')} look
           </span>
-        </div>
+        </Reveal>
 
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
-          {lookbook.looks.map((look, index) => (
-            <article
-              key={look.number}
-              className={`group ${index === 1 ? 'md:mt-16' : ''} ${index === 2 ? 'md:mt-8' : ''}`}
+        <div className="mt-14 grid gap-14 sm:grid-cols-2 sm:gap-x-6 md:mt-20 md:grid-cols-12 md:items-start md:gap-x-6 md:gap-y-12">
+          {looks.map((look, index) => {
+            const slot = layout[index % layout.length]
+            const number = String(index + 1).padStart(2, '0')
+            return (
+            <Reveal
+              as="article"
+              key={look.id}
+              delay={slot.delay}
+              className={`group ${slot.card}`}
             >
               <div className="relative">
                 {/* Kapatma katmanı — popover açıkken görsel dışı tıklamaları yutar */}
@@ -136,25 +151,23 @@ export function EditorialLookbook() {
                 )}
                 <div className="overflow-hidden bg-linen-100">
                   <img
-                    src={look.image}
+                    src={look.imageUrl}
                     onError={hideBrokenImage}
-                    alt={`Look ${look.number} — ${look.title}`}
+                    alt={`Look ${number} — ${look.title}`}
                     loading="lazy"
-                    className={`w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${
-                      index === 1 ? 'aspect-[3/4]' : 'aspect-[3/4] md:aspect-[2/3]'
-                    }`}
+                    className={`aspect-[3/4] w-full object-cover transition-transform duration-[1400ms] ease-[var(--ease-editorial)] group-hover:scale-[1.03] ${slot.image}`}
                   />
                 </div>
-                <span className="absolute left-4 top-4 z-10 bg-linen-50/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.25em] text-ink-900 backdrop-blur-sm">
-                  Look {look.number}
+                <span className="absolute left-4 top-4 z-10 bg-linen-50 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-900">
+                  Look {number}
                 </span>
 
-                {/* Shoppable hotspot'lar (CMS verisinden) — kırpılmayan katmanda */}
-                {(look.hotspots ?? []).map((hotspot, hotspotIndex) => {
+                {/* Shoppable hotspot'lar (admin panelindən) — kırpılmayan katmanda */}
+                {look.hotspots.filter(hasProduct).map((hotspot, hotspotIndex) => {
                   const key = `${index}-${hotspotIndex}`
                   return (
                     <div
-                      key={hotspot.productSlug}
+                      key={key}
                       className="absolute z-10"
                       style={{
                         left: `${hotspot.x}%`,
@@ -171,24 +184,25 @@ export function EditorialLookbook() {
                   )
                 })}
               </div>
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <h3 className="font-display text-xl tracking-[0.03em] text-ink-900">
+              <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-t border-linen-200 pt-4">
+                <h3 className="font-display text-2xl font-light tracking-[-0.01em] text-ink-900">
+                  <span className="mr-3 text-base italic text-clay-600">{number}</span>
                   {look.title}
                 </h3>
-                <Link
-                  to={look.ctaLink || '/katalog'}
-                  className="flex shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-ink-500 transition-colors hover:text-clay-600"
-                >
-                  {look.ctaLabel}
-                  <ArrowRight
-                    size={13}
-                    strokeWidth={1.5}
-                    className="transition-transform duration-300 group-hover:translate-x-0.5"
-                  />
-                </Link>
+                {look.ctaLabel && (
+                  <Link to={look.ctaLink || '/katalog'} className="link-underline text-ink-700">
+                    {look.ctaLabel}
+                    <ArrowRight
+                      size={13}
+                      strokeWidth={1.5}
+                      className="transition-transform duration-300 group-hover:translate-x-0.5"
+                    />
+                  </Link>
+                )}
               </div>
-            </article>
-          ))}
+            </Reveal>
+            )
+          })}
         </div>
       </div>
     </section>

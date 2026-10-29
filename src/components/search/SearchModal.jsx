@@ -2,20 +2,8 @@ import { ArrowUpRight, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useProducts } from '../../context/ProductsContext'
+import { useContentSection } from '../../context/SiteContentContext'
 import { formatPrice } from '../../services/formatPrice'
-
-/** Boş sorguda gösterilen trend arama önerileri. */
-const TREND_SEARCHES = ['Hoodie', 'Oversize', 'Pambıq', 'Palto']
-
-/** Boş sorguda gösterilen populyar kateqoriyalar (katalog filtre linki). */
-const POPULAR_CATEGORIES = [
-  { label: 'Hoodie', query: 'hoodie' },
-  { label: 'T-Shirt', query: 't-shirt' },
-  { label: 'Şalvar', query: 'salvar' },
-  { label: 'Sweatshirt', query: 'sweatshirt' },
-  { label: 'Longsleeve', query: 'longsleeve' },
-  { label: 'Palto', query: 'palto' },
-]
 
 const MAX_RESULTS = 8
 
@@ -28,6 +16,7 @@ function searchProducts(products, query) {
       [
         product.name,
         product.category,
+        product.categoryLabel ?? '',
         product.fabric.material,
         product.fabric.weave ?? '',
         product.description,
@@ -43,14 +32,15 @@ function searchProducts(products, query) {
 /**
  * Editoryal tam ekran arama paneli.
  * - ESC ile kapanma, açıkken arka plan kaydırması kilitli, blur perdesi
- * - Boş sorgu: trend aramalar + populyar kateqoriyalar
+ * - Boş sorgu: trend aramalar ("search" bölməsi, admin panelindən) + kateqoriyalar (GET /api/categories)
  * - Yazdıqca canlı ürün nəticələri (görsel, ad, fiyat)
  */
 export function SearchModal({ open, onClose }) {
   const [query, setQuery] = useState('')
   const inputRef = useRef(null)
   const navigate = useNavigate()
-  const { products, status } = useProducts()
+  const { products, categories, status } = useProducts()
+  const trendingSearches = useContentSection('search')?.trendingSearches.filter(Boolean) ?? []
 
   /** Sorguyu sıfırlayarak kapatır (ESC, perde, buton ve ürün seçimi). */
   const close = useCallback(() => {
@@ -129,12 +119,13 @@ export function SearchModal({ open, onClose }) {
           {showDiscovery ? (
             /* Keşif modu: trend aramalar + populyar kateqoriyalar */
             <div className="mt-10 grid gap-12 md:grid-cols-2">
+              {trendingSearches.length > 0 && (
               <div>
                 <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-ink-400">
                   Trend axtarışlar
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2.5">
-                  {TREND_SEARCHES.map((term) => (
+                  {trendingSearches.map((term) => (
                     <button
                       key={term}
                       type="button"
@@ -146,15 +137,17 @@ export function SearchModal({ open, onClose }) {
                   ))}
                 </div>
               </div>
+              )}
+              {categories.length > 0 && (
               <div>
                 <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-ink-400">
                   Populyar kateqoriyalar
                 </p>
                 <ul className="mt-5 divide-y divide-linen-200 border-y border-linen-200">
-                  {POPULAR_CATEGORIES.map((category) => (
-                    <li key={category.query}>
+                  {categories.map((category) => (
+                    <li key={category.id}>
                       <Link
-                        to={`/katalog?kateqoriya=${category.query}`}
+                        to={`/katalog?kateqoriya=${encodeURIComponent(category.slug)}`}
                         onClick={close}
                         className="group flex items-center justify-between py-3 text-sm font-light tracking-[0.08em] text-ink-700 transition-colors hover:text-clay-600"
                       >
@@ -169,6 +162,7 @@ export function SearchModal({ open, onClose }) {
                   ))}
                 </ul>
               </div>
+              )}
             </div>
           ) : (
             /* Canlı sonuçlar */
@@ -200,7 +194,7 @@ export function SearchModal({ open, onClose }) {
                             {product.name}
                           </p>
                           <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-ink-400">
-                            {product.category} · {product.fabric.material}
+                            {product.categoryLabel || product.category} · {product.fabric.material}
                           </p>
                         </div>
                         <span className="text-sm font-light tracking-[0.05em] text-ink-900">

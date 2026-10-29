@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
+import { useProducts } from '../../context/ProductsContext'
+import { useContentSection } from '../../context/SiteContentContext'
+import { AccentText } from '../content/AccentText.jsx'
 import { NewsletterSignup } from './NewsletterSignup'
 
-/** Sol sütun: kurumsal navigasyon — tüm linkler aktif rotalara bağlıdır. */
+/** Sol sütun: kurumsal navigasyon — saytın səhifələri (marşrutlar koddadır, məzmunları admin panelindən). */
 const navLinks = [
   { label: 'HOME', to: '/' },
   { label: 'CATALOGS', to: '/katalog' },
@@ -11,41 +14,35 @@ const navLinks = [
   { label: 'CONTACTS', to: '/elaqe' },
 ]
 
-/** Orta sütun: yalnız hazır giyim kategorileri (Mikro-Aşama 7 filtresiyle eşleşir). */
-const categoryLinks = [
-  { label: 'HOODIE', query: 'hoodie' },
-  { label: 'T-SHIRT', query: 't-shirt' },
-  { label: 'PANTS', query: 'salvar' },
-  { label: 'SWEATSHIRT', query: 'sweatshirt' },
-  { label: 'LONGSLEEVE', query: 'longsleeve' },
-  { label: 'COAT', query: 'palto' },
-]
-
-const contactRows = [
-  { label: 'Telefon', value: '+994 50 555 01 44' },
-  { label: 'E-poçt', value: 'hello@khazar.az' },
-  { label: 'Ünvan', value: 'Ülviyyə Bünyadova 74, Bakı, Azərbaycan' },
-]
-
 const linkClass =
-  'block py-1 text-xs uppercase tracking-[0.25em] text-linen-200/60 transition-colors hover:text-linen-50'
+  'block py-1.5 text-[13px] text-linen-200 transition-colors duration-300 hover:text-clay-400'
 
 /**
- * Mikro-Aşama 3: Footer — koyu zeminli editoryal tasarım.
- * Üst: xəbər bülleteni abunəliyi · Sol: kurumsal linklər · Orta: hazır geyim kateqoriyaları · Sağ: GET IN TOUCH.
+ * Footer — mürekkep zeminli editoryal kapanış; metinler AA kontrastında (krem çizgi tonu 9.5:1).
+ * Üst: xəbər bülleteni abunəliyi · Sol: kurumsal linklər · Orta: kateqoriyalar (GET /api/categories, admin
+ * sırası ilə) · Sağ: əlaqə məlumatları və alt sətir ("site" bölməsi, admin panelindən).
  */
 export function Footer() {
+  const { categories } = useProducts()
+  const site = useContentSection('site')
+  const contactRows = [
+    { label: 'Telefon', value: site?.phone },
+    { label: 'E-poçt', value: site?.email },
+    { label: 'Ünvan', value: site?.address },
+  ].filter((row) => row.value)
+
   return (
     <footer className="bg-ink-900 text-linen-100">
-      <div className="mx-auto max-w-6xl px-6 pb-8 pt-16">
+      <div className="shell pb-10 pt-20 md:pt-24">
         {/* Üst: xəbərlərə abunə ol */}
-        <div className="mb-16">
+        <div className="mb-20">
           <NewsletterSignup />
         </div>
 
-        <div className="grid gap-12 md:grid-cols-[1fr_1fr_1.3fr]">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-12">
           {/* Sol: kurumsal navigasyon */}
-          <nav aria-label="Korporativ">
+          <nav aria-label="Korporativ" className="md:col-span-3">
+            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-clay-400">Khazar</p>
             {navLinks.map((link) => (
               <Link key={link.label} to={link.to} className={linkClass}>
                 {link.label}
@@ -53,31 +50,36 @@ export function Footer() {
             ))}
           </nav>
 
-          {/* Orta: hazır geyim kategorileri */}
-          <nav aria-label="Kateqoriyalar">
-            {categoryLinks.map((link) => (
-              <Link
-                key={link.label}
-                to={`/katalog?kateqoriya=${link.query}`}
-                className={linkClass}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Orta: kateqoriyalar */}
+          {categories.length > 0 && (
+            <nav aria-label="Kateqoriyalar" className="md:col-span-3">
+              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-clay-400">Kateqoriyalar</p>
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/katalog?kateqoriya=${encodeURIComponent(category.slug)}`}
+                  className={`${linkClass} uppercase`}
+                >
+                  {category.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Sağ: iletişim */}
-          <div>
-            <h2 className="font-display text-3xl tracking-[0.05em] md:text-4xl">
-              GET <span className="font-semibold text-clay-400">IN</span> TOUCH
-            </h2>
-            <dl className="mt-8 space-y-5">
+          <div className="col-span-2 md:col-span-5 md:col-start-8">
+            {site?.footerHeading && (
+              <h2 className="font-display text-[clamp(2.25rem,1.6rem+2vw,3.5rem)] font-light leading-none tracking-[-0.02em] text-linen-50">
+                <AccentText text={site.footerHeading} className="italic text-clay-400" />
+              </h2>
+            )}
+            <dl className="mt-8 grid gap-5 sm:grid-cols-2">
               {contactRows.map((row) => (
                 <div key={row.label}>
-                  <dt className="text-[10px] uppercase tracking-[0.3em] text-linen-200/50">
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.16em] text-linen-200/80">
                     {row.label}
                   </dt>
-                  <dd className="mt-1 text-sm text-linen-100/90">{row.value}</dd>
+                  <dd className="mt-1 text-[15px] text-linen-50">{row.value}</dd>
                 </div>
               ))}
             </dl>
@@ -85,12 +87,12 @@ export function Footer() {
         </div>
 
         {/* Alt bar */}
-        <div className="mt-14 flex flex-col gap-3 border-t border-linen-50/10 pt-6 text-xs text-linen-200/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Khazar Textile. Bütün hüquqlar qorunur.</span>
-          <span className="cursor-pointer uppercase tracking-[0.2em] transition-colors hover:text-linen-100">
+        <div className="mt-16 flex flex-col gap-3 border-t border-linen-50/15 pt-6 text-xs text-linen-200/80 sm:flex-row sm:items-center sm:justify-between">
+          <span>{site?.copyright}</span>
+          <span className="uppercase tracking-[0.14em]">
             Gizlilik Siyasəti
           </span>
-          <span>B2B və B2C müştərilərə xidmət göstərilir</span>
+          <span>{site?.footerNote}</span>
         </div>
       </div>
     </footer>

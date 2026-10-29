@@ -61,8 +61,9 @@ async function parse(response) {
       problem,
     })
   }
-  // 202 (resend-verification) and 204 (logout) have no body.
-  return response.status === 202 || response.status === 204 ? null : response.json()
+  // Some successes have no body: 202 (resend-verification), 204 (logout), 201 (contact message).
+  const text = await response.text()
+  return text ? JSON.parse(text) : null
 }
 
 // One refresh at a time: parallel requests with an expired token share the same refresh call,

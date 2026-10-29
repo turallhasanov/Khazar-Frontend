@@ -8,6 +8,7 @@ import {
   Drawer,
   DrawerCloseButton,
   FormField,
+  Select,
   TextArea,
   TextInput,
   microLabelClass,
@@ -234,16 +235,22 @@ export function ProductEditorDrawer({ open, product, categories, onClose, onSave
                     />
                   )}
                 </FormField>
-                <FormField label="Kateqoriya" required error={errors.category}>
+                <FormField
+                  label="Kateqoriya"
+                  required
+                  error={errors.categoryId}
+                  hint={categories.length === 0 ? 'Əvvəlcə «Kateqoriyalar» bölməsində kateqoriya yaradın.' : undefined}
+                >
                   {(props) => (
-                    <>
-                      <TextInput {...props} list="product-categories" value={fields.category} onChange={update('category')} maxLength={LIMITS.category} placeholder="Hoodie" />
-                      <datalist id="product-categories">
-                        {categories.map((category) => (
-                          <option key={category} value={category} />
-                        ))}
-                      </datalist>
-                    </>
+                    <Select {...props} value={fields.categoryId} onChange={update('categoryId')} disabled={categories.length === 0}>
+                      <option value="">Seçin…</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.label}
+                          {category.label !== category.name ? ` (${category.name})` : ''}
+                        </option>
+                      ))}
+                    </Select>
                   )}
                 </FormField>
                 <FormField label="Parça tərkibi" required error={errors.fabric}>

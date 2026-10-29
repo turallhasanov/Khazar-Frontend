@@ -111,7 +111,7 @@ export function ProductsList({ products, busyIds, leavingIds, flashId, actions }
                   </div>
                 </div>
               </td>
-              <td className="truncate py-3 pr-4 text-xs text-ink-700">{product.category}</td>
+              <td className="truncate py-3 pr-4 text-xs text-ink-700">{product.categoryLabel || product.category}</td>
               <td className="py-3 pr-4 text-sm tabular-nums text-ink-900">{formatPrice(product.price)}</td>
               <td className="py-3 pr-4"><StockCell product={product} /></td>
               <td className="py-3 pr-4"><ProductStatusBadge product={product} /></td>
@@ -143,7 +143,7 @@ export function ProductsList({ products, busyIds, leavingIds, flashId, actions }
                       {product.name}
                     </button>
                     <p className="truncate text-[11px] text-ink-400">
-                      {product.category} · {formatPrice(product.price)}
+                      {product.categoryLabel || product.category} · {formatPrice(product.price)}
                     </p>
                   </div>
                   <ActionMenu label={`${product.name} üçün əməliyyatlar`} items={menuItems(product, actions)} />

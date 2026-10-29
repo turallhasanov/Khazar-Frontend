@@ -3,8 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { CartDrawer } from '../cart/CartDrawer'
 import { AuthProvider } from '../../context/AuthContext'
 import { CartProvider } from '../../context/CartContext'
-import { EditorialProvider } from '../../context/EditorialContext'
 import { ProductsProvider } from '../../context/ProductsContext'
+import { SiteContentProvider } from '../../context/SiteContentContext'
 import { WishlistProvider } from '../../context/WishlistContext'
 import { Footer } from './Footer.jsx'
 import { Header } from './Header.jsx'
@@ -31,7 +31,7 @@ export function Layout() {
       <ProductsProvider>
         <CartProvider>
           <WishlistProvider>
-            <EditorialProvider>
+            <SiteContentProvider>
               <div className="flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased">
                 <ScrollToTop />
                 <Header />
@@ -40,7 +40,7 @@ export function Layout() {
                 <CartDrawer />
                 <WishlistDrawer />
               </div>
-            </EditorialProvider>
+            </SiteContentProvider>
           </WishlistProvider>
         </CartProvider>
       </ProductsProvider>

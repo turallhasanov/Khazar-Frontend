@@ -216,7 +216,7 @@ function ProductDetailView({ product }) {
           {/* Detaylar */}
           <div>
             <p className="text-[10px] uppercase tracking-[0.35em] text-ink-400">
-              {product.category}
+              {product.categoryLabel || product.category}
               {product.isNew && <span className="ml-3 text-sage-600">· New</span>}
               {product.isBestseller && <span className="ml-3 text-clay-600">· Bestseller</span>}
             </p>
@@ -331,11 +331,11 @@ function ProductDetailView({ product }) {
                 type="button"
                 disabled={!selectedSize || status?.tone === 'out'}
                 onClick={handleAddToCart}
-                className={`flex flex-1 items-center justify-center gap-3 py-4 text-[11px] font-medium uppercase tracking-[0.35em] transition-colors ${
+                className={`flex min-h-14 flex-1 items-center justify-center gap-3 text-xs font-medium uppercase tracking-[0.14em] transition duration-300 active:translate-y-px ${
                   added
                     ? 'bg-sage-600 text-linen-50'
-                    : 'bg-ink-900 text-linen-50 hover:bg-clay-600'
-                } disabled:cursor-not-allowed disabled:opacity-40`}
+                    : 'bg-clay-600 text-linen-50 hover:bg-clay-700'
+                } disabled:cursor-not-allowed disabled:bg-linen-200 disabled:text-ink-500 disabled:active:translate-y-0`}
               >
                 <ShoppingBag size={16} strokeWidth={1.5} />
                 {added ? 'Səbətə əlavə edildi' : 'Səbətə əlavə et'}
@@ -396,12 +396,7 @@ function ProductDetailView({ product }) {
         <ProductReviews productId={product.id} reviews={reviews} />
       </div>
 
-      <SizeGuideModal
-        open={sizeGuideOpen}
-        onClose={() => setSizeGuideOpen(false)}
-        modelSize="M"
-        modelHeight={185}
-      />
+      <SizeGuideModal open={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
     </main>
   )
 }

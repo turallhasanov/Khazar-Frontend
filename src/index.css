@@ -10,39 +10,64 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
 
+  /* Marka paleti — tek kaynak. Aşağıdaki skalalar bu 8 renge bağlanır; renk kodu başka yerde yazılmaz. */
+  --color-bg-primary: #faf7f0;
+  --color-bg-secondary: #f4ecdf;
+  --color-accent: #a9573b;
+  --color-accent-soft: #c98f73;
+  --color-text-primary: #29251f;
+  --color-text-secondary: #84796c;
+  --color-border: #d8cbb9;
+  --color-white: #ffffff;
+
   /* Keten / zemin tonları */
-  --color-linen-50: #faf7f1;
-  --color-linen-100: #f3ecdf;
-  --color-linen-200: #e6d9c3;
-  --color-linen-300: #d4c1a2;
-  --color-linen-400: #bfa47e;
+  --color-linen-50: var(--color-bg-primary);
+  --color-linen-100: var(--color-bg-secondary);
+  --color-linen-200: var(--color-border);
+  --color-linen-300: var(--color-border);
+  --color-linen-400: var(--color-text-secondary);
 
-  /* Kil — birincil vurgu rengi */
-  --color-clay-50: #fbf1ea;
-  --color-clay-100: #f5ddcd;
-  --color-clay-400: #cf8a62;
-  --color-clay-500: #c4633c;
-  --color-clay-600: #a84f2d;
-  --color-clay-700: #87401f;
+  /* Kil — birincil vurgu. 700: hover/basılı durum ve krem-2 zemin üzerinde küçük vurgu metni (AA) */
+  --color-clay-50: #f6ebe4;
+  --color-clay-100: #eed8cc;
+  --color-clay-400: var(--color-accent-soft);
+  --color-clay-500: var(--color-accent);
+  --color-clay-600: var(--color-accent);
+  --color-clay-700: #8e4630;
 
-  /* Mürekkep — metin tonları */
-  --color-ink-400: #8d8172;
-  --color-ink-500: #6f6455;
-  --color-ink-700: #453d31;
-  --color-ink-900: #211c15;
+  /* Mürekkep — metin tonları. 400 = paletin ikincil metni (3.98:1 — yalnız büyük/dekoratif metin);
+     500 = küçük ikincil metin için iki palet tonu arasındaki AA adımı (5.4:1) */
+  --color-ink-300: var(--color-border);
+  --color-ink-400: var(--color-text-secondary);
+  --color-ink-500: #6e6458;
+  --color-ink-600: #5a5147;
+  --color-ink-700: #463f36;
+  --color-ink-900: var(--color-text-primary);
 
-  /* Adaçayı — ikincil vurgu */
+  /* Adaçayı — yalnız işlevsel "başarılı" durumları (pulsuz çatdırılma, endirim, təsdiq) */
   --color-sage-100: #e7ebdd;
   --color-sage-500: #6f7d5e;
   --color-sage-600: #59684a;
   --color-sage-700: #46523a;
 
+  /* Editoryal kap genişliği */
+  --container-shell: 82.5rem;
+
   /* Hareket — kısa ve sakin; prefers-reduced-motion aşağıda hepsini kapatır */
   --ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-reveal: 900ms;
   --animate-fade-up: fade-up 280ms var(--ease-soft) both;
   --animate-fade-in: fade-in 200ms ease-out both;
   --animate-row-flash: row-flash 1400ms ease-out;
   --animate-toast-in: toast-in 260ms var(--ease-soft) both;
+  --animate-heart-pop: heart-pop 360ms var(--ease-soft);
+  --animate-heart-ring: heart-ring 600ms var(--ease-editorial) both;
+  --animate-swatch-in: swatch-in 420ms var(--ease-editorial);
+  --animate-sheet-up: sheet-up 320ms var(--ease-soft) both;
+  --animate-rise: rise 900ms var(--ease-editorial) both;
+  --animate-curtain: curtain 1300ms var(--ease-editorial) both;
+  --animate-drawer-in: drawer-in 420ms var(--ease-editorial) both;
 
   @keyframes fade-up {
     from {
@@ -71,6 +96,82 @@
     }
     to {
       background-color: transparent;
+    }
+  }
+
+  /* İstək siyahısına əlavə edəndə ürəyin qısa "nəfəsi" */
+  @keyframes heart-pop {
+    40% {
+      transform: scale(1.22);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  /* Ürək ətrafında incə halqa açılıb sönür */
+  @keyframes heart-ring {
+    from {
+      opacity: 0.55;
+      transform: scale(0.7);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  /* Seçilən rəng nöqtəsi qısa nəfəs alır */
+  @keyframes swatch-in {
+    40% {
+      transform: scale(1.3);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  /* Mobil filtr paneli aşağıdan qalxır */
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  /* Hero: başlık satırları alttan yükselir */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Hero görseli: perde yukarıdan aşağı açılır, görsel hafifçe yerine oturur */
+  @keyframes curtain {
+    from {
+      clip-path: inset(0 0 100% 0);
+      transform: scale(1.06);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+      transform: none;
+    }
+  }
+
+  /* Mobil menyu soldan açılır */
+  @keyframes drawer-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: none;
     }
   }
 
@@ -106,6 +207,401 @@ body,
 
 body {
   margin: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--color-clay-100);
+  color: var(--color-text-primary);
+}
+
+/* Klavye odağı — tüm etkileşimli öğelerde tutarlı, fareyle tıklamada görünmez */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------
+   Editoryal yardımcılar — tekrarlanan desenler tek yerde
+------------------------------------------------------------------- */
+
+/* Sayfa kabı: 1320px, telefonda 20px, masaüstünde 40px kenar boşluğu */
+@utility shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-shell);
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Bölüm üst etiketi: okunabilir boyut, ölçülü aralık */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-500);
+}
+
+/* Bölüm başlığı — serif, ince ağırlık, akışkan ölçü */
+@utility heading-section {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 1.35rem + 2.4vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+/* Başlık içindeki vurgulu kelime — italik terracotta */
+@utility accent-word {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--color-accent);
+}
+
+/* Birincil CTA — terracotta zemin, krem metin (4.77:1); hover/active koyu kil (6.4:1) */
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding-inline: 2rem;
+  background-color: var(--color-accent);
+  color: var(--color-bg-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    background-color 300ms var(--ease-soft),
+    transform 300ms var(--ease-soft);
+  &:hover {
+    background-color: var(--color-clay-700);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    background-color: var(--color-border);
+    color: var(--color-ink-500);
+  }
+}
+
+/* İkincil CTA — ince mürekkep çerçeve, hover-da dolar */
+@utility btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding-inline: 2rem;
+  border: 1px solid var(--color-text-primary);
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    background-color 300ms var(--ease-soft),
+    color 300ms var(--ease-soft),
+    transform 300ms var(--ease-soft);
+  &:hover {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}
+
+/* Metin bağlantısı — hover-da alt çizgi kısalır. Koyu zeminde --link-hover ile şeftaliye çevrilir. */
+@utility link-underline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  transition:
+    background-size 450ms var(--ease-editorial),
+    color 300ms var(--ease-soft);
+  &:hover {
+    color: var(--link-hover, var(--color-accent));
+    background-size: 35% 1px;
+  }
+}
+
+/* Kaydırınca görünme — Reveal bileşeni .is-visible ekler. JS yoksa içerik görünür kalır. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity var(--duration-reveal) var(--ease-editorial),
+    transform var(--duration-reveal) var(--ease-editorial);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Görsel için yumuşak "perde" girişi */
+.js .reveal-image {
+  clip-path: inset(0 0 12% 0);
+  opacity: 0;
+  transition:
+    clip-path 1200ms var(--ease-editorial),
+    opacity 900ms var(--ease-editorial);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js .reveal-image.is-visible {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal,
+  .js .reveal-image {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Hero — giriş koreografisi, derinlik katmanları ve CTA
+   Gecikmeler öğe üzerindeki --d değişkeninden gelir. Yalnız transform / clip-path / opacity animasyonu;
+   reduced-motion'da üstteki genel kural hepsini anında bitirir ve HeroSection derinlik dinleyicisini bağlamaz.
+------------------------------------------------------------------- */
+
+@keyframes hero-line {
+  from {
+    transform: translate3d(0, 108%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes hero-unveil {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes hero-unveil-side {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes hero-settle {
+  from {
+    transform: scale(1.22);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes hero-rule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Kaydırma işareti: çizgi yukarıdan dolar, aşağıdan boşalır */
+@keyframes hero-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+/* Başlık satırları maskenin altından yükselir; italik taşma ve inişli harfler için iç pay bırakılır */
+.hero-line {
+  display: block;
+  width: fit-content;
+  overflow: hidden;
+  /* Yalnız sağ/alt — sol iç boşluk satır girintisi için utility'lere (pl-*) bırakılır */
+  padding-right: 0.12em;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.hero-line > span {
+  display: block;
+  animation: hero-line 1150ms var(--ease-editorial) var(--d, 0ms) both;
+}
+
+.hero-rise {
+  animation: rise 1000ms var(--ease-editorial) var(--d, 0ms) both;
+}
+
+.hero-rule {
+  transform-origin: left;
+  animation: hero-rule 1400ms var(--ease-editorial) var(--d, 0ms) both;
+}
+
+.hero-unveil {
+  animation: hero-unveil 1500ms cubic-bezier(0.76, 0, 0.24, 1) var(--d, 0ms) both;
+}
+
+.hero-unveil-side {
+  animation: hero-unveil-side 1300ms cubic-bezier(0.76, 0, 0.24, 1) var(--d, 0ms) both;
+}
+
+.hero-settle {
+  animation: hero-settle 2400ms var(--ease-editorial) var(--d, 0ms) both;
+}
+
+.hero-cue::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-ink-900);
+  animation: hero-cue 2600ms var(--ease-editorial) 1800ms infinite both;
+}
+
+/* Derinlik: --hp kaydırma, --hx/--hy imleç. Katmanlar farklı hız ve yönde akar; ana kare hafifçe eğilir.
+   Telefonda değişkenler hiç yazılmaz, transform da uygulanmaz — şerit yerel kaydırmayla çalışır. */
+@media (width >= 48rem) {
+  .hero-stage {
+    perspective: 1600px;
+  }
+
+  .hero-depth-main {
+    transform: translate3d(calc(var(--hx, 0) * -6px), calc(var(--hp, 0) * 60px + var(--hy, 0) * -4px), 0)
+      rotateY(calc(var(--hx, 0) * 1.6deg)) rotateX(calc(var(--hy, 0) * -1.2deg));
+    will-change: transform;
+  }
+
+  .hero-depth-image {
+    transform: translate3d(calc(var(--hx, 0) * 8px), calc(var(--hp, 0) * -48px), 0) scale(1.08);
+    will-change: transform;
+  }
+
+  .hero-depth-side {
+    transform: translate3d(calc(var(--hx, 0) * 16px), calc(var(--hp, 0) * -110px + var(--hy, 0) * 10px), 0);
+    will-change: transform;
+  }
+
+  .hero-depth-title {
+    transform: translate3d(calc(var(--hx, 0) * -3px), calc(var(--hp, 0) * 36px), 0);
+  }
+}
+
+/* Hero CTA — terracotta; hover-da mürekkep katman alttan dolar, ok çıkıp yeniden girer */
+.hero-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  min-height: 3.5rem;
+  padding-inline: 2.25rem;
+  background-color: var(--color-accent);
+  color: var(--color-bg-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: transform 300ms var(--ease-soft);
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--color-text-primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 650ms var(--ease-editorial);
+}
+
+.hero-cta:active {
+  transform: scale(0.985);
+}
+
+.hero-cta-arrow {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  overflow: hidden;
+}
+
+.hero-cta-arrow > svg {
+  position: absolute;
+  inset: 0;
+  transition: transform 550ms var(--ease-editorial);
+}
+
+.hero-cta-arrow > svg + svg {
+  transform: translateX(-160%);
+}
+
+.hero-cta:focus-visible::before {
+  transform: none;
+}
+
+@media (hover: hover) {
+  .hero-cta:hover::before {
+    transform: none;
+  }
+
+  .hero-cta:hover .hero-cta-arrow > svg:first-child {
+    transform: translateX(160%);
+  }
+
+  .hero-cta:hover .hero-cta-arrow > svg + svg {
+    transform: none;
+  }
 }
 
 /* ------------------------------------------------------------------
@@ -147,4 +643,282 @@ input[type='range'].lux-range::-moz-range-thumb {
 input[type='range'].lux-range::-moz-range-track {
   height: 2px;
   background: var(--color-linen-200);
+}
+
+/* ------------------------------------------------------------------
+   Editoryal səhnə (Yeni gələnlər) — hero məhsul + dərinlikdə növbə.
+   Mövqe, miqyas, pərdə (clip-path) və əyilməni EditorialStage hər kadrda yazır; burada yalnız
+   quruluş, kəsmə, hover və mətn girişləri var. Səhnə sağda ekran kənarına qədər uzanır.
+------------------------------------------------------------------- */
+.editorial-stage-layout {
+  display: grid;
+  gap: 2.75rem;
+}
+
+.editorial-stage {
+  position: relative;
+  margin-right: -1.25rem;
+  perspective: 1800px;
+  perspective-origin: 20% 60%;
+  /* Telefonda şaquli səhifə kaydırması brauzerdə qalır, üfüqi sürüşdürmə səhnəyə düşür */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (width >= 48rem) {
+  .editorial-stage {
+    margin-right: -2.5rem;
+  }
+}
+
+@media (width >= 64rem) {
+  .editorial-stage-layout {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    align-items: end;
+    column-gap: clamp(3rem, 5vw, 5.5rem);
+  }
+
+  .editorial-stage-panel {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .editorial-stage {
+    grid-column: 2;
+    margin-right: calc(-1 * max(2.5rem, (100vw - var(--container-shell)) / 2 + 2.5rem));
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .editorial-stage {
+    cursor: grab;
+  }
+}
+
+.editorial-stage[data-dragging] {
+  cursor: grabbing;
+}
+
+.editorial-stage[data-dragging] .editorial-stage-slide {
+  pointer-events: none;
+}
+
+.editorial-stage-slide {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--hero-w);
+  height: var(--hero-h);
+  transform-origin: 0 100%;
+  visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity, clip-path;
+}
+
+/* Hər şəkil öz çərçivəsində kəsilir — qonşu karta heç vaxt daşmır */
+.editorial-stage-frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  background-color: var(--color-linen-100);
+}
+
+/* Parallax üçün çərçivədən bir az böyük qat */
+.editorial-stage-media {
+  position: absolute;
+  inset: -3%;
+  will-change: transform;
+}
+
+.editorial-stage-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition:
+    scale 1100ms var(--ease-editorial),
+    clip-path 1000ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.editorial-stage-img-alt {
+  clip-path: inset(100% 0 0 0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .editorial-stage:not([data-dragging]) .editorial-stage-slide[data-active] .editorial-stage-frame:hover .editorial-stage-img {
+    scale: 1.04;
+  }
+
+  .editorial-stage:not([data-dragging]) .editorial-stage-slide[data-active] .editorial-stage-frame:hover .editorial-stage-img-alt {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Növbəti məhsulun adı — kiçik növbə kartının üstündə */
+.editorial-stage-next {
+  position: absolute;
+  z-index: 40;
+  left: var(--x1);
+  bottom: calc(var(--q-h) + 0.875rem);
+  display: none;
+  max-width: calc(var(--q-w) * 1.6);
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-ink-900);
+  pointer-events: none;
+}
+
+@media (width >= 48rem) {
+  .editorial-stage-next {
+    display: block;
+  }
+}
+
+@keyframes stage-rise {
+  from {
+    transform: translate3d(0, 108%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes stage-fade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* components qatında: Tailwind utility-ləri (inline-block, flex …) bunları üstələyə bilsin */
+@layer components {
+  /* Mətn maskası — italik çıxıntı və inişli hərflər üçün iç pay */
+  .editorial-stage-mask {
+    overflow: hidden;
+    padding-right: 0.08em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+
+  .editorial-stage-rise {
+    display: inline-block;
+    animation: stage-rise 1100ms var(--ease-editorial) var(--d, 0ms) both;
+  }
+
+  .editorial-stage-fade {
+    animation: stage-fade 900ms var(--ease-editorial) var(--d, 0ms) both;
+  }
+
+  /* Naviqasiya düymələri — incə dairə, hover-da mürəkkəblə dolur, ox irəli sürüşür */
+  .editorial-stage-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    color: var(--color-text-primary);
+    transition:
+      background-color 400ms var(--ease-soft),
+      border-color 400ms var(--ease-soft),
+      color 400ms var(--ease-soft),
+      transform 300ms var(--ease-soft);
+  }
+
+  .editorial-stage-nav > svg {
+    transition: transform 500ms var(--ease-editorial);
+  }
+
+  .editorial-stage-nav:active {
+    transform: scale(0.94);
+  }
+
+  @media (hover: hover) {
+    .editorial-stage-nav:hover {
+      background-color: var(--color-text-primary);
+      border-color: var(--color-text-primary);
+      color: var(--color-bg-primary);
+    }
+
+    .editorial-stage-nav:first-child:hover > svg {
+      transform: translateX(-3px);
+    }
+
+    .editorial-stage-nav:last-child:hover > svg {
+      transform: translateX(3px);
+    }
+  }
+}
+
+/* "Hamısına bax" — alt xətt soldan dolur, ox irəli sürüşür */
+.link-sweep {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding-block: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  transition: color 300ms var(--ease-soft);
+}
+
+.link-sweep::before,
+.link-sweep::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+}
+
+.link-sweep::before {
+  background-color: var(--color-border);
+}
+
+.link-sweep::after {
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 600ms var(--ease-editorial);
+}
+
+.link-sweep-arrow {
+  transition: transform 500ms var(--ease-editorial);
+}
+
+.link-sweep:focus-visible::after {
+  transform: none;
+}
+
+@media (hover: hover) {
+  .link-sweep:hover {
+    color: var(--color-accent);
+  }
+
+  .link-sweep:hover::after {
+    transform: none;
+    transform-origin: left;
+  }
+
+  .link-sweep:hover .link-sweep-arrow {
+    transform: translateX(5px);
+  }
 }

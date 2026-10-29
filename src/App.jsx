@@ -21,9 +21,16 @@ import { VerifyEmailPage } from './pages/VerifyEmailPage.jsx'
 // The admin panel is a separate chunk: storefront visitors never download it.
 const named = (load, name) => lazy(() => load().then((module) => ({ default: module[name] })))
 const AdminRoot = named(() => import('./components/admin/AdminLayout.jsx'), 'AdminRoot')
+const AdminOrdersPage = named(() => import('./pages/AdminOrdersPage.jsx'), 'AdminOrdersPage')
 const AdminReviewsPage = named(() => import('./pages/AdminReviewsPage.jsx'), 'AdminReviewsPage')
 const AdminProductsPage = named(() => import('./pages/AdminProductsPage.jsx'), 'AdminProductsPage')
-const EditorialAdminPage = named(() => import('./pages/EditorialAdminPage.jsx'), 'EditorialAdminPage')
+const AdminCategoriesPage = named(() => import('./pages/AdminCategoriesPage.jsx'), 'AdminCategoriesPage')
+const AdminContentPage = named(() => import('./pages/AdminContentPage.jsx'), 'AdminContentPage')
+const AdminLookbookPage = named(() => import('./pages/AdminLookbookPage.jsx'), 'AdminLookbookPage')
+const AdminJournalPage = named(() => import('./pages/AdminJournalPage.jsx'), 'AdminJournalPage')
+const AdminFaqPage = named(() => import('./pages/AdminFaqPage.jsx'), 'AdminFaqPage')
+const AdminMessagesPage = named(() => import('./pages/AdminMessagesPage.jsx'), 'AdminMessagesPage')
+const AdminSubscribersPage = named(() => import('./pages/AdminSubscribersPage.jsx'), 'AdminSubscribersPage')
 
 function AdminFallback() {
   return <div role="status" aria-label="Yüklənir" className="min-h-svh bg-linen-50" />
@@ -60,10 +67,19 @@ export default function App() {
           </Suspense>
         }
       >
-        <Route index element={<Navigate to="reyler" replace />} />
+        <Route index element={<Navigate to="sifarisler" replace />} />
+        <Route path="sifarisler" element={<AdminOrdersPage />} />
         <Route path="reyler" element={<AdminReviewsPage />} />
         <Route path="mehsullar" element={<AdminProductsPage />} />
-        <Route path="editorial" element={<EditorialAdminPage />} />
+        <Route path="kateqoriyalar" element={<AdminCategoriesPage />} />
+        <Route path="mezmun" element={<AdminContentPage />} />
+        <Route path="lookbook" element={<AdminLookbookPage />} />
+        <Route path="jurnal" element={<AdminJournalPage />} />
+        <Route path="faq" element={<AdminFaqPage />} />
+        <Route path="mesajlar" element={<AdminMessagesPage />} />
+        <Route path="abuneciler" element={<AdminSubscribersPage />} />
+        {/* The old browser-only editorial page is now /admin/mezmun. */}
+        <Route path="editorial" element={<Navigate to="/admin/mezmun" replace />} />
       </Route>
     </Routes>
   )

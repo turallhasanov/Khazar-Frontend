@@ -101,6 +101,50 @@ export function StatusBadge({ status, className = '' }) {
   )
 }
 
+const TONE_BADGES = {
+  clay: { badge: 'border-clay-500/40 bg-clay-50 text-clay-700', dot: 'bg-clay-500' },
+  sage: { badge: 'border-sage-600/40 bg-sage-100 text-sage-700', dot: 'bg-sage-600' },
+  ink: { badge: 'border-ink-900/20 bg-linen-100 text-ink-700', dot: 'bg-ink-900' },
+  muted: { badge: 'border-ink-900/15 bg-linen-100 text-ink-500', dot: 'bg-ink-400' },
+}
+
+/** Status pill in the review badge's style for any state: tone is clay (needs action), sage (live), ink or muted. */
+export function ToneBadge({ tone = 'muted', children, className = '' }) {
+  const meta = TONE_BADGES[tone] ?? TONE_BADGES.muted
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap border px-2 py-1 text-[9px] font-medium uppercase tracking-[0.22em] ${meta.badge} ${className}`}
+    >
+      <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+      {children}
+    </span>
+  )
+}
+
+/** Dashed empty / error block of the admin lists. */
+export function EmptyState({ icon: Icon, title, text, action }) {
+  return (
+    <div className="mt-8 flex animate-fade-up flex-col items-center border border-dashed border-ink-900/15 px-6 py-16 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-ink-900/10 bg-linen-100 text-ink-500">
+        <Icon size={20} strokeWidth={1.25} />
+      </span>
+      <p className="mt-5 font-display text-xl text-ink-900">{title}</p>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-500">{text}</p>
+      {action && <div className="mt-6">{action}</div>}
+    </div>
+  )
+}
+
+/** Clay notice above a list whose refresh failed while older data stays on screen. */
+export function StaleNotice({ children = 'Siyahı yenilənmədi; ekranda son yüklənmiş məlumatlar göstərilir.' }) {
+  return (
+    <p role="alert" className="mt-6 flex items-center gap-2 border border-clay-600/30 bg-clay-50 px-4 py-3 text-xs text-clay-700">
+      <AlertTriangle size={14} strokeWidth={1.75} />
+      {children}
+    </p>
+  )
+}
+
 /** Initial avatar: accounts have no profile photos. */
 export function Avatar({ name, size = 'md' }) {
   const sizeClass = size === 'lg' ? 'h-12 w-12 text-lg' : 'h-9 w-9 text-sm'

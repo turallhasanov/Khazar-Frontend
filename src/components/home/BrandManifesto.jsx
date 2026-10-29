@@ -1,44 +1,44 @@
-import { useEditorial } from '../../context/EditorialContext'
+import { useContentSection } from '../../context/SiteContentContext'
+import { Reveal } from '../motion/Reveal.jsx'
 import { AccentLine } from './FeatureBand'
 
 /**
- * Ana səhifə zənginləşdirməsi — Brend Manifesti.
- * Krem zemin, serif başlık + sans paragraflar; vurgu satırı *...* konvansiyonuyla.
+ * Ana səhifə zənginləşdirməsi — Brend Manifesti ("manifesto" bölməsi, admin panelindən).
+ * Krem-2 zemin, geniş serif başlık (vurğu: *...* → italik terracotta) + ensiz sütunda sans paragraflar.
+ * Masaüstündə asimetrik: başlıq 7, mətn 4 sütun, aralarında incə dikey xətt.
  */
 export function BrandManifesto() {
-  const { content } = useEditorial()
-  const manifesto = content.manifesto
+  const manifesto = useContentSection('manifesto')
+  if (!manifesto) return null
 
   return (
     <section className="bg-linen-100">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-[1fr_1.4fr] md:py-28">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-ink-400">
-            {manifesto.eyebrow}
-          </p>
-          <h2 className="mt-6 font-display text-4xl leading-[1.05] tracking-[0.02em] text-ink-900 md:text-5xl">
+      <div className="shell grid gap-12 py-24 md:py-32 lg:grid-cols-12 lg:gap-10">
+        <Reveal className="lg:col-span-7">
+          <p className="eyebrow">{manifesto.eyebrow}</p>
+          <h2 className="mt-8 font-display text-[clamp(2.5rem,1.4rem+3.6vw,4.75rem)] font-light leading-[1.02] tracking-[-0.025em] text-ink-900">
             {manifesto.title.split('\n').map((line, index) => (
               <span key={index} className="block">
                 <AccentLine text={line} />
               </span>
             ))}
           </h2>
-          <p className="mt-8 text-xs uppercase tracking-[0.3em] text-ink-500">
-            {manifesto.signature}
-          </p>
-        </div>
-        <div className="flex flex-col justify-end gap-6">
-          {manifesto.paragraphs.map((paragraph, index) => (
+        </Reveal>
+
+        <Reveal
+          delay={150}
+          className="flex flex-col justify-end gap-6 lg:col-span-4 lg:col-start-9 lg:border-l lg:border-linen-200 lg:pl-10"
+        >
+          {manifesto.paragraphs.filter(Boolean).map((paragraph, index) => (
             <p
               key={index}
-              className={`leading-relaxed text-ink-700 ${
-                index === 0 ? 'text-lg' : 'text-sm text-ink-500'
-              }`}
+              className={index === 0 ? 'text-lg leading-relaxed text-ink-700' : 'text-[15px] leading-relaxed text-ink-500'}
             >
               {paragraph}
             </p>
           ))}
-        </div>
+          {manifesto.signature && <p className="mt-4 font-display text-lg italic text-clay-700">{manifesto.signature}</p>}
+        </Reveal>
       </div>
     </section>
   )

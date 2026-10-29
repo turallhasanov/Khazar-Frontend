@@ -1,64 +1,58 @@
-import { Award, Feather, Layers } from 'lucide-react'
-import { useEditorial } from '../../context/EditorialContext'
+import { useContentSection } from '../../context/SiteContentContext'
 import { hideBrokenImage } from '../../services/imageFallback.js'
-
-const HIGHLIGHT_ICONS = [Layers, Award, Feather]
+import { Reveal } from '../motion/Reveal.jsx'
 
 /**
- * Ana səhifə zənginləşdirməsi — Ustalıq Vurgusu.
- * Yakın çekim görsel + 3 numaralı kalite vurgusu (Toxuma, Davamlılıq, Rahatlıq).
+ * Ana səhifə zənginləşdirməsi — Ustalıq Vurgusu ("craftsmanship" bölməsi, admin panelindən).
+ * Masaüstü: soldan taşan yakın çekim görsel (6 sütun) + sağda başlık ve numaralı kalite vurguları.
+ * Numaralar serif italik terracotta — ikon yerine tipografi taşıyıcı.
  */
 export function CraftsmanshipSpotlight() {
-  const { content } = useEditorial()
-  const craft = content.craftsmanship
+  const craft = useContentSection('craftsmanship')
+  if (!craft) return null
 
   return (
-    <section className="border-y border-linen-200 bg-linen-100">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
-        {/* Yakın çekim görsel */}
-        <div className="relative">
-          <img
-            src={craft.image}
-            onError={hideBrokenImage}
-            alt="Khazar parça detayı — yaxın çəkiliş"
-            loading="lazy"
-            className="aspect-[4/5] w-full object-cover"
-          />
-          <span className="absolute bottom-4 left-4 bg-ink-900/85 px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] text-linen-100 backdrop-blur-sm">
-            {craft.eyebrow}
-          </span>
-        </div>
+    <section className="bg-linen-100">
+      <div className="shell grid items-center gap-12 py-24 md:py-32 lg:grid-cols-12 lg:gap-10">
+        {craft.imageUrl && (
+          <Reveal variant="image" className="relative -mx-5 md:mx-0 lg:col-span-6">
+            <img
+              src={craft.imageUrl}
+              onError={hideBrokenImage}
+              alt={craft.imageAlt}
+              loading="lazy"
+              className="aspect-[4/5] w-full object-cover"
+            />
+          </Reveal>
+        )}
 
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-ink-400">{craft.eyebrow}</p>
-          <h2 className="mt-4 font-display text-3xl leading-tight tracking-[0.02em] text-ink-900 md:text-4xl">
-            {craft.title}
-          </h2>
-          <p className="mt-5 text-sm leading-relaxed text-ink-500">{craft.text}</p>
+        <div className="lg:col-span-5 lg:col-start-8">
+          <Reveal>
+            <p className="eyebrow">{craft.eyebrow}</p>
+            <h2 className="heading-section mt-5">{craft.title}</h2>
+            <p className="mt-6 max-w-md text-[15px] leading-relaxed text-ink-500">{craft.text}</p>
+          </Reveal>
 
-          <ul className="mt-10 divide-y divide-linen-200 border-y border-linen-200">
-            {craft.highlights.map((highlight, index) => {
-              const Icon = HIGHLIGHT_ICONS[index % HIGHLIGHT_ICONS.length]
-              return (
-                <li key={highlight.title} className="flex items-start gap-5 py-5">
-                  <span className="font-display text-lg text-clay-600">
+          {craft.highlights.length > 0 && (
+            <ol className="mt-12 border-t border-linen-200">
+              {craft.highlights.map((highlight, index) => (
+                <Reveal
+                  as="li"
+                  key={index}
+                  delay={index * 110}
+                  className="grid grid-cols-[3rem_1fr] gap-4 border-b border-linen-200 py-6"
+                >
+                  <span className="font-display text-2xl font-light italic leading-none text-clay-700">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className="mt-0.5 text-ink-400">
-                    <Icon size={18} strokeWidth={1.5} />
-                  </span>
                   <div>
-                    <h3 className="text-sm font-medium uppercase tracking-[0.2em] text-ink-900">
-                      {highlight.title}
-                    </h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink-500">
-                      {highlight.text}
-                    </p>
+                    <h3 className="font-display text-xl font-normal text-ink-900">{highlight.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink-500">{highlight.text}</p>
                   </div>
-                </li>
-              )
-            })}
-          </ul>
+                </Reveal>
+              ))}
+            </ol>
+          )}
         </div>
       </div>
     </section>

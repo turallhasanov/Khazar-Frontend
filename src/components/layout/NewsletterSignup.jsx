@@ -19,7 +19,7 @@ function describeSubscribeError(error) {
 }
 
 /**
- * "Xəbərlərə abunə ol" — dark glass newsletter box on the footer (POST /api/khazar/subscribe)
+ * "Xəbərlərə abunə ol" — footer newsletter block with a hairline frame (POST /api/khazar/subscribe)
  * with an instant success toast.
  */
 export function NewsletterSignup() {
@@ -61,19 +61,14 @@ export function NewsletterSignup() {
 
   return (
     <>
-      <div className="relative overflow-hidden border border-linen-50/10 bg-linen-50/[0.04] px-6 py-10 backdrop-blur-xl md:px-12">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-clay-500/20 blur-3xl" />
-          <div className="absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-sage-500/15 blur-3xl" />
-        </div>
-
-        <div className="relative grid items-center gap-8 md:grid-cols-[1fr_1.15fr]">
+      <div className="border-y border-linen-50/15 py-12 md:py-14">
+        <div className="grid items-end gap-8 md:grid-cols-[1fr_1.15fr] md:gap-16">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-linen-200/50">Newsletter</p>
-            <h2 className="mt-3 font-display text-2xl tracking-[0.03em] text-linen-50 md:text-3xl">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-clay-400">Newsletter</p>
+            <h2 className="mt-4 font-display text-[clamp(2rem,1.5rem+1.6vw,3rem)] font-light leading-[1.05] tracking-[-0.02em] text-linen-50">
               Xəbərlərə abunə ol
             </h2>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-linen-200/60">
+            <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-linen-200">
               Yeni kolleksiyalar, limited seriyalar və editoryal hekayələr — ilk siz xəbər tutun.
             </p>
           </div>
@@ -86,7 +81,7 @@ export function NewsletterSignup() {
                   size={16}
                   strokeWidth={1.5}
                   aria-hidden="true"
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-linen-200/40"
+                  className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-linen-200/70"
                 />
                 <input
                   type="email"
@@ -99,13 +94,13 @@ export function NewsletterSignup() {
                   }}
                   placeholder="e-poct@nümunə.az"
                   aria-invalid={message?.tone === 'error'}
-                  className="w-full border border-linen-50/15 bg-ink-900/50 py-3.5 pl-11 pr-4 text-sm text-linen-50 outline-none transition-colors placeholder:text-linen-200/30 focus:border-linen-50/40"
+                  className="w-full border-b border-linen-50/30 bg-transparent py-3.5 pl-8 pr-2 text-[15px] text-linen-50 outline-none transition-colors duration-300 placeholder:text-linen-200/60 focus:border-clay-400 aria-invalid:border-clay-400"
                 />
               </label>
               <button
                 type="submit"
                 disabled={submitting}
-                className="group inline-flex items-center justify-center gap-2 bg-linen-50 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-clay-400 hover:text-linen-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-primary group"
               >
                 {submitting ? 'Göndərilir…' : 'Abunə ol'}
                 {!submitting && (
@@ -123,8 +118,7 @@ export function NewsletterSignup() {
         </div>
       </div>
 
-      {/* Success toast — outside the glass box: a backdrop-filter ancestor would become the containing block of
-          this fixed element and clip it. */}
+      {/* Success toast — kept outside the form block so no transformed ancestor becomes its containing block. */}
       <div
         role="status"
         aria-live="polite"
@@ -133,7 +127,7 @@ export function NewsletterSignup() {
         }`}
       >
         {toast.text && (
-          <div className="flex items-center gap-3 border border-linen-50/15 bg-ink-900/80 px-5 py-3.5 text-sm text-linen-50 shadow-2xl shadow-ink-900/40 backdrop-blur-xl">
+          <div className="flex items-center gap-3 bg-ink-900 px-5 py-3.5 text-sm text-linen-50 shadow-lg shadow-ink-900/20">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sage-500/30 text-sage-100">
               <Check size={13} strokeWidth={2} />
             </span>

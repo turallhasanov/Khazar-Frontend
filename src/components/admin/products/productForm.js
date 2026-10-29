@@ -9,7 +9,6 @@ export const LIMITS = {
   name: 200,
   slug: 200,
   description: 4000,
-  category: 100,
   fabric: 200,
   coverImage: 1000,
   size: 16,
@@ -47,7 +46,7 @@ export const emptyFields = {
   name: '',
   slug: '',
   description: '',
-  category: '',
+  categoryId: '',
   fabric: '',
   price: '',
   coverImage: '',
@@ -62,7 +61,7 @@ export function fieldsFromProduct(product) {
     name: product.name,
     slug: product.slug,
     description: product.description,
-    category: product.category,
+    categoryId: product.categoryId,
     fabric: product.fabric,
     price: product.price.toFixed(2).replace('.', ','),
     coverImage: product.coverImage,
@@ -76,7 +75,7 @@ export function fieldsToRequest(fields) {
     name: fields.name.trim(),
     slug: fields.slug.trim().toLowerCase(),
     description: fields.description.trim(),
-    category: fields.category.trim(),
+    categoryId: fields.categoryId,
     fabric: fields.fabric.trim(),
     price: Number(normalizePrice(fields.price)),
     coverImage: fields.coverImage.trim(),
@@ -117,8 +116,7 @@ export function validateFields(fields) {
   if (fields.description.trim().length > LIMITS.description)
     errors.description = `Təsvir ən çox ${LIMITS.description} simvol ola bilər.`
 
-  if (!fields.category.trim()) errors.category = 'Kateqoriyanı daxil edin.'
-  else if (fields.category.trim().length > LIMITS.category) errors.category = `Ən çox ${LIMITS.category} simvol.`
+  if (!fields.categoryId) errors.categoryId = 'Kateqoriya seçin.'
 
   if (!fields.fabric.trim()) errors.fabric = 'Parça tərkibini daxil edin.'
   else if (fields.fabric.trim().length > LIMITS.fabric) errors.fabric = `Ən çox ${LIMITS.fabric} simvol.`
@@ -184,7 +182,7 @@ const API_ERRORS = {
   invalid_slug: ['slug', 'Yalnız kiçik latın hərfləri, rəqəmlər və tək tire.'],
   slug_taken: ['slug', 'Bu slug artıq başqa məhsulda istifadə olunur.'],
   invalid_description: ['description', 'Təsvir ən çox 4000 simvol ola bilər.'],
-  invalid_category: ['category', 'Kateqoriya tələb olunur.'],
+  invalid_category: ['categoryId', 'Mövcud kateqoriya seçin — bu kateqoriya silinmiş ola bilər.'],
   invalid_fabric: ['fabric', 'Parça tərkibi tələb olunur.'],
   invalid_price: ['price', 'Qiymət 0-dan böyük, ən çox 100 000 ₼, iki onluq rəqəmə qədər.'],
   invalid_cover_image: ['coverImage', 'Tam http(s) şəkil ünvanı daxil edin.'],

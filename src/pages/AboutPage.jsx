@@ -1,100 +1,85 @@
 import { Link } from 'react-router-dom'
+import { ContentGate } from '../components/content/ContentGate.jsx'
 import { PageHeader } from '../components/layout/PageHeader'
 import { hideBrokenImage } from '../services/imageFallback.js'
-
-/** Atelier with dress forms (Unsplash License) — full-width cover, served at the width the screen needs. */
-const COVER_PHOTO = 'https://images.unsplash.com/photo-1680835099030-9c7532f744f1?auto=format&fit=crop&q=80'
-const COVER_IMAGE = `${COVER_PHOTO}&w=1600`
-const COVER_SRCSET = [800, 1200, 1600, 2400].map((width) => `${COVER_PHOTO}&w=${width} ${width}w`).join(', ')
-
-const pillars = [
-  {
-    number: '01',
-    title: 'Bakı × Avropa sentezi',
-    text: 'Bakının şərq-qərb estetikasını Avropa parça texnologiyası ilə birləşdiririk: üç iplik toxuma, french terry və yüksək qramajlı pambıq — hamısı Khazar siluetlərinə uyğunlaşdırılır.',
-  },
-  {
-    number: '02',
-    title: 'Sürdürülebilirlik',
-    text: 'Limited seriya istehsal edirik: artıq stok yox, mövsümi yanma yox. Hər kolleksiya ölçülə bilən miqdarda toxunur və parça qayğısı üçün uzunömürlü dizayn seçirik.',
-  },
-  {
-    number: '03',
-    title: 'Pambıq keyfiyyəti',
-    text: '220–400 q/m² qramajlı, uzun lifli pambıq seçirik. Fırçalanmış iç səth, möhkəmləndirilmiş yaxa — parça ilk gündə deyil, illərlə keyfiyyət göstərməlidir.',
-  },
-]
+import { responsiveImage } from '../services/responsiveImage.js'
 
 /**
- * Haqqımızda (/haqqimizda) — markanın fəlsəfəsi, Bakı–Avropa sintezi,
- * davamlılıq və pambıq keyfiyyəti üzrə editoryal statik səhifə.
+ * Haqqımızda (/haqqimizda) — markanın fəlsəfəsi, Bakı–Avropa sintezi, davamlılıq və pambıq keyfiyyəti üzrə
+ * editoryal səhifə. Bütün mətn və görsellər admin panelindəki "about" bölməsindən.
  */
 export function AboutPage() {
+  return <ContentGate section="about">{(about) => <AboutContent about={about} />}</ContentGate>
+}
+
+function AboutContent({ about }) {
+  const cover = responsiveImage(about.coverImageUrl)
+
   return (
     <main className="flex-1">
-      <PageHeader
-        eyebrow="Khazar Studio"
-        title="Az sayda, yaxşı istehsal"
-        description="Khazar hazır geyim markası 2026-cı ildə Bakıda qurulub — zamansız siluetlər, Avropa parça texnologiyası və məsuliyyətli istehsal ilə."
-      />
+      <PageHeader eyebrow={about.header.eyebrow} title={about.header.title} description={about.header.description} />
 
       {/* Tam genişlik editoryal kapak */}
-      <section className="relative h-[380px] overflow-hidden md:h-[480px]">
-        <img
-          src={COVER_IMAGE}
-          onError={hideBrokenImage}
-          srcSet={COVER_SRCSET}
-          sizes="100vw"
-          alt="Khazar atelyesi — manekenlər və tikiş masaları"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-ink-900/25" />
-        <p className="absolute bottom-6 left-6 text-[10px] uppercase tracking-[0.35em] text-linen-100/90 md:left-10">
-          FW 2026 — Limited seriya
-        </p>
-      </section>
+      {cover.src && (
+        <section className="relative h-[380px] overflow-hidden md:h-[480px]">
+          <img
+            {...cover}
+            onError={hideBrokenImage}
+            sizes="100vw"
+            alt={about.coverImageAlt}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-ink-900/25" />
+          {about.coverCaption && (
+            <p className="absolute bottom-6 left-6 text-[10px] uppercase tracking-[0.35em] text-linen-100/90 md:left-10">
+              {about.coverCaption}
+            </p>
+          )}
+        </section>
+      )}
 
       {/* Fəlsəfə mətni */}
-      <section className="mx-auto max-w-3xl px-6 py-20 text-center md:py-24">
-        <p className="font-display text-2xl font-light leading-relaxed tracking-[0.02em] text-ink-900 md:text-3xl">
-          &ldquo;Biz trendlərin arxasınca getmirik. Hər parçanı geyindiyiniz gün
-          deyil, illərlə xidmət edəcəyi şəkildə qururuq.&rdquo;
-        </p>
-        <p className="mt-8 text-xs uppercase tracking-[0.3em] text-ink-400">
-          — Khazar Studio, Bakı
-        </p>
-      </section>
+      {about.quote && (
+        <section className="mx-auto max-w-3xl px-6 py-20 text-center md:py-24">
+          <p className="font-display text-2xl font-light leading-relaxed tracking-[0.02em] text-ink-900 md:text-3xl">
+            &ldquo;{about.quote}&rdquo;
+          </p>
+          {about.quoteAuthor && (
+            <p className="mt-8 text-xs uppercase tracking-[0.3em] text-ink-400">{about.quoteAuthor}</p>
+          )}
+        </section>
+      )}
 
-      {/* Üç sütun: sentez, davamlılıq, pambıq */}
-      <section className="border-y border-linen-200 bg-linen-100">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-3">
-          {pillars.map((pillar) => (
-            <div key={pillar.number}>
-              <span className="font-display text-lg text-clay-600">{pillar.number}</span>
-              <h2 className="mt-3 text-sm font-medium uppercase tracking-[0.25em] text-ink-900">
-                {pillar.title}
-              </h2>
-              <p className="mt-4 text-sm font-light leading-relaxed text-ink-500">
-                {pillar.text}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Sütunlar: sentez, davamlılıq, pambıq */}
+      {about.pillars.length > 0 && (
+        <section className="border-y border-linen-200 bg-linen-100">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-3">
+            {about.pillars.map((pillar, index) => (
+              <div key={index}>
+                <span className="font-display text-lg text-clay-600">{String(index + 1).padStart(2, '0')}</span>
+                <h2 className="mt-3 text-sm font-medium uppercase tracking-[0.25em] text-ink-900">{pillar.title}</h2>
+                <p className="mt-4 text-sm font-light leading-relaxed text-ink-500">{pillar.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
-      <section className="mx-auto max-w-4xl px-6 py-20 text-center">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-ink-400">Kolleksiya</p>
-        <h2 className="mt-4 font-display text-3xl font-light text-ink-900">
-          FW &rsquo;26 ilə tanış olun
-        </h2>
-        <Link
-          to="/katalog"
-          className="mt-8 inline-block border border-ink-900 px-10 py-3.5 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
-        >
-          Kataloqa bax
-        </Link>
-      </section>
+      {about.ctaTitle && (
+        <section className="mx-auto max-w-4xl px-6 py-20 text-center">
+          <p className="text-[10px] uppercase tracking-[0.4em] text-ink-400">{about.ctaEyebrow}</p>
+          <h2 className="mt-4 font-display text-3xl font-light text-ink-900">{about.ctaTitle}</h2>
+          {about.ctaLabel && (
+            <Link
+              to={about.ctaLink || '/katalog'}
+              className="mt-8 inline-block border border-ink-900 px-10 py-3.5 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
+            >
+              {about.ctaLabel}
+            </Link>
+          )}
+        </section>
+      )}
     </main>
   )
 }

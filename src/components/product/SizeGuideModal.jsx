@@ -1,24 +1,17 @@
 import { X } from 'lucide-react'
 import { useCallback, useEffect } from 'react'
+import { useContentSection } from '../../context/SiteContentContext'
 
 /**
  * Beden Ölçü Rehberi Modali.
- * - Göğüs / Bel / Boyun ölçü tablosu (XS…XXL)
+ * - Göğüs / Bel / Boyun ölçü tablosu (sm) — başlıq, mətn və sətirlər admin panelindəki "sizeGuide" bölməsindən
  * - Ürün detayındaki "Beden Ölçü Rehberi" bağlantısıyla açılır
  * - ESC ve perde tıklamasıyla kapanır, açıkken arka plan kaydırması kilitli
  */
-
-/** Ölçü tablosu satırları (sm cinsinden vücut ölçüleri). */
-const SIZE_ROWS = [
-  { size: 'XS', chest: '82–86', waist: '66–70', neck: '35–36' },
-  { size: 'S', chest: '87–92', waist: '71–76', neck: '37–38' },
-  { size: 'M', chest: '93–98', waist: '77–82', neck: '39–40' },
-  { size: 'L', chest: '99–104', waist: '83–88', neck: '41–42' },
-  { size: 'XL', chest: '105–110', waist: '89–94', neck: '43–44' },
-  { size: 'XXL', chest: '111–116', waist: '95–100', neck: '45–46' },
-]
-
-export function SizeGuideModal({ open, onClose, modelSize = 'M', modelHeight = 185 }) {
+export function SizeGuideModal({ open, onClose }) {
+  const guide = useContentSection('sizeGuide')
+  const rows = guide?.rows ?? []
+  const modelSize = guide?.modelSize
   const close = useCallback(() => onClose(), [onClose])
 
   // ESC ile kapatma + kaydırma kilidi
@@ -60,17 +53,15 @@ export function SizeGuideModal({ open, onClose, modelSize = 'M', modelHeight = 1
         </button>
 
         <p className="text-[10px] uppercase tracking-[0.35em] text-ink-400">
-          Ölçü bələdçisi
+          {guide?.eyebrow}
         </p>
         <h2 className="mt-2 font-display text-3xl font-light text-ink-900">
-          Beden Ölçü Rehberi
+          {guide?.title || 'Ölçü cədvəli'}
         </h2>
-        <p className="mt-3 text-sm leading-relaxed text-ink-500">
-          Ölçüləri santimetr cinsində, bədəninizin ən geniş nöqtəsindən alın. Oversize
-          modellərdə bir ölçü kiçik seçmək tövsiyə olunur.
-        </p>
+        {guide?.text && <p className="mt-3 text-sm leading-relaxed text-ink-500">{guide.text}</p>}
 
         {/* Ölçü tablosu */}
+        {rows.length > 0 && (
         <table className="mt-6 w-full text-sm">
           <thead>
             <tr className="border-b border-ink-900/15 text-left text-[10px] uppercase tracking-[0.25em] text-ink-400">
@@ -81,16 +72,16 @@ export function SizeGuideModal({ open, onClose, modelSize = 'M', modelHeight = 1
             </tr>
           </thead>
           <tbody>
-            {SIZE_ROWS.map((row) => (
+            {rows.map((row) => (
               <tr
                 key={row.size}
                 className={`border-b border-ink-900/8 ${
-                  row.size === modelSize ? 'bg-linen-100' : ''
+                  modelSize && row.size === modelSize ? 'bg-linen-100' : ''
                 }`}
               >
                 <td className="py-3 pr-4 text-xs tracking-[0.15em] text-ink-900">
                   {row.size}
-                  {row.size === modelSize && (
+                  {modelSize && row.size === modelSize && (
                     <span className="ml-2 text-[9px] uppercase tracking-[0.2em] text-clay-600">
                       Model
                     </span>
@@ -103,11 +94,9 @@ export function SizeGuideModal({ open, onClose, modelSize = 'M', modelHeight = 1
             ))}
           </tbody>
         </table>
+        )}
 
-        <p className="mt-5 text-xs leading-relaxed text-ink-400">
-          Model {modelHeight} sm boyundadır və{' '}
-          <span className="text-ink-700">{modelSize} ölçü</span> geyinib.
-        </p>
+        {guide?.modelNote && <p className="mt-5 text-xs leading-relaxed text-ink-400">{guide.modelNote}</p>}
       </div>
     </div>
   )

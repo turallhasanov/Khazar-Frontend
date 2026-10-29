@@ -57,6 +57,14 @@ export async function getProducts({ category, signal } = {}) {
   return products.map(normalizeProduct)
 }
 
+/**
+ * GET /categories — [{ id, name, label, slug, sortOrder }] in storefront order. Products carry the category's
+ * `name` in `category` and its `label` in `categoryLabel`; `slug` is the ?kateqoriya= value in catalog links.
+ */
+export function getCategories({ signal } = {}) {
+  return apiClient('/categories', { signal, auth: false })
+}
+
 /** GET /products/slug/{slug} — product page payload; throws ApiError with status 404 when unknown. */
 export async function getProductBySlug(slug, { signal } = {}) {
   const product = await apiClient(`/products/slug/${encodeURIComponent(slug)}`, { signal, auth: false })
