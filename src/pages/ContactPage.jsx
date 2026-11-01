@@ -1,52 +1,86 @@
 import { useState } from 'react'
+import { ContentGate } from '../components/content/ContentGate.jsx'
 import { PageHeader } from '../components/layout/PageHeader'
+import { useContentSection } from '../context/SiteContentContext'
+import { ApiError } from '../services/api.js'
+import { sendContactMessage } from '../services/contentService.js'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Same limits as POST /api/contact-messages.
+const LIMITS = { name: 100, email: 256, message: 4000 }
 
 const labelClass = 'block text-[10px] font-medium uppercase tracking-[0.25em] text-ink-400'
 const inputClass =
   'mt-2 w-full border border-ink-900/20 bg-linen-50 px-3.5 py-3 text-sm font-light tracking-wide text-ink-900 outline-none transition-colors placeholder:text-ink-300 focus:border-ink-900'
 
-const showroomRows = [
-  { label: 'Telefon', value: '+994 50 555 01 44' },
-  { label: 'E-poçt', value: 'hello@khazar.az' },
-  { label: 'Ünvan', value: 'Ülviyyə Bünyadova 74, Bakı, Azərbaycan' },
-  { label: 'İş saatları', value: 'B.e. – Şənbə, 10:00 – 20:00' },
-]
+/** The API names the rejected field in its message, e.g. "Field 'email' is not a valid email address." */
+function describeSendError(error) {
+  if (!(error instanceof ApiError)) return { message: 'Mesaj göndərilmədi. Bir az sonra yenidən cəhd edin.' }
+  if (error.status === 0) return { message: 'Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayın.' }
+  if (error.status === 429) return { message: 'Çox sayda mesaj göndərildi. Bir dəqiqə sonra yenidən cəhd edin.' }
+  const field = /Field '(\w+)'/.exec(error.message)?.[1]
+  if (error.status === 400 && field === 'email') return { field, message: 'E-poçt formatı yanlışdır' }
+  if (error.status === 400 && field) return { field, message: 'Bu xananı yoxlayın' }
+  return { message: 'Mesaj göndərilmədi. Bir az sonra yenidən cəhd edin.' }
+}
 
 /**
- * Əlaqə (/elaqe) — minimalist iletişim formu (mock gönderim) +
- * Bakı showroom məlumatları.
+ * Əlaqə (/elaqe) — mesajlar POST /api/contact-messages ilə admin panelinin «Mesajlar» bölməsinə düşür.
+ * Başlıq və showroom qeydi "contact", telefon / e-poçt / ünvan / iş saatları "site" bölməsindən.
  */
 export function ContactPage() {
+  return <ContentGate section="contact">{(contact) => <ContactContent contact={contact} />}</ContentGate>
+}
+
+function ContactContent({ contact }) {
+  const site = useContentSection('site')
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [errors, setErrors] = useState({})
+  const [formError, setFormError] = useState(null)
+  const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+
+  const showroomRows = [
+    { label: 'Telefon', value: site?.phone },
+    { label: 'E-poçt', value: site?.email },
+    { label: 'Ünvan', value: site?.address },
+    { label: 'İş saatları', value: site?.workingHours },
+  ].filter((row) => row.value)
 
   const update = (key) => (event) => {
     setForm((current) => ({ ...current, [key]: event.target.value }))
     if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    if (sending) return
     const nextErrors = {}
     if (!form.name.trim()) nextErrors.name = 'Ad boş qala bilməz'
     if (!form.email.trim()) nextErrors.email = 'E-poçt boş qala bilməz'
     else if (!EMAIL_PATTERN.test(form.email.trim())) nextErrors.email = 'E-poçt formatı yanlışdır'
     if (!form.message.trim()) nextErrors.message = 'Mesaj boş qala bilməz'
     setErrors(nextErrors)
+    setFormError(null)
     if (Object.keys(nextErrors).length > 0) return
-    setSent(true)
+
+    setSending(true)
+    try {
+      await sendContactMessage({ name: form.name.trim(), email: form.email.trim(), message: form.message.trim() })
+      setSent(true)
+    } catch (error) {
+      const { field, message } = describeSendError(error)
+      if (field) setErrors({ [field]: message })
+      else setFormError(message)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
     <main className="flex-1">
-      <PageHeader
-        eyebrow="Əlaqə"
-        title="Bizimlə əlaqə saxlayın"
-        description="Sifariş, ölçü və ya kolleksiya haqqında suallarınız üçün yazın — 1 iş günü ərzində cavablandırırıq."
-      />
+      <PageHeader eyebrow={contact.header.eyebrow} title={contact.header.title} description={contact.header.description} />
 
       <section className="mx-auto grid max-w-5xl gap-14 px-6 py-16 md:grid-cols-[1.2fr_1fr] md:py-20">
         {/* Form */}
@@ -81,6 +115,7 @@ export function ContactPage() {
                 type="text"
                 value={form.name}
                 onChange={update('name')}
+                maxLength={LIMITS.name}
                 placeholder="Adınız"
                 className={`${inputClass} ${errors.name ? 'border-clay-600' : ''}`}
               />
@@ -95,6 +130,7 @@ export function ContactPage() {
                 type="email"
                 value={form.email}
                 onChange={update('email')}
+                maxLength={LIMITS.email}
                 placeholder="ad@nümunə.az"
                 className={`${inputClass} ${errors.email ? 'border-clay-600' : ''}`}
               />
@@ -109,6 +145,7 @@ export function ContactPage() {
                 rows={5}
                 value={form.message}
                 onChange={update('message')}
+                maxLength={LIMITS.message}
                 placeholder="Sualınızı yazın…"
                 className={`${inputClass} resize-none ${errors.message ? 'border-clay-600' : ''}`}
               />
@@ -116,36 +153,39 @@ export function ContactPage() {
                 <p className="mt-1.5 text-[11px] text-clay-600">{errors.message}</p>
               )}
             </div>
+            {formError && (
+              <p role="alert" className="text-[12px] text-clay-600">
+                {formError}
+              </p>
+            )}
             <button
               type="submit"
-              className="bg-ink-900 py-4 text-[11px] font-medium uppercase tracking-[0.35em] text-linen-50 transition-colors hover:bg-clay-600"
+              disabled={sending}
+              className="bg-ink-900 py-4 text-[11px] font-medium uppercase tracking-[0.35em] text-linen-50 transition-colors hover:bg-clay-600 disabled:opacity-60"
             >
-              Göndər
+              {sending ? 'Göndərilir…' : 'Göndər'}
             </button>
           </form>
         )}
 
         {/* Showroom məlumatları */}
         <aside className="h-fit border border-linen-200 bg-linen-100/60 p-8">
-          <h2 className="text-[11px] font-medium uppercase tracking-[0.35em] text-ink-900">
-            Showroom — Bakı
-          </h2>
-          <dl className="mt-7 space-y-5">
-            {showroomRows.map((row) => (
-              <div key={row.label}>
-                <dt className="text-[10px] uppercase tracking-[0.3em] text-ink-400">
-                  {row.label}
-                </dt>
-                <dd className="mt-1 text-sm font-light tracking-[0.05em] text-ink-900">
-                  {row.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-7 border-t border-linen-200 pt-5 text-xs font-light leading-relaxed text-ink-500">
-            Showroomda kolleksiyaya canlı baxış və ölçü seçimi mümkündür —
-            gəlməzdən əvvəl zəng ilə təsdiq etməyiniz xahiş olunur.
-          </p>
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.35em] text-ink-900">{contact.showroomTitle}</h2>
+          {showroomRows.length > 0 && (
+            <dl className="mt-7 space-y-5">
+              {showroomRows.map((row) => (
+                <div key={row.label}>
+                  <dt className="text-[10px] uppercase tracking-[0.3em] text-ink-400">{row.label}</dt>
+                  <dd className="mt-1 text-sm font-light tracking-[0.05em] text-ink-900">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          {contact.showroomNote && (
+            <p className="mt-7 border-t border-linen-200 pt-5 text-xs font-light leading-relaxed text-ink-500">
+              {contact.showroomNote}
+            </p>
+          )}
         </aside>
       </section>
     </main>

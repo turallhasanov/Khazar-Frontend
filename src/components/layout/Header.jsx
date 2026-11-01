@@ -1,24 +1,23 @@
 import { Heart, Menu, Search, ShoppingBag, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
+import { useProducts } from '../../context/ProductsContext'
+import { useContentSection } from '../../context/SiteContentContext'
 import { useWishlist } from '../../context/WishlistContext'
 import { SearchModal } from '../search/SearchModal'
+import { Logo } from './Logo'
 
-/** Giyim kategorileri — Mikro-Aşama 7'deki katalog filtreleriyle eşleştirilecek. */
-const categories = [
-  { id: 't-shirt', label: 'T-Shirt' },
-  { id: 'sweatshirt', label: 'Sweatshirt' },
-  { id: 'salvar', label: 'Şalvar' },
-  { id: 'qadin-geyimi', label: 'Qadın Geyimi' },
-  { id: 'kisi-geyimi', label: 'Kişi Geyimi' },
-  { id: 'yeni-gelenler', label: 'Yeni Gələnlər' },
-]
+const categoryPath = (category) => `/katalog?kateqoriya=${encodeURIComponent(category.slug)}`
 
 const drawerLinkClass =
-  'block py-2 text-sm uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600'
+  'block py-2 text-[13px] font-medium uppercase tracking-[0.14em] text-ink-700 transition-colors hover:text-clay-600'
 
 function MobileDrawer({ open, onClose }) {
+  const { user, logout } = useAuth()
+  const { categories } = useProducts()
+
   useEffect(() => {
     if (!open) return undefined
     document.documentElement.style.overflow = 'hidden'
@@ -35,28 +34,30 @@ function MobileDrawer({ open, onClose }) {
         type="button"
         aria-label="Menyunu bağla"
         onClick={onClose}
-        className="absolute inset-0 bg-ink-900/40"
+        className="absolute inset-0 animate-fade-in bg-ink-900/40"
       />
-      <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-linen-50 px-8 py-6 shadow-xl">
+      <div className="absolute inset-y-0 left-0 flex w-[min(20rem,85vw)] animate-drawer-in flex-col overflow-y-auto bg-linen-50 px-8 py-6">
         <div className="flex items-center justify-between">
-          <span className="font-display text-lg tracking-wide">Khazar</span>
+          <Link to="/" onClick={onClose} aria-label="Khazar — ana səhifə">
+            <Logo size="sm" />
+          </Link>
           <button
             type="button"
             aria-label="Bağla"
             onClick={onClose}
-            className="p-1 text-ink-500 transition-colors hover:text-ink-900"
+            className="-mr-2 flex h-11 w-11 items-center justify-center text-ink-500 transition-colors hover:text-ink-900"
           >
             <X size={18} strokeWidth={1.5} />
           </button>
         </div>
 
-        <nav className="mt-10 flex flex-col gap-1">
+        <nav className="mt-10 flex flex-col gap-1" aria-label="Kateqoriyalar">
           {categories.map((category) => (
             <NavLink
               key={category.id}
-              to={`/katalog?kateqoriya=${category.id}`}
+              to={categoryPath(category)}
               onClick={onClose}
-              className={drawerLinkClass}
+              className="block py-2 font-display text-2xl font-light text-ink-900 transition-colors hover:text-clay-600"
             >
               {category.label}
             </NavLink>
@@ -73,96 +74,147 @@ function MobileDrawer({ open, onClose }) {
           <NavLink to="/sebet" onClick={onClose} className={drawerLinkClass}>
             Səbət
           </NavLink>
-          <span className="mt-4 block text-xs uppercase tracking-[0.2em] text-ink-400">
-            Giriş / Qeydiyyat
-          </span>
+          {user ? (
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-[0.14em] text-ink-500">{user.firstName}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  logout()
+                  onClose()
+                }}
+                className="text-xs uppercase tracking-[0.14em] text-ink-700 transition-colors hover:text-clay-600"
+              >
+                Çıxış
+              </button>
+            </div>
+          ) : (
+            <NavLink to="/giris" onClick={onClose} className={`${drawerLinkClass} mt-4`}>
+              Giriş / Qeydiyyat
+            </NavLink>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
+const iconButtonClass =
+  'relative flex h-10 w-10 items-center justify-center text-ink-900 transition-colors duration-300 hover:text-clay-600'
+
+const navLinkClass = ({ isActive }) =>
+  `text-[12px] font-medium uppercase tracking-[0.14em] transition-colors duration-300 hover:text-clay-600 ${
+    isActive ? 'text-clay-600' : 'text-ink-700'
+  }`
+
 /**
- * Mikro-Aşama 2: Header & Navigation Bar.
- * Referans estetik: bej zemin, sol hamburger + "Kataloq", ortada logo,
- * sağda "Giriş / Qeydiyyat" + sepet rozeti. Tamamen hazır giyim odaklı.
+ * Header — yapışkan, krem zemin. Kaydırınca ince alt çizgi belirir ve yükseklik bir kademe azalır.
+ * Sol: hamburger (xl altı) + kataloq + kategori menüsü (xl+) · Orta: logo · Sağ: giriş, axtarış, istək siyahısı, səbət.
  */
 export function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const { totalItemsCount, openCart } = useCart()
   const { count: wishlistCount, openWishlist } = useWishlist()
+  const { user, logout } = useAuth()
+  // Desktop links after "Kataloq", chosen in the admin panel ("site" section); the drawer lists the categories.
+  const headerLinks = (useContentSection('site')?.headerLinks ?? []).filter((link) => link.label && link.to)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <>
-      <header className="border-b border-linen-200 bg-linen-50">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          {/* Sol: hamburger + kataloq */}
-          <div className="flex items-center gap-5">
+      <header
+        className={`sticky top-0 z-40 border-b bg-linen-50 transition-[border-color] duration-300 ${
+          scrolled ? 'border-linen-200' : 'border-transparent'
+        }`}
+      >
+        {/* 1fr / auto / 1fr grid: logo ortada qalır, amma absolute deyil — gap-x loqo ilə ikonlar arasında
+            minimum məsafəni zəmanət edir; dar ekranda logo üst-üstə düşmək əvəzinə sola sürüşür. */}
+        <div
+          className={`shell grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 transition-[height] duration-300 sm:gap-x-6 ${
+            scrolled ? 'h-16' : 'h-16 lg:h-20'
+          }`}
+        >
+          {/* Sol: hamburger + kataloq / masaüstü kateqoriyalar */}
+          <div className="flex items-center gap-4 justify-self-start xl:gap-7">
             <button
               type="button"
               aria-label="Menyunu aç"
               onClick={() => setDrawerOpen(true)}
-              className="p-1 text-ink-900 transition-colors hover:text-clay-600"
+              className={`${iconButtonClass} -ml-2.5 xl:hidden`}
             >
               <Menu size={20} strokeWidth={1.5} />
             </button>
-            <NavLink
-              to="/katalog"
-              className="hidden text-[11px] font-medium uppercase tracking-[0.3em] text-ink-700 transition-colors hover:text-clay-600 sm:block"
-            >
+            <NavLink to="/katalog" end className={(state) => `hidden sm:block ${navLinkClass(state)}`}>
               Kataloq
             </NavLink>
+            <nav aria-label="Kateqoriyalar" className="hidden items-center gap-7 xl:flex">
+              {headerLinks.map((link) => (
+                <Link
+                  key={`${link.label}-${link.to}`}
+                  to={link.to}
+                  className="text-[12px] font-medium uppercase tracking-[0.14em] text-ink-700 transition-colors duration-300 hover:text-clay-600"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
 
-          {/* Orta: logo (mobilde sol dizilime karışmaması için küçük) */}
-          <Link
-            to="/"
-            className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-center leading-none"
-          >
-            <span className="font-display text-xl tracking-[0.08em] text-ink-900 sm:text-2xl">
-              Khazar
-            </span>
-            <span className="mt-0.5 block text-[7px] uppercase tracking-[0.5em] text-ink-400 sm:text-[8px]">
-              Textile
-            </span>
+          {/* Orta: logo */}
+          <Link to="/" className="whitespace-nowrap" aria-label="Khazar — ana səhifə">
+            <Logo tagline />
           </Link>
 
-          {/* Sağ: giriş + arama + sepet */}
-          <div className="flex items-center gap-6">
-            <span className="hidden cursor-pointer text-[11px] font-medium uppercase tracking-[0.2em] text-ink-700 transition-colors hover:text-clay-600 sm:block">
-              Giriş / Qeydiyyat
-            </span>
-            <button
-              type="button"
-              aria-label="Axtarışı aç"
-              onClick={() => setSearchOpen(true)}
-              className="p-1 text-ink-900 transition-colors hover:text-clay-600"
-            >
-              <Search size={20} strokeWidth={1.5} />
+          {/* Sağ: giriş + axtarış + istək siyahısı + səbət */}
+          <div className="-mr-2.5 flex items-center gap-0.5 justify-self-end sm:gap-2">
+            {user ? (
+              <div className="mr-3 hidden items-center gap-3 text-[12px] font-medium uppercase tracking-[0.14em] lg:flex">
+                {/* One line at every width; a long name is cut instead of pushing the logo off centre. */}
+                <span className="max-w-40 truncate whitespace-nowrap text-ink-500" title={user.firstName}>
+                  Salam, {user.firstName}
+                </span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="uppercase tracking-[0.14em] text-ink-700 transition-colors hover:text-clay-600"
+                >
+                  Çıxış
+                </button>
+              </div>
+            ) : (
+              // The logo shares the row with this link; between md and lg only "Giriş" fits without wrapping.
+              <NavLink to="/giris" className={(state) => `mr-3 hidden whitespace-nowrap md:block ${navLinkClass(state)}`}>
+                <span className="lg:hidden">Giriş</span>
+                <span className="hidden lg:inline">Giriş / Qeydiyyat</span>
+              </NavLink>
+            )}
+            <button type="button" aria-label="Axtarışı aç" onClick={() => setSearchOpen(true)} className={iconButtonClass}>
+              <Search size={19} strokeWidth={1.5} />
             </button>
-            <button
-              type="button"
-              aria-label="İstək siyahısını aç"
-              onClick={openWishlist}
-              className="relative p-1 text-ink-900 transition-colors hover:text-clay-600"
-            >
-              <Heart size={20} strokeWidth={1.5} />
+            <button type="button" aria-label="İstək siyahısını aç" onClick={openWishlist} className={iconButtonClass}>
+              <Heart size={19} strokeWidth={1.5} />
               {wishlistCount > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink-900 px-1 text-[9px] font-semibold text-linen-50">
+                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink-900 px-1 text-[9px] font-semibold text-linen-50">
                   {wishlistCount}
                 </span>
               )}
             </button>
-            <button
-              type="button"
-              aria-label="Səbəti aç"
-              onClick={openCart}
-              className="relative p-1 text-ink-900 transition-colors hover:text-clay-600"
-            >
-              <ShoppingBag size={20} strokeWidth={1.5} />
+            <button type="button" aria-label="Səbəti aç" onClick={openCart} className={iconButtonClass}>
+              <ShoppingBag size={19} strokeWidth={1.5} />
               {totalItemsCount > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay-500 px-1 text-[9px] font-semibold text-linen-50">
+                // Keyed by the count, so the badge "breathes" each time an item is added.
+                <span
+                  key={totalItemsCount}
+                  className="absolute right-0.5 top-0.5 flex h-4 min-w-4 animate-heart-pop items-center justify-center rounded-full bg-clay-600 px-1 text-[9px] font-semibold text-linen-50"
+                >
                   {totalItemsCount}
                 </span>
               )}

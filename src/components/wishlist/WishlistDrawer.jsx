@@ -55,8 +55,8 @@ export function WishlistDrawer() {
         role="dialog"
         aria-modal="true"
         aria-label="İstək siyahısı"
-        className={`absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-linen-50 shadow-2xl transition-transform duration-300 ease-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-linen-50 transition-[transform,visibility,box-shadow] duration-500 ease-[var(--ease-editorial)] ${
+          isOpen ? 'visible translate-x-0 shadow-2xl shadow-ink-900/15' : 'invisible translate-x-full'
         }`}
       >
         <div className="flex items-center justify-between border-b border-linen-200 px-6 py-4">

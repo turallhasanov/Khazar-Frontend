@@ -1,12 +1,15 @@
 import { ChevronDown, Heart, ShoppingBag } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
-import { mockProducts } from '../data/mockProducts'
 import { CompleteTheLook } from '../components/product/CompleteTheLook'
+import { ProductReviews, RatingSummaryLink } from '../components/product/ProductReviews'
 import { SizeGuideModal } from '../components/product/SizeGuideModal'
+import { useProductReviews } from '../hooks/useProductReviews.js'
 import { formatPrice } from '../services/formatPrice.js'
+import { getProductBySlug } from '../services/productService.js'
+import { hideBrokenImage } from '../services/imageFallback.js'
 
 /** Seçili bedenin stok durumuna göre gösterge metni ve tonu. */
 function stockStatus(stock) {
@@ -47,47 +50,109 @@ function AccordionSection({
   )
 }
 
+function PageMessage({ title, children }) {
+  return (
+    <main className="flex-1">
+      <div className="mx-auto max-w-6xl px-6 py-32 text-center">
+        <h1 className="font-display text-3xl text-ink-900">{title}</h1>
+        {children}
+        <Link
+          to="/katalog"
+          className="mt-8 inline-block border border-ink-900 px-8 py-3 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
+        >
+          Kataloqa qayıt
+        </Link>
+      </div>
+    </main>
+  )
+}
+
+/** Loads the product from GET /api/products/slug/{slug}; a 404 shows the "not found" screen. */
+export function ProductDetailPage() {
+  const { slug } = useParams()
+  const [attempt, setAttempt] = useState(0)
+  const [result, setResult] = useState({ key: null, product: null, status: 'loading' })
+  const requestKey = `${slug}#${attempt}`
+
+  useEffect(() => {
+    const controller = new AbortController()
+    getProductBySlug(slug, { signal: controller.signal })
+      .then((product) => setResult({ key: requestKey, product, status: 'ready' }))
+      .catch((error) => {
+        if (error.name === 'AbortError') return
+        setResult({
+          key: requestKey,
+          product: null,
+          status: error.status === 404 ? 'not-found' : 'error',
+        })
+      })
+    return () => controller.abort()
+  }, [slug, requestKey])
+
+  // A result from a previous slug (or attempt) counts as loading until the new response arrives.
+  const status = result.key === requestKey ? result.status : 'loading'
+
+  if (status === 'loading') {
+    return (
+      <main className="flex-1">
+        <div className="mx-auto max-w-6xl px-6 py-32 text-center text-[10px] uppercase tracking-[0.35em] text-ink-400">
+          Yüklənir…
+        </div>
+      </main>
+    )
+  }
+
+  if (status === 'not-found') return <PageMessage title="Məhsul tapılmadı" />
+
+  if (status === 'error') {
+    return (
+      <PageMessage title="Məhsul yüklənmədi">
+        <p className="mt-3 text-sm text-ink-400">Serverə qoşulmaq mümkün olmadı.</p>
+        <button
+          type="button"
+          onClick={() => setAttempt((current) => current + 1)}
+          className="mt-6 block w-full text-[11px] uppercase tracking-[0.3em] text-ink-500 underline-offset-4 hover:text-clay-600 hover:underline"
+        >
+          Yenidən yoxla
+        </button>
+      </PageMessage>
+    )
+  }
+
+  // Keyed by id so color/size selection resets when navigating to another product.
+  return <ProductDetailView key={result.product.id} product={result.product} />
+}
+
 /**
  * Mikro-Aşama 8: Ürün detay sayfası — editoryal galeri, beden/renk matrisi,
  * dinamik stok göstergesi, kumaş & bakım akordeonu.
- *
- * NOT: Mock veride stok beden bazlıdır (StockMatrix); renk seçimi ana görseli
- * değiştirir. Rəng+beden kombinasiyası stoku NexusERP entegrasyonunda (Aşama 4) gelecek.
+ * Stock is resolved per color + size from the API's variants, falling back to the per-size matrix.
  */
-export function ProductDetailPage() {
-  const { slug } = useParams()
-  const product = mockProducts.find((entry) => entry.slug === slug)
-
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0)
+function ProductDetailView({ product }) {
+  // The first color starts selected, unless the cover photo is tagged with another one in the admin gallery.
+  const [selectedColorIndex, setSelectedColorIndex] = useState(() =>
+    Math.max(0, product.colors.findIndex((entry) => entry.name === product.gallery[0]?.color)),
+  )
   const [selectedSize, setSelectedSize] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const { addToCart, openCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
+  // Shared by the star summary under the title and the reviews section.
+  const reviews = useProductReviews(product.id)
 
-  const color = product?.colors[selectedColorIndex]
+  const color = product.colors[selectedColorIndex]
 
-  const status = useMemo(
-    () => (product && selectedSize ? stockStatus(product.stock[selectedSize]) : null),
-    [product, selectedSize],
-  )
+  // The detail payload carries per-variant stock, so availability reflects the selected color too.
+  const variantStock = (size) =>
+    color
+      ? (product.variants?.find((v) => v.color === color.name && v.size === size)?.stockQuantity ??
+        product.stock[size] ??
+        0)
+      : (product.stock[size] ?? 0)
 
-  if (!product) {
-    return (
-      <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-6 py-32 text-center">
-          <h1 className="font-display text-3xl text-ink-900">Məhsul tapılmadı</h1>
-          <Link
-            to="/katalog"
-            className="mt-8 inline-block border border-ink-900 px-8 py-3 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
-          >
-            Kataloqa qayıt
-          </Link>
-        </div>
-      </main>
-    )
-  }
+  const status = selectedSize ? stockStatus(variantStock(selectedSize)) : null
 
   const discountPercent = product.compareAtPrice
     ? Math.round((1 - product.basePrice / product.compareAtPrice) * 100)
@@ -95,8 +160,11 @@ export function ProductDetailPage() {
 
   const selectColor = (index) => {
     setSelectedColorIndex(index)
-    // Renk seçimine göre ana görseli değiştir (mock: renk sırası ↔ görsel sırası)
-    setActiveImage(index % product.images.length)
+    // Show the first photo tagged with this color in the admin gallery; untagged galleries keep the current photo.
+    const photo = product.gallery.findIndex((image) => image.color === product.colors[index]?.name)
+    if (photo >= 0) setActiveImage(photo)
+    // The chosen size may be sold out in the new color.
+    setSelectedSize(null)
   }
 
   const handleAddToCart = () => {
@@ -119,29 +187,39 @@ export function ProductDetailPage() {
 
         <div className="mt-6 grid gap-12 md:grid-cols-2">
           {/* Galeri */}
-          <div>
-            <div className="aspect-[3/4] overflow-hidden bg-linen-100">
+          <div className="md:sticky md:top-24 md:self-start">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-linen-100">
+              {/* Keyed by photo, so a color or thumbnail change cross-fades instead of snapping. */}
               <img
+                key={product.images[activeImage]}
                 src={product.images[activeImage]}
-                alt={product.name}
-                className="h-full w-full object-cover"
+                onError={hideBrokenImage}
+                alt={`${product.name}${product.gallery[activeImage]?.color ? ` — ${product.gallery[activeImage].color}` : ''}`}
+                fetchPriority="high"
+                className="h-full w-full animate-fade-in object-cover transition-transform duration-[1400ms] ease-[var(--ease-editorial)] md:group-hover:scale-[1.03]"
               />
+              {product.images.length > 1 && (
+                <span className="absolute bottom-4 right-4 bg-linen-50/90 px-2.5 py-1 text-[10px] font-medium tabular-nums tracking-[0.16em] text-ink-700 backdrop-blur-sm">
+                  {String(activeImage + 1).padStart(2, '0')} / {String(product.images.length).padStart(2, '0')}
+                </span>
+              )}
             </div>
             {product.images.length > 1 && (
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
                 {product.images.map((image, index) => (
                   <button
-                    key={image}
+                    key={`${image}-${index}`}
                     type="button"
-                    aria-label={`Şəkil ${index + 1}`}
+                    aria-label={`Şəkil ${index + 1}${product.gallery[index]?.color ? ` — ${product.gallery[index].color}` : ''}`}
+                    aria-pressed={activeImage === index}
                     onClick={() => setActiveImage(index)}
-                    className={`h-20 w-16 overflow-hidden border transition-colors ${
+                    className={`h-20 w-16 shrink-0 overflow-hidden border transition-[opacity,border-color] duration-300 ${
                       activeImage === index
                         ? 'border-ink-900'
                         : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={image} alt="" className="h-full w-full object-cover" />
+                    <img src={image} alt="" loading="lazy" onError={hideBrokenImage} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -151,13 +229,14 @@ export function ProductDetailPage() {
           {/* Detaylar */}
           <div>
             <p className="text-[10px] uppercase tracking-[0.35em] text-ink-400">
-              {product.category}
-              {product.isNew && <span className="ml-3 text-sage-600">· New</span>}
-              {product.isBestseller && <span className="ml-3 text-clay-600">· Bestseller</span>}
+              {product.categoryLabel || product.category}
+              {product.isNew && <span className="ml-3 text-sage-600">· Yeni</span>}
+              {product.isBestseller && <span className="ml-3 text-clay-600">· Çox satılan</span>}
             </p>
             <h1 className="mt-3 font-display text-4xl leading-tight tracking-[0.02em] text-ink-900">
               {product.name}
             </h1>
+            <RatingSummaryLink reviews={reviews} />
 
             <div className="mt-4 flex items-baseline gap-3">
               <span
@@ -213,7 +292,7 @@ export function ProductDetailPage() {
                   onClick={() => setSizeGuideOpen(true)}
                   className="text-[10px] uppercase tracking-[0.2em] text-ink-400 underline decoration-ink-900/30 underline-offset-4 transition-colors hover:text-clay-600"
                 >
-                  Beden Ölçü Rehberi
+                  Ölçü cədvəli
                 </button>
                 {!selectedSize && (
                   <p className="text-[10px] uppercase tracking-[0.2em] text-clay-600">
@@ -223,7 +302,7 @@ export function ProductDetailPage() {
               </div>
               <div className="mt-3 grid grid-cols-6 gap-2">
                 {product.sizes.map((size) => {
-                  const inStock = (product.stock[size] ?? 0) > 0
+                  const inStock = variantStock(size) > 0
                   const active = selectedSize === size
                   return (
                     <button
@@ -265,11 +344,11 @@ export function ProductDetailPage() {
                 type="button"
                 disabled={!selectedSize || status?.tone === 'out'}
                 onClick={handleAddToCart}
-                className={`flex flex-1 items-center justify-center gap-3 py-4 text-[11px] font-medium uppercase tracking-[0.35em] transition-colors ${
+                className={`flex min-h-14 flex-1 items-center justify-center gap-3 text-xs font-medium uppercase tracking-[0.14em] transition duration-300 active:translate-y-px ${
                   added
                     ? 'bg-sage-600 text-linen-50'
-                    : 'bg-ink-900 text-linen-50 hover:bg-clay-600'
-                } disabled:cursor-not-allowed disabled:opacity-40`}
+                    : 'bg-clay-600 text-linen-50 hover:bg-clay-700'
+                } disabled:cursor-not-allowed disabled:bg-linen-200 disabled:text-ink-500 disabled:active:translate-y-0`}
               >
                 <ShoppingBag size={16} strokeWidth={1.5} />
                 {added ? 'Səbətə əlavə edildi' : 'Səbətə əlavə et'}
@@ -325,14 +404,12 @@ export function ProductDetailPage() {
 
         {/* Stili tamamla — kategoriye göre editoryal kombin önerileri */}
         <CompleteTheLook currentProduct={product} />
+
+        {/* Rəylər — orta bal, rəy siyahısı və "Rəy yaz" forması */}
+        <ProductReviews productId={product.id} reviews={reviews} />
       </div>
 
-      <SizeGuideModal
-        open={sizeGuideOpen}
-        onClose={() => setSizeGuideOpen(false)}
-        modelSize="M"
-        modelHeight={185}
-      />
+      <SizeGuideModal open={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
     </main>
   )
 }

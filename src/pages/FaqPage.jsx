@@ -1,40 +1,9 @@
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ContentGate } from '../components/content/ContentGate.jsx'
 import { PageHeader } from '../components/layout/PageHeader'
-
-const FAQ_ITEMS = [
-  {
-    question: 'Hansı ödəniş üsulları mövcuddur?',
-    answer:
-      'Bank kartı (Visa / Mastercard), qapıda nağd və qapıda terminal ilə ödəyə bilərsiniz. Kart ödənişləri tam şifrələnmiş kanalla emal olunur; sifariş təsdiqi dərhal e-poçtunuza göndərilir.',
-  },
-  {
-    question: 'Çatdırılma nə qədər vaxt aparır?',
-    answer:
-      'Bakı daxili 1–2 iş günü, regionlara 3–5 iş günü ərzində çatdırılma edilir. 150 ₼ üzəri sifarişlərdə çatdırılma pulsuzdur; ekspress çatdırılma seçimi eyni gün təhvil verir (+10 ₼).',
-  },
-  {
-    question: 'Ölçü seçimində necə rəhbərliyə bilərəm?',
-    answer:
-      'Hər məhsulun səhifəsində beden matrisi və stok göstəricisi var. Oversize modellərdə adətən bir ölçü kiçik seçilməsi tövsiyə olunur; dəqiq ölçü cədvəli üçün məhsulun "Material" bölməsindəki toxuma qramajına baxın.',
-  },
-  {
-    question: 'İadə şərtləri nədir?',
-    answer:
-      'Məhsulu təhvil aldıqdan sonra 14 gün ərzində qaytarə bilərsiniz. Parça etiketi sökülməmiş, istifadə və yuma izi olmayan məhsullar tam geri ödənilir. Ətraflı: Çatdırılma və İadə səhifəsi.',
-  },
-  {
-    question: 'Sifarişimi necə izləyə bilərəm?',
-    answer:
-      'Sifariş təsdiqində #KHZ- ilə başlayan nömrəniz var. Hər hansı sualda bu nömrəni göstərərək +994 50 555 01 44 nömrəsinə və ya hello@khazar.az ünvanına yaza bilərsiniz.',
-  },
-  {
-    question: 'Məhsullar limited seriyadırmı?',
-    answer:
-      'Bəli — hər kolleksiya məhdud sayda toxunur və bəziləri bir daha təkrarlanmır. "Limited seriya" etiketli məhsullar bitdikdə yenidən istehsal olunmur.',
-  },
-]
+import { useSiteContent } from '../context/SiteContentContext'
 
 function FaqItem({ item, open, onToggle }) {
   return (
@@ -57,7 +26,7 @@ function FaqItem({ item, open, onToggle }) {
         />
       </button>
       {open && (
-        <p className="max-w-3xl pb-6 text-sm font-light leading-relaxed text-ink-500">
+        <p className="max-w-3xl whitespace-pre-line pb-6 text-sm font-light leading-relaxed text-ink-500">
           {item.answer}
         </p>
       )}
@@ -66,28 +35,29 @@ function FaqItem({ item, open, onToggle }) {
 }
 
 /**
- * Tez-tez verilən suallar (/tez-tez-verilen-suallar) —
- * minimalist akordeon sorğu-cavab səhifəsi.
+ * Tez-tez verilən suallar (/tez-tez-verilen-suallar) — minimalist akordeon sorğu-cavab səhifəsi.
+ * Başlıq "faqPage" bölməsindən, suallar admin panelinin FAQ səhifəsindən (yalnız dərc olunanlar).
  */
 export function FaqPage() {
-  const [openIndex, setOpenIndex] = useState(0)
+  return <ContentGate section="faqPage">{(page) => <FaqContent page={page} />}</ContentGate>
+}
+
+function FaqContent({ page }) {
+  const items = useSiteContent().content.faq
+  const [openId, setOpenId] = useState(() => items[0]?.id ?? null)
 
   return (
     <main className="flex-1">
-      <PageHeader
-        eyebrow="FAQ"
-        title="Tez-tez verilən suallar"
-        description="Ödəniş, çatdırılma, ölçü seçimi və iadə haqqında ən çox verilən sualların cavabları."
-      />
+      <PageHeader eyebrow={page.header.eyebrow} title={page.header.title} description={page.header.description} />
 
       <section className="mx-auto max-w-3xl px-6 py-16 md:py-20">
         <div className="border-t border-linen-200">
-          {FAQ_ITEMS.map((item, index) => (
+          {items.map((item) => (
             <FaqItem
-              key={item.question}
+              key={item.id}
               item={item}
-              open={openIndex === index}
-              onToggle={() => setOpenIndex(openIndex === index ? -1 : index)}
+              open={openId === item.id}
+              onToggle={() => setOpenId(openId === item.id ? null : item.id)}
             />
           ))}
         </div>

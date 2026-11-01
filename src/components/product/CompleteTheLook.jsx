@@ -2,8 +2,9 @@ import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
-import { mockProducts } from '../../data/mockProducts'
+import { useProducts } from '../../context/ProductsContext'
 import { formatPrice } from '../../services/formatPrice'
+import { hideBrokenImage } from '../../services/imageFallback.js'
 
 /**
  * "Stili tamamla" bloku — ürün detayının altında editoryal kombin önerileri.
@@ -22,11 +23,11 @@ const COMPLEMENT_CATEGORIES = {
 }
 
 /** Kategori için ideal tamamlayıcı ürünleri seçer (mevcut ürünü hariç tutar). */
-function pickComplements(currentProduct, limit = 2) {
+function pickComplements(products, currentProduct, limit = 2) {
   const priorities = COMPLEMENT_CATEGORIES[currentProduct.category] ?? ['Pants', 'T-Shirt']
   const picks = []
   for (const category of priorities) {
-    const candidate = mockProducts.find(
+    const candidate = products.find(
       (product) => product.id !== currentProduct.id && product.category === category,
     )
     if (candidate) picks.push(candidate)
@@ -59,6 +60,7 @@ function LookCard({ product }) {
         <div className="aspect-[3/4] overflow-hidden bg-linen-100">
           <img
             src={product.images[0]}
+            onError={hideBrokenImage}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
@@ -68,7 +70,7 @@ function LookCard({ product }) {
       <div className="mt-4 flex items-start justify-between gap-4">
         <div>
           <p className="text-[9px] uppercase tracking-[0.3em] text-ink-400">
-            {product.category}
+            {product.categoryLabel || product.category}
           </p>
           <Link
             to={`/mehsul/${product.slug}`}
@@ -99,7 +101,8 @@ function LookCard({ product }) {
 }
 
 export function CompleteTheLook({ currentProduct }) {
-  const complements = pickComplements(currentProduct)
+  const { products } = useProducts()
+  const complements = pickComplements(products, currentProduct)
 
   if (complements.length === 0) return null
 

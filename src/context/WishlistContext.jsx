@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { mockProducts } from '../data/mockProducts'
+import { useProducts } from './ProductsContext'
 
 /**
  * Wishlist / İstək Siyahısı sistemi.
@@ -8,7 +8,8 @@ import { mockProducts } from '../data/mockProducts'
  * - Sağdan açılır panel için isOpen / openWishlist / closeWishlist
  */
 
-const STORAGE_KEY = 'khazar-wishlist-v1'
+// v2: product ids are API GUIDs; v1 held mock ids ('p-001') that no longer resolve.
+const STORAGE_KEY = 'khazar-wishlist-v2'
 
 function readStoredIds() {
   try {
@@ -25,6 +26,7 @@ const WishlistContext = createContext(null)
 export function WishlistProvider({ children }) {
   const [ids, setIds] = useState(readStoredIds)
   const [isOpen, setIsOpen] = useState(false)
+  const { products } = useProducts()
 
   // Kalıcılık: her değişiklikte localStorage'a yaz
   useEffect(() => {
@@ -42,8 +44,8 @@ export function WishlistProvider({ children }) {
   const isInWishlist = (productId) => ids.includes(productId)
 
   const items = useMemo(
-    () => mockProducts.filter((product) => ids.includes(product.id)),
-    [ids],
+    () => products.filter((product) => ids.includes(product.id)),
+    [products, ids],
   )
   const count = ids.length
 

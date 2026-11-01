@@ -1,0 +1,280 @@
+Sen dünya standartlarında bir Senior Frontend Developer, Senior UI/UX Designer, Creative Director ve Luxury Fashion E-commerce Uzmanısın.
+
+Görevin, sana verdiğim mevcut tasarım görselini analiz ederek KHAZAR STUDIO — BAKU markası için olağanüstü kalitede, premium görünümlü, modern ve dönüşüm odaklı bir moda landing page tasarlamak ve mevcut projeye uygulamaktır.
+
+Mevcut tasarımı yalnızca kopyalama. Onu temel alarak çok daha etkileyici, özgün, rafine ve profesyonel bir deneyime dönüştür.
+
+Ortaya çıkacak sonuç şu hissi vermeli:
+
+Awwwards ödülü kazanabilecek seviyede yaratıcı web tasarımı.
+COS, Toteme, Jacquemus ve The Row gibi premium moda markalarının görsel estetiği.
+Lüks moda dergilerinden ilham alan editorial art direction.
+Kusursuz tipografi, etkileyici fotoğrafçılık ve güçlü görsel kompozisyon.
+Senior seviyede frontend mühendisliği ve production-ready kod kalitesi.
+ANA HEDEF: Kullanıcı sayfayı ilk açtığında güçlü bir WOW etkisi yaşamalı. Tasarım pahalı, özgün, estetik, modern ve güven veren bir moda markası hissi yaratmalı.
+
+Sadece güzel bir tasarım yapma. Kullanıcı deneyimini, ürün sunumunu ve satın alma dönüşümünü birlikte düşün.
+
+1. YARATICI YÖN VE MARKA KİMLİĞİ
+KHAZAR STUDIO için modern, sofistike ve zamansız bir görsel kimlik oluştur.
+
+Tasarım şu özellikleri taşımalı:
+
+Quiet luxury estetiği.
+Editorial minimalizm.
+Mimari kompozisyonlar.
+Doğal kumaş dokuları.
+Premium moda kampanyası atmosferi.
+Güçlü tipografik hiyerarşi.
+Bilinçli boşluk kullanımı.
+Zarif mikro animasyonlar.
+Modern Azerbaycan kimliğini uluslararası moda estetiğiyle buluşturan bir yaklaşım.
+Tasarım kesinlikle sıradan bir e-ticaret şablonuna benzememeli.
+
+Gereksiz yuvarlak kartlar, rastgele gradientler, ucuz gölgeler, aşırı dekoratif elementler ve klişe yapay zekâ tasarımlarından kaçın.
+
+Her detayın tasarım açısından bir amacı olmalı.
+
+2. PREMIUM RENK PALETİ
+Sıcak, doğal ve lüks bir renk sistemi oluştur.
+
+Ana arka plan: #F7F4ED — sıcak ivory.
+
+İkincil arka plan: #E8DED0 — doğal kum beji.
+
+Ana metin: #28231F — koyu espresso.
+
+İkincil metin: #81766A — yumuşak taupe.
+
+Marka vurgu rengi: #A85F45 — sofistike terracotta.
+
+Açık yüzey: #FCFAF6
+
+Koyu editorial bölüm: #25231F
+
+İnce kenarlıklar: rgba(55, 45, 35, 0.16)
+
+Renkleri tutarlı ve kontrollü kullan.
+
+Terracotta rengini CTA butonlarında, seçili durumlarda ve önemli görsel detaylarda kullan. Her yeri aynı renkle doldurma.
+
+Premium hissi esas olarak fotoğraflar, tipografi, ışık, kontrast ve boşluklarla yarat.
+
+3. HERO SECTION — İLK BAKIŞTA WOW ETKİSİ
+Landing page'in en önemli bölümü hero section olacak.
+
+Bu bölümü sıradan bir ürün tanıtım alanı olarak değil, lüks bir moda kampanyasının dijital versiyonu olarak tasarla.
+
+Yerleşim
+Masaüstünde tam ekran veya ekrana yakın yüksekliğe sahip bir hero.
+Asimetrik ve dengeli editorial kompozisyon.
+Sol tarafta güçlü tipografi ve ürün bilgileri.
+Sağ tarafta geniş, etkileyici ve yüksek kaliteli moda fotoğrafı.
+Ana fotoğrafın üzerine kontrollü biçimde yerleştirilen ikinci bir fotoğraf.
+Fotoğrafın yanında küçük dikey marka veya koleksiyon bilgileri.
+Ürün bilgilerinde zarif çizgiler ve ince ayırıcılar.
+Bol negatif alan ve kusursuz hizalama.
+Ana fotoğraf görsel alanın yaklaşık yüzde 50–60'ını kaplayabilir.
+
+Kompozisyon büyük bir moda dergisinin özel çekim sayfası gibi görünmeli.
+
+Hero başlığı
+Ana başlığı şu şekilde tasarla:
+
+OVERSIZE SWEATSHIRT
+
+İlk satır koyu espresso renginde, büyük ve zarif bir serif fontla yazılmalı.
+
+İkinci satır italic, terracotta renkli ve daha karakteristik görünmeli.
+
+Başlık büyük, etkileyici ve kolay okunabilir olmalı.
+
+Responsive ölçüler için CSS clamp() kullan.
+
+Önerilen fontlar:
+
+Başlık: Cormorant Garamond, Bodoni Moda veya DM Serif Display.
+Arayüz: Manrope, Inter veya DM Sans.
+Fontlar arasında güçlü bir kontrast oluştur. Ancak tipografiyi gereksiz biçimde karmaşıklaştırma.
+
+Üst başlık
+Ana başlığın üstüne küçük ve zarif bir koleksiyon etiketi yerleştir:
+
+KHAZAR STUDIO — NEW COLLECTION FALL / WINTER 2026
+
+Harf aralığı kontrollü, yazı boyutu küçük ve tamamı büyük harflerden oluşmalı.
+
+Marka mesajı
+Başlığın altında kısa, sofistike bir açıklama kullan:
+
+“Quiet confidence. Effortless by design.”
+
+Metin minimal olmalı ve görsel kompozisyonu boğmamalı.
+
+Ürün fotoğrafçılığı
+Fotoğraf kalitesi tasarımın en önemli unsurlarından biridir.
+
+Gerçek bir premium moda kampanyası hissi veren fotoğraflar kullan.
+
+Görsel özellikler:
+
+Oversize sweatshirt giyen modeller.
+Bol kesim, modern pantolonlar.
+Doğal ve kendinden emin pozlar.
+Sıcak bej veya taş rengi stüdyo arka planı.
+Yumuşak, yönlü doğal ışık.
+Estetik gölgeler.
+Gerçekçi pamuk dokusu ve kumaş kıvrımları.
+Oatmeal, stone, charcoal ve muted brown renklerinde kıyafetler.
+Tam boy moda fotoğrafları.
+Yakın plan kumaş ve ürün detayları.
+Fotoğraflar stok katalog görüntüsü gibi değil, profesyonel moda çekimi gibi görünmeli.
+
+Projede mevcut görselleri incele. Uygun görseller yoksa güvenilir kaynaklardan yüksek kaliteli moda görselleri bul veya ortam destekliyorsa özgün görseller oluştur.
+
+Bozuk görsel bağlantıları, düşük çözünürlüklü görseller veya kötü kırpılmış yüzler bırakma.
+
+Görsellerde object-fit: cover kullan ve her görsel için object-position değerini dikkatlice ayarla.
+
+Mobil görünümde modelin yüzünü, kıyafetin siluetini ve ürün detaylarını koru.
+
+4. ÜRÜN BİLGİLERİ VE SATIN ALMA ALANI
+Hero bölümünde zarif bir ürün bilgi alanı oluştur.
+
+Ürün bilgileri:
+
+Fiyat: ₼84.00.
+Bedenler: XS, S, M, L, XL.
+Renkler: oatmeal, stone beige ve deep charcoal.
+Ürün stok durumu, yalnızca gerçek ürün verisi mevcutsa gösterilmeli.
+Bilgileri ince çizgiler, zarif ayırıcılar ve kusursuz tipografiyle düzenle.
+
+Varsayılan HTML bileşenleri gibi görünmemeli. Her element özel olarak tasarlanmış hissi vermeli.
+
+Ana CTA butonu
+Buton metni:
+
+“SELECT YOUR SIZE”
+
+Buton özellikleri:
+
+Terracotta arka plan.
+Zarif metin.
+İnce ok ikonu.
+Dengeli padding.
+Kusursuz hover animasyonu.
+Hover durumunda:
+
+Arka plan koyu espresso rengine dönüşmeli.
+Ok hafifçe sağa hareket etmeli.
+Geçiş doğal ve akıcı olmalı.
+Butona tıklandığında beden seçimi paneli açılmalı veya kullanıcı ürün satın alma alanına yönlendirilmeli.
+
+İkincil CTA
+“EXPLORE THE COLLECTION”
+
+Bu buton sade, ince alt çizgili ve zarif olmalı.
+
+Hover sırasında alt çizgi kontrollü bir animasyonla genişlemeli.
+
+Her iki CTA da gerçekten çalışmalı. Görsel olarak var olup hiçbir işlevi olmayan butonlar bırakma.
+
+5. EDITORIAL KOMPOZİSYON VE SANAT YÖNETİMİ
+Tasarımı sıradan iki sütunlu bir düzenden daha özel hâle getir.
+
+Şu detaylardan uygun olanları kullan:
+
+Büyük editorial başlıklar.
+Asimetrik fotoğraf boyutları.
+Birbiriyle örtüşen görseller.
+Küçük dikey metinler.
+İnce ayırıcı çizgiler.
+Geniş negatif alanlar.
+Hafif kâğıt veya kumaş dokusu.
+Küçük koleksiyon numaraları.
+Fotoğraf altı açıklamaları.
+Görsel kenarlarıyla hizalanmış ürün bilgileri.
+Dekoratif detayları yalnızca tasarımı güçlendiriyorsa kullan.
+
+Görsel hiyerarşi ilk bakışta anlaşılmalı.
+
+6. PREMIUM NAVİGASYON
+Minimal ve dengeli bir header oluştur.
+
+Sol bölüm: KHAZAR STUDIO wordmark.
+
+Orta bölüm:
+
+NEW ARRIVALS
+COLLECTION
+ABOUT
+Sağ bölüm:
+
+Arama ikonu.
+Sepet ikonu.
+Sepetteki ürün adedini gösteren küçük bir sayaç.
+Wordmark özel ve karakteristik görünmeli. Gereksiz bir ikon yerine tipografiyi ön plana çıkar.
+
+Header, hero üzerinde başlangıçta şeffaf olabilir ve scroll sırasında sıcak ivory arka plana geçebilir. Bu efekt yalnızca kompozisyona katkı sağlıyorsa uygulanmalı.
+
+Hover durumları zarif olmalı.
+
+Mobilde işlevsel bir menü çekmecesi ve sepet erişimi oluştur.
+
+7. ANİMASYONLAR VE MİKRO ETKİLEŞİMLER
+Hareketler sinematik, zarif ve kontrollü olmalı.
+
+Uygulanabilecek animasyonlar:
+
+Hero görselinin yumuşak biçimde ortaya çıkması.
+Başlık ve metinlerin hafif gecikmeli görünmesi.
+Opacity ve transform geçişleri.
+Görsel üzerinde çok hafif hover zoom.
+Renk seçeneklerinin animasyonlu seçimi.
+Alt çizgi animasyonları.
+Zarif beden seçimi paneli.
+Bölümler arasında smooth scrolling.
+Animasyonlar tasarımın kalitesini yükseltmeli, dikkat dağıtmamalı.
+
+Projede Framer Motion varsa uygun yerlerde kullan. Yoksa basit CSS animasyonları yeterlidir.
+
+Gereksiz kütüphaneler ekleme.
+
+prefers-reduced-motion ayarını destekle.
+
+Aşırı parallax, sürekli hareket eden öğeler ve kullanıcı deneyimini bozan efektlerden kaçın.
+
+8. LANDING PAGE'İN DİĞER BÖLÜMLERİ
+Yalnızca hero section oluşturup bırakma. Proje tam bir landing page gerektiriyorsa aşağıdaki bölümleri de aynı tasarım diliyle geliştir.
+
+A. Editorial koleksiyon tanıtımı
+Geniş ve etkileyici bir moda fotoğrafı.
+
+Üzerinde kısa bir marka mesajı:
+
+“ESSENTIALS, REDEFINED.”
+
+Sade, sofistike ve görsel olarak güçlü olmalı.
+
+B. Featured Products
+Premium ürün grid'i oluştur.
+
+Her ürün için:
+
+Yüksek kaliteli fotoğraf.
+Ürün adı.
+AZN cinsinden fiyat.
+Renk seçenekleri.
+Zarif hover görsel geçişi.
+Çalışan ürün etkileşimi.
+Grid sıradan bir online mağaza gibi görünmemeli. Moda dergisi estetiği korunmalı.
+
+C. Brand Philosophy
+Koyu espresso veya doğal taş renginde kontrast bir bölüm oluştur.
+
+Büyük bir editorial başlık, etkileyici fotoğraf ve kumaş kalitesi, kesim ve günlük kullanım felsefesi hakkında kısa bir açıklama kullan.
+
+D. Campaign Section
+Geniş, sinematik bir moda fotoğrafı yerleştir.
+
+Fotoğraf üzerinde zarif tipografi ve kontrollü metin yerleşimi kullan.
