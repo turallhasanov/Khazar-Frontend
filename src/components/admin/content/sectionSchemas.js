@@ -5,7 +5,7 @@
 
 const accentHint = 'Vurğu üçün sözü *ulduz* işarələri arasına alın.'
 const linkHint = 'Saytdakı səhifə (/katalog) və ya https:// ünvanı.'
-const imageHint = 'Şəklin ünvanı: https://… və ya saytdakı fayl (/media/…).'
+const imageHint = 'JPG, PNG və ya WebP, ən çox 8 MB.'
 
 const pageHeader = {
   key: 'header',
@@ -32,7 +32,7 @@ const titledText = (itemLabel, max) => ({
 export const SECTION_GROUPS = [
   { label: 'Sayt', keys: ['site', 'search'] },
   { label: 'Ana səhifə', keys: ['hero', 'newArrivals', 'manifesto', 'lookbook', 'slogan', 'featureBlocks', 'craftsmanship', 'journal'] },
-  { label: 'Səhifələr', keys: ['catalog', 'about', 'faqPage', 'shipping', 'contact', 'sizeGuide'] },
+  { label: 'Səhifələr', keys: ['catalog', 'about', 'faqPage', 'shipping', 'contact', 'privacy', 'sizeGuide'] },
 ]
 
 export const SECTIONS = {
@@ -235,6 +235,27 @@ export const SECTIONS = {
       pageHeader,
       { key: 'showroomTitle', label: 'Showroom başlığı', wide: true },
       { key: 'showroomNote', label: 'Showroom qeydi', type: 'textarea', rows: 3, maxLength: 1000 },
+    ],
+  },
+  privacy: {
+    title: 'Gizlilik Siyasəti',
+    description: 'Footer-dən açılan hüquqi səhifə. Mətni dəyişəndə yenilənmə tarixini də dəyişin.',
+    preview: '/gizlilik-siyaseti',
+    fields: [
+      pageHeader,
+      { key: 'lastUpdated', label: 'Yenilənmə sətri', placeholder: 'Son yenilənmə: 31 oktyabr 2026', wide: true },
+      {
+        key: 'blocks',
+        label: 'Bölmələr',
+        type: 'items',
+        itemLabel: 'Bölmə',
+        max: 20,
+        newItem: () => ({ heading: '', paragraphs: [''] }),
+        fields: [
+          { key: 'heading', label: 'Başlıq', maxLength: 200, wide: true },
+          { key: 'paragraphs', label: 'Paraqraflar', type: 'strings', multiline: true, itemLabel: 'Paraqraf', max: 12 },
+        ],
+      },
     ],
   },
   sizeGuide: {

@@ -43,7 +43,7 @@ const config = {
     { key: 'slug', label: 'Slug (URL)', required: true, maxLength: 150, type: 'link', hint: 'Başlıqdan avtomatik; /journal/… ünvanı.' },
     { key: 'meta', label: 'Meta sətri', maxLength: 100, placeholder: 'Dərgi · 5 dəqiqə' },
     { key: 'excerpt', label: 'Qısa təsvir', type: 'textarea', rows: 3, maxLength: 500 },
-    { key: 'coverImageUrl', label: 'Qapaq şəkli', type: 'image', required: true, hint: 'https://… və ya /media/…' },
+    { key: 'coverImageUrl', label: 'Qapaq şəkli', type: 'image', required: true, hint: 'JPG, PNG və ya WebP, ən çox 8 MB.' },
     {
       key: 'sections',
       label: 'Məqalə mətni',

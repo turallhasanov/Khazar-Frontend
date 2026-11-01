@@ -8,6 +8,14 @@ export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:5293/api'
 ).replace(/\/+$/, '')
 
+const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '')
+
+/**
+ * Full address of a stored site path: "/images/…" (photos uploaded in the admin panel) and "/uploads/…" (photos
+ * NexusERP sends with its products) are both served by the API; other values pass through.
+ */
+export const mediaUrl = (path) => (path?.startsWith('/images/') || path?.startsWith('/uploads/') ? `${API_ORIGIN}${path}` : path)
+
 /** Access tokens this close to expiry are refreshed before the request instead of failing with 401. */
 const REFRESH_MARGIN_MS = 30_000
 
@@ -41,7 +49,8 @@ async function send(path, init, accessToken) {
       headers: {
         Accept: 'application/json',
         // Only requests with a body declare a content type, so GETs stay CORS "simple" requests.
-        ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+        // FormData sets its own, with the multipart boundary.
+        ...(init?.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...init?.headers,
       },
@@ -49,6 +58,7 @@ async function send(path, init, accessToken) {
   } catch (error) {
     // Aborts are expected when a component unmounts; let callers recognise and ignore them.
     if (error.name === 'AbortError') throw error
+    console.error(`[api] ${init?.method ?? 'GET'} ${API_BASE_URL}${path} failed:`, error.message)
     throw new ApiError(`API is unreachable at ${API_BASE_URL}`, { status: 0 })
   }
 }

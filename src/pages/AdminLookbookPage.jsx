@@ -3,6 +3,7 @@ import { CollectionPage } from '../components/admin/content/CollectionPage.jsx'
 import { useProductOptions } from '../components/admin/content/useProductOptions.js'
 import { microLabelClass } from '../components/admin/adminUi.jsx'
 import { lookbookLooksApi } from '../services/adminService.js'
+import { mediaUrl } from '../services/api.js'
 
 const MAX_HOTSPOTS = 8
 const round = (value) => Math.round(value * 10) / 10
@@ -27,7 +28,7 @@ function HotspotPicker({ value, onChange }) {
     <div className="mb-6">
       <p className={`${microLabelClass} mb-2`}>Hotspot-lar</p>
       <div className="relative mx-auto w-full max-w-xs cursor-crosshair overflow-hidden border border-ink-900/10 bg-linen-100">
-        <img src={value.imageUrl} alt="" onClick={add} className="aspect-[3/4] w-full select-none object-cover" draggable={false} />
+        <img src={mediaUrl(value.imageUrl)} alt="" onClick={add} className="aspect-[3/4] w-full select-none object-cover" draggable={false} />
         {hotspots.map((hotspot, index) => (
           <span
             key={index}
@@ -81,7 +82,7 @@ const baseConfig = {
   renderExtra: (props) => <HotspotPicker {...props} />,
   fields: [
     { key: 'title', label: 'Başlıq', required: true, maxLength: 150, wide: true },
-    { key: 'imageUrl', label: 'Şəkil', type: 'image', required: true, hint: 'Şaquli (3:4) kadr; https://… və ya /media/…' },
+    { key: 'imageUrl', label: 'Şəkil', type: 'image', required: true, hint: 'Şaquli (3:4) kadr; JPG, PNG və ya WebP, ən çox 8 MB.' },
     { key: 'ctaLabel', label: 'Link mətni', maxLength: 100 },
     { key: 'ctaLink', label: 'Link', type: 'link', maxLength: 300 },
     {

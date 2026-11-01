@@ -24,14 +24,21 @@ const REVEAL_ON_ACTIVE =
  *   aşağıda ölçü seçicisi qalxır — ölçüyə klik seçilmiş rənglə səbətə əlavə edir
  * - Kart: kölgəsiz, hover-da bir az qalxır; ad hover-də terracotta olur
  * - İstək siyahısı: krem dairəvi düymə, əlavə edəndə qısa "pop" və incə halqa
- * - Bilgi: serif ad, altında fiyat, ən altda material və seçilə bilən rəng nöqtələri
+ * - Bilgi: serif ad, altında fiyat, ən altda material və seçilə bilən rəng nöqtələri; admin qalereyasında rəngə
+ *   bağlanmış foto varsa, rəng seçiləndə həmin foto yumşaq keçidlə göstərilir
  */
 export function ProductCard({ product, index = 0 }) {
   const { addToCart, openCart } = useCart()
-  const [colorIndex, setColorIndex] = useState(0)
+  // Starts on the cover photo's color when the admin tagged it, so the swatch and the photo agree.
+  const [colorIndex, setColorIndex] = useState(() =>
+    Math.max(0, product.colors.findIndex((entry) => entry.name === product.gallery[0]?.color)),
+  )
   const selectedColor = product.colors[colorIndex] ?? product.colors[0]
 
   const [primaryImage, secondaryImage] = product.images
+  // A swatch with its own photo in the gallery fades that photo in over the cover.
+  const colorImage = product.gallery.find((image) => image.color && image.color === selectedColor?.name)?.url
+  const showColorImage = Boolean(colorImage) && colorImage !== primaryImage
   const primaryRef = useRef(null)
   const [primaryState, setPrimaryState] = useState('loading') // loading | loaded | error
   const [secondaryFailed, setSecondaryFailed] = useState(false)
@@ -96,7 +103,20 @@ export function ProductCard({ product, index = 0 }) {
               />
             )}
 
-            {hasSecondary && (
+            {showColorImage && primaryState === 'loaded' && (
+              <img
+                key={colorImage}
+                src={colorImage}
+                srcSet={unsplashSrcSet(colorImage)}
+                sizes={CARD_SIZES}
+                alt={`${product.name} — ${selectedColor.name}`}
+                decoding="async"
+                draggable={false}
+                className={`absolute inset-0 h-full w-full animate-fade-in object-cover ${IMAGE_MOTION} group-hover/card:scale-[1.05]`}
+              />
+            )}
+
+            {hasSecondary && !showColorImage && (
               <img
                 src={secondaryImage}
                 srcSet={unsplashSrcSet(secondaryImage)}
@@ -168,7 +188,7 @@ export function ProductCard({ product, index = 0 }) {
                 )}
                 {product.isBestseller && (
                   <span className="bg-linen-50 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-ink-900">
-                    Bestseller
+                    Çox satılan
                   </span>
                 )}
               </>

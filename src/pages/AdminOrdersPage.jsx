@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, RefreshCw, RotateCw, ShoppingBag, XCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle2, RefreshCw, RotateCw, ShoppingBag, Trash2, XCircle } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useAdminToast } from '../components/admin/AdminToasts.jsx'
 import {
@@ -17,7 +17,14 @@ import {
 } from '../components/admin/adminUi.jsx'
 import { ListSkeleton } from '../components/admin/reviews/ReviewsList.jsx'
 import { formatDateTime, formatTime, useAdminList } from '../components/admin/useAdminList.js'
-import { cancelOrder, completeOrder, getAdminOrders, retryOrderErpSync } from '../services/adminService.js'
+import {
+  cancelOrder,
+  completeOrder,
+  deleteOrder,
+  getAdminOrders,
+  getCancelledOrders,
+  syncOrderToNexus,
+} from '../services/adminService.js'
 import { ApiError } from '../services/api.js'
 import { formatPrice } from '../services/formatPrice'
 
@@ -27,57 +34,75 @@ const ORDER_STATUS = {
   Processing: { label: 'Emal olunur', tone: 'ink', hint: 'NexusERP-ə ötürülür.' },
   SyncedToErp: { label: 'NexusERP-də', tone: 'ink', hint: 'NexusERP qəbul edib; təhvildən sonra tamamlayın.' },
   Completed: { label: 'Tamamlanıb', tone: 'sage', hint: 'Təhvil verilib.' },
-  Cancelled: { label: 'Ləğv edilib', tone: 'muted', hint: 'Məhsullar stoka qaytarılıb.' },
+  Cancelled: { label: 'Ləğv edildi', tone: 'muted', hint: 'Məhsullar stoka qaytarılıb.' },
 }
 
 const describeOrderError = (error) => {
   if (!(error instanceof ApiError)) return 'Gözlənilməz xəta baş verdi.'
   if (error.status === 0) return 'Serverə qoşulmaq mümkün olmadı.'
   if (error.code === 'invalid_order_status') return 'Sifarişin statusu bu əməliyyata imkan vermir — siyahını yeniləyin.'
-  if (error.status === 404) return 'Sifariş tapılmadı.'
+  // error.message is the API's detail: NexusERP's HTTP status and its own reason (unknown SKU, no company, login failed ...).
+  if (error.code === 'nexus_sync_failed') return `NexusERP sifarişi qəbul etmədi. ${error.message}`
+  if (error.status === 404 && error.code === 'not_found') return 'Sifariş tapılmadı.'
+  // A 404 without the API's own error code means the route does not exist: the API is an older build.
+  if (error.status === 404) return 'Əməliyyat serverdə tapılmadı — Khazar API-ni yenidən başladın.'
   return error.message
 }
 
 /**
  * /admin/sifarisler — orders from GET /api/admin/orders: search, filter by status, details, and the status actions
- * the order allows (complete, cancel with stock return, retry the NexusERP push). Orders are never deleted.
+ * the order allows (complete, cancel with stock return, retry the NexusERP push). "Sil" cancels an order, which moves
+ * it out of the default list into the "Ləğv edilmişlər" filter; orders are never erased.
  */
 export function AdminOrdersPage() {
   const { toast } = useAdminToast()
   const list = useAdminList(getAdminOrders)
+  const cancelledList = useAdminList(getCancelledOrders)
   const [status, setStatus] = useState('')
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const [busy, setBusy] = useState(null)
   const [cancelling, setCancelling] = useState(false)
+  const [deleting, setDeleting] = useState(null)
 
+  // The default view lists active orders only; cancelled ones are loaded separately and shown by the status filter.
   const orders = list.items
-  const selected = orders.find((order) => order.id === selectedId) ?? null
+  const cancelledOrders = cancelledList.items
+  const showCancelled = status === 'Cancelled'
+  const selected = [...orders, ...cancelledOrders].find((order) => order.id === selectedId) ?? null
   const counts = useMemo(
     () => Object.fromEntries(Object.keys(ORDER_STATUS).map((key) => [key, orders.filter((order) => order.status === key).length])),
     [orders],
   )
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return orders.filter(
+    return (showCancelled ? cancelledOrders : orders).filter(
       (order) =>
-        (!status || order.status === status) &&
+        (!status || showCancelled || order.status === status) &&
         (!needle || [order.orderNumber, order.customerName, order.customerEmail].join(' ').toLowerCase().includes(needle)),
     )
-  }, [orders, status, query])
+  }, [orders, cancelledOrders, showCancelled, status, query])
 
   const run = async (action, order, success) => {
     setBusy(action)
     try {
-      const request = { complete: completeOrder, cancel: cancelOrder, retry: retryOrderErpSync }[action]
+      const request = { complete: completeOrder, cancel: cancelOrder, delete: deleteOrder, sync: syncOrderToNexus }[action]
       const updated = await request(order.id)
-      list.setItems((items) => items.map((item) => (item.id === updated.id ? updated : item)))
+      if (updated.status === 'Cancelled') {
+        // A cancelled order leaves the active list and joins the cancelled one.
+        list.setItems((items) => items.filter((item) => item.id !== updated.id))
+        cancelledList.setItems((items) => [updated, ...items.filter((item) => item.id !== updated.id)])
+        setSelectedId((current) => (current === updated.id ? null : current))
+      } else {
+        list.setItems((items) => items.map((item) => (item.id === updated.id ? updated : item)))
+      }
       toast({ message: success })
     } catch (error) {
       toast({ message: describeOrderError(error), tone: 'error' })
     } finally {
       setBusy(null)
       setCancelling(false)
+      setDeleting(null)
     }
   }
 
@@ -88,7 +113,7 @@ export function AdminOrdersPage() {
       <AdminPageHeader
         eyebrow="Satış"
         title="Sifarişlər"
-        description="Saytdan verilən bütün sifarişlər. Sifarişlər silinmir: tamamlanır və ya ləğv edilir (ləğvdə məhsullar stoka qaytarılır)."
+        description="Saytdan verilən aktiv sifarişlər. Silinən və ya ləğv edilən sifarişlər siyahıdan çıxır, məhsullar stoka qaytarılır; onlara «Ləğv edilmişlər» filtri ilə baxa bilərsiniz."
         actions={
           <>
             {list.loadedAt && <span className="text-[11px] text-ink-400">Yeniləndi · {formatTime(list.loadedAt)}</span>}
@@ -111,11 +136,11 @@ export function AdminOrdersPage() {
         />
       )}
 
-      {ready && orders.length === 0 && (
+      {ready && orders.length === 0 && cancelledOrders.length === 0 && (
         <EmptyState icon={ShoppingBag} title="Hələ sifariş yoxdur" text="Saytdan verilən sifarişlər burada görünəcək." />
       )}
 
-      {ready && orders.length > 0 && (
+      {ready && (orders.length > 0 || cancelledOrders.length > 0) && (
         <>
           <div className="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1fr)_14rem]">
             <FilterField label="Axtarış">
@@ -123,12 +148,15 @@ export function AdminOrdersPage() {
             </FilterField>
             <FilterField label="Status">
               <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-                <option value="">Hamısı ({orders.length})</option>
-                {Object.entries(ORDER_STATUS).map(([key, meta]) => (
-                  <option key={key} value={key}>
-                    {meta.label} ({counts[key]})
-                  </option>
-                ))}
+                <option value="">Aktiv sifarişlər ({orders.length})</option>
+                {Object.entries(ORDER_STATUS)
+                  .filter(([key]) => key !== 'Cancelled')
+                  .map(([key, meta]) => (
+                    <option key={key} value={key}>
+                      {meta.label} ({counts[key]})
+                    </option>
+                  ))}
+                <option value="Cancelled">Ləğv edilmişlər ({cancelledOrders.length})</option>
               </Select>
             </FilterField>
           </div>
@@ -142,11 +170,11 @@ export function AdminOrdersPage() {
           ) : (
             <ul className="mt-3 divide-y divide-linen-200 border-y border-linen-200">
               {visible.map((order) => (
-                <li key={order.id}>
+                <li key={order.id} className="flex items-center">
                   <button
                     type="button"
                     onClick={() => setSelectedId(order.id)}
-                    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-2 py-3.5 text-left transition-colors hover:bg-linen-100/60 sm:grid-cols-[10rem_minmax(0,1fr)_7rem_9rem]"
+                    className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-2 py-3.5 text-left transition-colors hover:bg-linen-100/60 sm:grid-cols-[10rem_minmax(0,1fr)_7rem_9rem]"
                   >
                     <span>
                       <span className="block font-mono text-[13px] text-ink-900">{order.orderNumber}</span>
@@ -161,6 +189,18 @@ export function AdminOrdersPage() {
                       <ToneBadge tone={ORDER_STATUS[order.status]?.tone}>{ORDER_STATUS[order.status]?.label ?? order.status}</ToneBadge>
                     </span>
                   </button>
+                  {!['Completed', 'Cancelled'].includes(order.status) && (
+                    <button
+                      type="button"
+                      aria-label={`${order.orderNumber} sil`}
+                      title="Sil"
+                      onClick={() => setDeleting(order)}
+                      disabled={Boolean(busy)}
+                      className="mx-2 shrink-0 rounded p-2 text-ink-400 transition-colors hover:bg-linen-100 hover:text-red-700 disabled:opacity-50"
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -224,11 +264,11 @@ export function AdminOrdersPage() {
             <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-linen-200 bg-linen-100/40 px-6 py-4">
               {selected.status === 'Pending' && (
                 <Button
-                  onClick={() => run('retry', selected, `${selected.orderNumber} NexusERP-ə yenidən göndərildi; nəticə bir azdan siyahıda görünəcək.`)}
+                  onClick={() => run('sync', selected, `${selected.orderNumber} NexusERP-ə ötürüldü.`)}
                   disabled={Boolean(busy)}
                 >
-                  <RotateCw size={13} strokeWidth={1.75} />
-                  NexusERP-ə yenidən göndər
+                  <RotateCw size={13} strokeWidth={1.75} className={busy === 'sync' ? 'animate-spin' : ''} />
+                  {busy === 'sync' ? 'Ötürülür…' : 'NexusERP-ə Ötür'}
                 </Button>
               )}
               {!['Completed', 'Cancelled'].includes(selected.status) && (
@@ -257,7 +297,20 @@ export function AdminOrdersPage() {
         onConfirm={() => run('cancel', selected, `${selected.orderNumber} ləğv edildi, məhsullar stoka qaytarıldı.`)}
       >
         Məhsullar ({selected?.itemCount} ədəd) stoka qaytarılacaq. Geri qaytarıla bilməz.
-        {selected?.status === 'SyncedToErp' && ' Sifariş artıq NexusERP-dədir — orada ayrıca ləğv edin.'}
+        {selected?.status === 'SyncedToErp' && ' Sifariş NexusERP-də də ləğv ediləcək.'}
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        title={`${deleting?.orderNumber} silinsin?`}
+        confirmLabel="Sifarişi sil"
+        busy={busy === 'delete'}
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => run('delete', deleting, `${deleting.orderNumber} silindi, məhsullar stoka qaytarıldı.`)}
+      >
+        Sifariş ləğv ediləcək və siyahıdan çıxacaq; məhsullar ({deleting?.itemCount} ədəd) stoka qaytarılacaq.
+        {deleting?.status === 'SyncedToErp' && ' Sifariş NexusERP-də də ləğv ediləcək.'} Ona «Ləğv edilmişlər» filtri ilə baxa
+        bilərsiniz.
       </ConfirmDialog>
     </div>
   )

@@ -89,7 +89,7 @@ export function createProduct(product) {
   return announcing(apiClient('/admin/products', json('POST', product)), 'catalog')
 }
 
-/** PUT — name, slug, description, categoryId, fabric, price, coverImage, isFeatured. Variants are separate calls. */
+/** PUT — name, slug, description, categoryId, fabric, price, images [{ url, color }], isFeatured. Variants are separate calls. */
 export function updateProduct(productId, fields) {
   return announcing(apiClient(productPath(productId), json('PUT', fields)), 'catalog')
 }
@@ -118,6 +118,15 @@ export function updateVariantStock(productId, variantId, stockQuantity) {
 /** DELETE — only for variants that were never ordered and are not the product's last one. */
 export function removeVariant(productId, variantId) {
   return announcing(apiClient(variantPath(productId, variantId), { method: 'DELETE' }), 'catalog')
+}
+
+// ---------- Images (/admin/images) ----------
+
+/** POST — stores a JPEG, PNG or WebP (at most 8 MB) in the images folder; returns { url: "/images/…" } to save. */
+export function uploadImage(file) {
+  const body = new FormData()
+  body.append('file', file)
+  return apiClient('/admin/images', { method: 'POST', body })
 }
 
 // ---------- Content (/admin/content/sections, /admin/journal-articles, /admin/lookbook-looks, /admin/faq-items) ----------
@@ -159,9 +168,23 @@ export const faqItemsApi = contentCollection('/admin/faq-items')
 
 const orderPath = (id) => `/admin/orders/${encodeURIComponent(id)}`
 
-/** GET — every order, newest first. */
+/** GET — the active orders, newest first. Cancelled (deleted) orders are left out; see getCancelledOrders. */
 export function getAdminOrders({ signal } = {}) {
   return apiClient('/admin/orders', { signal })
+}
+
+/** GET — the cancelled (deleted) orders, newest first. */
+export function getCancelledOrders({ signal } = {}) {
+  return apiClient('/admin/orders?status=Cancelled', { signal })
+}
+
+/**
+ * DELETE — "deletes" an order: it is cancelled (items back to stock, and in NexusERP too) and leaves the default list.
+ * Resolves with the cancelled order; rejects 409 (invalid_order_status) for a completed or already cancelled order and
+ * 502 (nexus_cancel_failed) when NexusERP could not cancel it, in which case nothing changed.
+ */
+export function deleteOrder(orderId) {
+  return announcing(apiClient(orderPath(orderId), { method: 'DELETE' }), 'catalog')
 }
 
 /** POST — SyncedToErp → Completed. Returns the updated order. */
@@ -177,6 +200,16 @@ export function cancelOrder(orderId) {
 /** POST — queues a Pending order for another NexusERP push (202). */
 export function retryOrderErpSync(orderId) {
   return apiClient(`${orderPath(orderId)}/erp-sync`, { method: 'POST' })
+}
+
+/** POST — pushes a Pending order to NexusERP now; resolves with the order as SyncedToErp, rejects (502) if refused. */
+export function syncOrderToNexus(orderId) {
+  return apiClient(`${orderPath(orderId)}/sync-nexus`, { method: 'POST' })
+}
+
+/** POST — pulls NexusERP products, prices and stock into the catalog. Resolves with the created/updated counts. */
+export function pullNexusProducts() {
+  return announcing(apiClient('/admin/nexus/pull-products', { method: 'POST' }), 'catalog')
 }
 
 // ---------- Inbox (/admin/contact-messages, /admin/newsletter-subscribers) ----------

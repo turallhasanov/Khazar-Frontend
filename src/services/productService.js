@@ -1,4 +1,4 @@
-import { apiClient } from './api.js'
+import { apiClient, mediaUrl } from './api.js'
 
 // The catalog is public: requests go without the access token, so they stay CORS "simple" requests.
 
@@ -41,7 +41,11 @@ export function normalizeProduct(product) {
       hex: color.hex ?? COLOR_SWATCHES[color.name] ?? FALLBACK_SWATCH,
     })),
     sizes: product.sizes ?? [],
-    images: (product.images ?? []).filter(Boolean),
+    images: (product.images ?? []).filter(Boolean).map(mediaUrl),
+    // [{ url, color }]: the same photos as `images`, with the variant color each shows (null when untagged).
+    gallery: product.gallery?.length
+      ? product.gallery.filter((image) => image.url).map((image) => ({ ...image, url: mediaUrl(image.url) }))
+      : (product.images ?? []).filter(Boolean).map((url) => ({ url: mediaUrl(url), color: null })),
     fabric: { care: [], ...product.fabric },
     stock: product.stock ?? {},
   }

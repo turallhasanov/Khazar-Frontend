@@ -16,7 +16,7 @@ import {
 import { slugify } from '../products/productForm.js'
 import { ListSkeleton } from '../reviews/ReviewsList.jsx'
 import { formatTime, useAdminList } from '../useAdminList.js'
-import { ApiError } from '../../../services/api.js'
+import { ApiError, mediaUrl } from '../../../services/api.js'
 import { describeContentError } from './contentErrors.js'
 import { SchemaForm } from './SchemaForm.jsx'
 
@@ -174,7 +174,7 @@ export function CollectionPage({ config }) {
                   <span className="hidden w-10 shrink-0 pl-2 text-sm tabular-nums text-ink-400 sm:block">{item.sortOrder}</span>
                   {thumbnail !== undefined && (
                     <span className="h-14 w-11 shrink-0 overflow-hidden border border-ink-900/10 bg-linen-100">
-                      {thumbnail && <img src={thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" />}
+                      {thumbnail && <img src={mediaUrl(thumbnail)} alt="" loading="lazy" className="h-full w-full object-cover" />}
                     </span>
                   )}
                   <button type="button" onClick={() => openEdit(item)} className="min-w-0 flex-1 text-left">

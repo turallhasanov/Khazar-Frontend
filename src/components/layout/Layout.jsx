@@ -24,6 +24,7 @@ function ScrollToTop() {
  * Header — Mikro-Aşama 2 | Footer — Mikro-Aşama 3.
  */
 export function Layout() {
+  const { pathname } = useLocation()
   return (
     // AuthProvider is outermost so every page (checkout included) can read the signed-in user.
     // ProductsProvider wraps the wishlist, which resolves its stored ids against the API catalog.
@@ -35,7 +36,10 @@ export function Layout() {
               <div className="flex min-h-svh flex-col bg-linen-50 font-sans text-ink-900 antialiased">
                 <ScrollToTop />
                 <Header />
-                <Outlet />
+                {/* Keyed by path: each page fades in instead of snapping (query changes, e.g. filters, do not). */}
+                <div key={pathname} className="flex flex-1 animate-page-in flex-col">
+                  <Outlet />
+                </div>
                 <Footer />
                 <CartDrawer />
                 <WishlistDrawer />

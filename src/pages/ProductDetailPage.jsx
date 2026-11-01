@@ -129,7 +129,10 @@ export function ProductDetailPage() {
  * Stock is resolved per color + size from the API's variants, falling back to the per-size matrix.
  */
 function ProductDetailView({ product }) {
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0)
+  // The first color starts selected, unless the cover photo is tagged with another one in the admin gallery.
+  const [selectedColorIndex, setSelectedColorIndex] = useState(() =>
+    Math.max(0, product.colors.findIndex((entry) => entry.name === product.gallery[0]?.color)),
+  )
   const [selectedSize, setSelectedSize] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
   const [added, setAdded] = useState(false)
@@ -157,8 +160,9 @@ function ProductDetailView({ product }) {
 
   const selectColor = (index) => {
     setSelectedColorIndex(index)
-    // Images are not per color yet: cycle through the gallery by color index.
-    if (product.images.length > 0) setActiveImage(index % product.images.length)
+    // Show the first photo tagged with this color in the admin gallery; untagged galleries keep the current photo.
+    const photo = product.gallery.findIndex((image) => image.color === product.colors[index]?.name)
+    if (photo >= 0) setActiveImage(photo)
     // The chosen size may be sold out in the new color.
     setSelectedSize(null)
   }
@@ -183,30 +187,39 @@ function ProductDetailView({ product }) {
 
         <div className="mt-6 grid gap-12 md:grid-cols-2">
           {/* Galeri */}
-          <div>
-            <div className="aspect-[3/4] overflow-hidden bg-linen-100">
+          <div className="md:sticky md:top-24 md:self-start">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-linen-100">
+              {/* Keyed by photo, so a color or thumbnail change cross-fades instead of snapping. */}
               <img
+                key={product.images[activeImage]}
                 src={product.images[activeImage]}
                 onError={hideBrokenImage}
-                alt={product.name}
-                className="h-full w-full object-cover"
+                alt={`${product.name}${product.gallery[activeImage]?.color ? ` — ${product.gallery[activeImage].color}` : ''}`}
+                fetchPriority="high"
+                className="h-full w-full animate-fade-in object-cover transition-transform duration-[1400ms] ease-[var(--ease-editorial)] md:group-hover:scale-[1.03]"
               />
+              {product.images.length > 1 && (
+                <span className="absolute bottom-4 right-4 bg-linen-50/90 px-2.5 py-1 text-[10px] font-medium tabular-nums tracking-[0.16em] text-ink-700 backdrop-blur-sm">
+                  {String(activeImage + 1).padStart(2, '0')} / {String(product.images.length).padStart(2, '0')}
+                </span>
+              )}
             </div>
             {product.images.length > 1 && (
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
                 {product.images.map((image, index) => (
                   <button
-                    key={image}
+                    key={`${image}-${index}`}
                     type="button"
-                    aria-label={`Şəkil ${index + 1}`}
+                    aria-label={`Şəkil ${index + 1}${product.gallery[index]?.color ? ` — ${product.gallery[index].color}` : ''}`}
+                    aria-pressed={activeImage === index}
                     onClick={() => setActiveImage(index)}
-                    className={`h-20 w-16 overflow-hidden border transition-colors ${
+                    className={`h-20 w-16 shrink-0 overflow-hidden border transition-[opacity,border-color] duration-300 ${
                       activeImage === index
                         ? 'border-ink-900'
                         : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={image} alt="" onError={hideBrokenImage} className="h-full w-full object-cover" />
+                    <img src={image} alt="" loading="lazy" onError={hideBrokenImage} className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -217,8 +230,8 @@ function ProductDetailView({ product }) {
           <div>
             <p className="text-[10px] uppercase tracking-[0.35em] text-ink-400">
               {product.categoryLabel || product.category}
-              {product.isNew && <span className="ml-3 text-sage-600">· New</span>}
-              {product.isBestseller && <span className="ml-3 text-clay-600">· Bestseller</span>}
+              {product.isNew && <span className="ml-3 text-sage-600">· Yeni</span>}
+              {product.isBestseller && <span className="ml-3 text-clay-600">· Çox satılan</span>}
             </p>
             <h1 className="mt-3 font-display text-4xl leading-tight tracking-[0.02em] text-ink-900">
               {product.name}
@@ -279,7 +292,7 @@ function ProductDetailView({ product }) {
                   onClick={() => setSizeGuideOpen(true)}
                   className="text-[10px] uppercase tracking-[0.2em] text-ink-400 underline decoration-ink-900/30 underline-offset-4 transition-colors hover:text-clay-600"
                 >
-                  Beden Ölçü Rehberi
+                  Ölçü cədvəli
                 </button>
                 {!selectedSize && (
                   <p className="text-[10px] uppercase tracking-[0.2em] text-clay-600">

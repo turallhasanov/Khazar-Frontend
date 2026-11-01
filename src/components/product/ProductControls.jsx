@@ -22,7 +22,9 @@ export function WishlistButton({ product, className = '' }) {
       aria-label={wished ? `${product.name} istək siyahısından sil` : `${product.name} istək siyahısına əlavə et`}
       aria-pressed={wished}
       onClick={onClick}
-      className={`relative flex h-10 w-10 items-center justify-center rounded-full bg-linen-50/90 text-ink-900 transition duration-300 ease-[var(--ease-soft)] hover:scale-105 hover:bg-linen-50 hover:text-clay-600 active:scale-95 motion-reduce:hover:scale-100 ${className}`}
+      // `relative` anchors the pop ring; a caller placing the button itself (e.g. "absolute right-3") replaces it,
+      // since two position utilities in one class list resolve by stylesheet order, not by the order written here.
+      className={`${/\b(absolute|fixed|sticky)\b/.test(className) ? '' : 'relative'} flex h-10 w-10 items-center justify-center rounded-full bg-linen-50/90 text-ink-900 transition duration-300 ease-[var(--ease-soft)] hover:scale-105 hover:bg-linen-50 hover:text-clay-600 active:scale-95 motion-reduce:hover:scale-100 ${className}`}
     >
       {popping && (
         <span

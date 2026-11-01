@@ -19,6 +19,8 @@ export function describeAuthError(error) {
       return 'Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayın.'
     case 400:
       return 'Məlumatlarda xəta var. Formu yoxlayıb yenidən cəhd edin.'
+    case 401:
+      return 'E-poçt və ya şifrə yanlışdır.'
     case 429:
       return 'Çox sayda cəhd edildi. Bir dəqiqə gözləyib yenidən cəhd edin.'
     default:

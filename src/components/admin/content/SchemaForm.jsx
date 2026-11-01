@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
 import { Button, FormField, Select, TextArea, TextInput, microLabelClass } from '../adminUi.jsx'
+import { ImageField } from '../ImageUpload.jsx'
 
 /**
  * Form generated from a field list, for the content sections and the journal / lookbook / FAQ editors.
@@ -116,24 +117,7 @@ function Control({ field, value, onChange, props, context }) {
         </Select>
       )
     case 'image':
-      return (
-        <div className="flex gap-3">
-          <TextInput {...common} value={text} onChange={(event) => onChange(event.target.value)} className="font-mono text-[12px]" />
-          {text && (
-            <img
-              src={text}
-              alt=""
-              onError={(event) => {
-                event.currentTarget.style.visibility = 'hidden'
-              }}
-              onLoad={(event) => {
-                event.currentTarget.style.visibility = 'visible'
-              }}
-              className="h-10 w-10 shrink-0 border border-ink-900/10 bg-linen-100 object-cover"
-            />
-          )}
-        </div>
-      )
+      return <ImageField value={text} onChange={onChange} controlProps={props} />
     case 'link':
       return <TextInput {...common} value={text} onChange={(event) => onChange(event.target.value)} className="font-mono text-[12px]" />
     default:

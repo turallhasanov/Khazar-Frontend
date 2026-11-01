@@ -1,4 +1,4 @@
-import { AlertCircle, Archive, ArchiveRestore, ImageOff, Lock, Plus, Trash2, X } from 'lucide-react'
+import { AlertCircle, Archive, ArchiveRestore, Lock, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { addVariant, createProduct, removeVariant, updateProduct, updateVariantStock } from '../../../services/adminService.js'
 import { useAdminToast } from '../AdminToasts.jsx'
@@ -13,6 +13,7 @@ import {
   TextInput,
   microLabelClass,
 } from '../adminUi.jsx'
+import { GalleryEditor } from './GalleryEditor.jsx'
 import { ProductStatusBadge } from './ProductStatusBadge.jsx'
 import {
   LIMITS,
@@ -30,36 +31,6 @@ import {
 
 const sectionTitle = `${microLabelClass} text-ink-900`
 const cellInput = 'h-9 px-2.5 text-[13px]'
-
-function isHttpUrl(value) {
-  try {
-    return ['http:', 'https:'].includes(new URL(value).protocol)
-  } catch {
-    return false
-  }
-}
-
-function CoverPreview({ url }) {
-  const [failedUrl, setFailedUrl] = useState(null)
-  const valid = isHttpUrl(url.trim())
-  return (
-    <div className="flex aspect-[4/5] w-28 shrink-0 items-center justify-center overflow-hidden border border-linen-200 bg-linen-100">
-      {valid && failedUrl !== url ? (
-        <img
-          src={url.trim()}
-          alt=""
-          onError={() => setFailedUrl(url)}
-          className="h-full w-full animate-fade-in object-cover"
-        />
-      ) : (
-        <span className="flex flex-col items-center gap-1.5 px-2 text-center text-[10px] text-ink-400">
-          <ImageOff size={18} strokeWidth={1.25} />
-          {valid ? 'Şəkil yüklənmədi' : 'Önizləmə'}
-        </span>
-      )}
-    </div>
-  )
-}
 
 /**
  * Create / edit a product in a slide-over. Product fields are saved together with "Saxla"; in edit mode variants
@@ -82,6 +53,10 @@ export function ProductEditorDrawer({ open, product, categories, onClose, onSave
   const [confirmDiscard, setConfirmDiscard] = useState(false)
 
   const fieldsDirty = JSON.stringify(fields) !== JSON.stringify(initialFields)
+  // Colors a gallery photo can be tied to: the saved variants, or the new rows while creating.
+  const galleryColors = [
+    ...new Set((product ? product.variants : rows).map((variant) => variant.color.trim()).filter(Boolean)),
+  ]
   const rowsDirty = mode === 'create' && rows.some((row) => row.size || row.color || row.sku)
   const dirty = fieldsDirty || rowsDirty || variantsDirty
 
@@ -273,14 +248,18 @@ export function ProductEditorDrawer({ open, product, categories, onClose, onSave
 
             <section aria-labelledby="product-sale" className="mt-8 border-t border-linen-200 pt-6">
               <h3 id="product-sale" className={sectionTitle}>Satış və görünüş</h3>
-              <div className="mt-4 flex flex-col gap-5 sm:flex-row">
-                <CoverPreview url={fields.coverImage} />
-                <div className="grid min-w-0 flex-1 gap-4">
-                  <FormField label="Şəkil ünvanı" required error={errors.coverImage}>
-                    {(props) => (
-                      <TextInput {...props} type="url" value={fields.coverImage} onChange={update('coverImage')} maxLength={LIMITS.coverImage} placeholder="https://images.unsplash.com/…" />
-                    )}
-                  </FormField>
+              <div className="mt-4">
+                <GalleryEditor
+                  images={fields.images}
+                  colors={galleryColors}
+                  error={errors.images}
+                  onChange={(images) => {
+                    setFields((current) => ({ ...current, images }))
+                    setErrors((current) => ({ ...current, images: undefined }))
+                  }}
+                />
+              </div>
+              <div className="mt-6 grid gap-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField label="Qiymət (₼)" required error={errors.price}>
                       {(props) => (
@@ -297,7 +276,6 @@ export function ProductEditorDrawer({ open, product, categories, onClose, onSave
                       <span className="text-sm text-ink-700">Önə çıxan (bestseller)</span>
                     </label>
                   </div>
-                </div>
               </div>
             </section>
 

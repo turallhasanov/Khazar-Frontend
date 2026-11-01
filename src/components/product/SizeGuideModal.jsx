@@ -3,9 +3,9 @@ import { useCallback, useEffect } from 'react'
 import { useContentSection } from '../../context/SiteContentContext'
 
 /**
- * Beden Ölçü Rehberi Modali.
- * - Göğüs / Bel / Boyun ölçü tablosu (sm) — başlıq, mətn və sətirlər admin panelindəki "sizeGuide" bölməsindən
- * - Ürün detayındaki "Beden Ölçü Rehberi" bağlantısıyla açılır
+ * Ölçü cədvəli pəncərəsi.
+ * - Sinə / Bel / Boyun ölçü cədvəli (sm) — başlıq, mətn və sətirlər admin panelindəki "sizeGuide" bölməsindən
+ * - Məhsul səhifəsindəki "Ölçü cədvəli" linki ilə açılır
  * - ESC ve perde tıklamasıyla kapanır, açıkken arka plan kaydırması kilitli
  */
 export function SizeGuideModal({ open, onClose }) {
@@ -40,7 +40,7 @@ export function SizeGuideModal({ open, onClose }) {
         className="relative w-full max-w-lg bg-linen-50 p-8 sm:m-6"
         role="dialog"
         aria-modal="true"
-        aria-label="Beden ölçü rehberi"
+        aria-label="Ölçü cədvəli"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -66,7 +66,7 @@ export function SizeGuideModal({ open, onClose }) {
           <thead>
             <tr className="border-b border-ink-900/15 text-left text-[10px] uppercase tracking-[0.25em] text-ink-400">
               <th className="py-3 pr-4 font-normal">Ölçü</th>
-              <th className="py-3 pr-4 font-normal">Göğüs</th>
+              <th className="py-3 pr-4 font-normal">Sinə</th>
               <th className="py-3 pr-4 font-normal">Bel</th>
               <th className="py-3 font-normal">Boyun</th>
             </tr>

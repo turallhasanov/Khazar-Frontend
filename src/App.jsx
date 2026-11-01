@@ -11,6 +11,7 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { JournalArticlePage } from './pages/JournalArticlePage.jsx'
 import { LoginPage } from './pages/LoginPage.jsx'
+import { PrivacyPage } from './pages/PrivacyPage.jsx'
 import { ProductDetailPage } from './pages/ProductDetailPage.jsx'
 import { RegisterPage } from './pages/RegisterPage.jsx'
 import { ResetPasswordPage } from './pages/ResetPasswordPage.jsx'
@@ -50,6 +51,7 @@ export default function App() {
         <Route path="/tez-tez-verilen-suallar" element={<FaqPage />} />
         <Route path="/catdirilma-ve-iade" element={<ShippingReturnsPage />} />
         <Route path="/elaqe" element={<ContactPage />} />
+        <Route path="/gizlilik-siyaseti" element={<PrivacyPage />} />
         <Route path="/giris" element={<LoginPage />} />
         <Route path="/qeydiyyat" element={<RegisterPage />} />
         <Route path="/e-poct-tesdiqi" element={<VerifyEmailPage />} />

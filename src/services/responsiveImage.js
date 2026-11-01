@@ -10,7 +10,7 @@ export function responsiveImage(url, { width = 1600, widths = DEFAULT_WIDTHS } =
   try {
     parsed = new URL(url)
   } catch {
-    // A site path such as "/media/cover.jpg".
+    // A site path, or the address of an uploaded image.
     return { src: url }
   }
   if (parsed.hostname !== 'images.unsplash.com') return { src: url }

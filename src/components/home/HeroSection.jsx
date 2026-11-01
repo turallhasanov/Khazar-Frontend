@@ -6,8 +6,12 @@ import { useContentSection } from '../../context/SiteContentContext'
 import { formatPrice } from '../../services/formatPrice'
 import { hideBrokenImage } from '../../services/imageFallback.js'
 
-/** Giriş koreografisi: her öğe kendi gecikmesini --d ile alır (index.css → .hero-*). */
-const at = (ms) => ({ '--d': `${ms}ms` })
+/**
+ * Giriş koreografisi: her öğe kendi gecikmesini --d ile alır (index.css → .hero-*). The authored delays are
+ * compressed to 65%, so the whole entrance settles in about 1.5 s instead of 2.2 s and the page feels ready sooner.
+ */
+const DELAY_SCALE = 0.65
+const at = (ms) => ({ '--d': `${Math.round(ms * DELAY_SCALE)}ms` })
 
 /**
  * Hero derinliği — kaydırma ilerlemesi (--hp, 0→1) ve imleç konumu (--hx/--hy, -1→1) bölüme CSS değişkeni

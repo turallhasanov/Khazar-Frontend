@@ -1,4 +1,4 @@
-import { AlertCircle, PackageOpen, Plus, RefreshCw, Search, SearchX, X } from 'lucide-react'
+import { AlertCircle, DatabaseZap, PackageOpen, Plus, RefreshCw, Search, SearchX, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAdminToast } from '../components/admin/AdminToasts.jsx'
@@ -20,6 +20,7 @@ import {
   deleteProduct,
   getAdminCategories,
   getAdminProducts,
+  pullNexusProducts,
   restoreProduct,
 } from '../services/adminService.js'
 import { ApiError } from '../services/api.js'
@@ -68,6 +69,7 @@ function matchesQuery(product, query) {
  */
 export function AdminProductsPage() {
   const { toast } = useAdminToast()
+  const [pulling, setPulling] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const [state, setState] = useState({ status: 'loading', products: [], error: null, loadedAt: null, refreshing: false })
   // Categories feed the filter and the editor's dropdown; a failed load only empties them, the list still works.
@@ -264,6 +266,30 @@ export function AdminProductsPage() {
   const ready = state.status === 'ready'
   const deleting = confirm?.product
 
+  const pullFromNexus = async () => {
+    setPulling(true)
+    try {
+      const result = await pullNexusProducts()
+      reload()
+      toast({
+        message: `NexusERP: ${result.created} yeni, ${result.updated} yenilənib, ${result.unchanged} dəyişməyib${
+          result.skipped ? `, ${result.skipped} keçildi` : ''
+        }.`,
+        tone: result.skipped ? 'error' : undefined,
+      })
+    } catch (error) {
+      toast({
+        message:
+          error instanceof ApiError && error.status === 502
+            ? 'NexusERP-yə qoşulmaq mümkün olmadı. Ayarları yoxlayın.'
+            : 'Məhsulları yeniləmək alınmadı.',
+        tone: 'error',
+      })
+    } finally {
+      setPulling(false)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-7xl">
       <AdminPageHeader
@@ -276,6 +302,10 @@ export function AdminProductsPage() {
             <Button size="sm" onClick={reload} disabled={state.refreshing || state.status === 'loading'} aria-label="Siyahını yenilə">
               <RefreshCw size={13} strokeWidth={1.75} className={state.refreshing ? 'animate-spin' : ''} />
               Yenilə
+            </Button>
+            <Button size="sm" onClick={pullFromNexus} disabled={pulling || !ready}>
+              <DatabaseZap size={13} strokeWidth={1.75} className={pulling ? 'animate-pulse' : ''} />
+              {pulling ? 'Yenilənir…' : 'NexusERP-dən Məhsulları Yenilə'}
             </Button>
             <Button variant="primary" onClick={openCreate} disabled={!ready}>
               <Plus size={15} strokeWidth={1.75} />

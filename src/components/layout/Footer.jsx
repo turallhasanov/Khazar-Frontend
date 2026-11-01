@@ -6,12 +6,12 @@ import { NewsletterSignup } from './NewsletterSignup'
 
 /** Sol sütun: kurumsal navigasyon — saytın səhifələri (marşrutlar koddadır, məzmunları admin panelindən). */
 const navLinks = [
-  { label: 'HOME', to: '/' },
-  { label: 'CATALOGS', to: '/katalog' },
-  { label: 'ABOUT KHAZAR', to: '/haqqimizda' },
-  { label: 'SHIPPING', to: '/catdirilma-ve-iade' },
-  { label: 'FAQ', to: '/tez-tez-verilen-suallar' },
-  { label: 'CONTACTS', to: '/elaqe' },
+  { label: 'Ana səhifə', to: '/' },
+  { label: 'Kataloq', to: '/katalog' },
+  { label: 'Haqqımızda', to: '/haqqimizda' },
+  { label: 'Çatdırılma və iadə', to: '/catdirilma-ve-iade' },
+  { label: 'Tez-tez verilən suallar', to: '/tez-tez-verilen-suallar' },
+  { label: 'Əlaqə', to: '/elaqe' },
 ]
 
 const linkClass =
@@ -44,7 +44,7 @@ export function Footer() {
           <nav aria-label="Korporativ" className="md:col-span-3">
             <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-clay-400">Khazar</p>
             {navLinks.map((link) => (
-              <Link key={link.label} to={link.to} className={linkClass}>
+              <Link key={link.label} to={link.to} className={`${linkClass} uppercase`}>
                 {link.label}
               </Link>
             ))}
@@ -89,9 +89,9 @@ export function Footer() {
         {/* Alt bar */}
         <div className="mt-16 flex flex-col gap-3 border-t border-linen-50/15 pt-6 text-xs text-linen-200/80 sm:flex-row sm:items-center sm:justify-between">
           <span>{site?.copyright}</span>
-          <span className="uppercase tracking-[0.14em]">
+          <Link to="/gizlilik-siyaseti" className="uppercase tracking-[0.14em] transition-colors duration-300 hover:text-clay-400">
             Gizlilik Siyasəti
-          </span>
+          </Link>
           <span>{site?.footerNote}</span>
         </div>
       </div>

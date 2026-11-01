@@ -1,4 +1,5 @@
 import { Archive, ArchiveRestore, ExternalLink, ImageOff, Pencil, Trash2 } from 'lucide-react'
+import { mediaUrl } from '../../../services/api.js'
 import { useState } from 'react'
 import { formatPrice } from '../../../services/formatPrice.js'
 import { formatDateTime, formatRelative } from '../reviews/reviewFilters.js'
@@ -17,7 +18,7 @@ function Thumb({ product, size = 'md' }) {
         <ImageOff size={14} strokeWidth={1.25} className="text-ink-400" />
       ) : (
         <img
-          src={product.coverImage}
+          src={mediaUrl(product.coverImage)}
           alt=""
           loading="lazy"
           onError={() => setFailed(true)}

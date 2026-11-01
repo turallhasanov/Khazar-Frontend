@@ -11,6 +11,7 @@ export const LIMITS = {
   description: 4000,
   fabric: 200,
   coverImage: 1000,
+  images: 12,
   size: 16,
   color: 64,
   sku: 64,
@@ -49,11 +50,16 @@ export const emptyFields = {
   categoryId: '',
   fabric: '',
   price: '',
-  coverImage: '',
+  images: [],
   isFeatured: false,
 }
 
 let nextVariantKey = 1
+let nextImageKey = 1
+
+/** A gallery row in the editor; `key` only identifies it while editing. Color '' = not tied to a color. */
+export const newGalleryImage = (url, color = '') => ({ key: nextImageKey++, url, color })
+
 export const emptyVariant = () => ({ key: nextVariantKey++, size: '', color: '', sku: '', stockQuantity: '0' })
 
 export function fieldsFromProduct(product) {
@@ -64,7 +70,9 @@ export function fieldsFromProduct(product) {
     categoryId: product.categoryId,
     fabric: product.fabric,
     price: product.price.toFixed(2).replace('.', ','),
-    coverImage: product.coverImage,
+    images: (product.images?.length ? product.images : [{ url: product.coverImage, color: null }]).map((image) =>
+      newGalleryImage(image.url, image.color ?? ''),
+    ),
     isFeatured: product.isFeatured,
   }
 }
@@ -78,7 +86,9 @@ export function fieldsToRequest(fields) {
     categoryId: fields.categoryId,
     fabric: fields.fabric.trim(),
     price: Number(normalizePrice(fields.price)),
-    coverImage: fields.coverImage.trim(),
+    // The API keeps coverImage for older clients; the gallery's first photo is the cover.
+    coverImage: fields.images[0]?.url.trim() ?? '',
+    images: fields.images.map((image) => ({ url: image.url.trim(), color: image.color || null })),
     isFeatured: fields.isFeatured,
   }
 }
@@ -89,15 +99,6 @@ export function variantToRequest(variant) {
     color: variant.color.trim(),
     sku: variant.sku.trim().toUpperCase(),
     stockQuantity: Number(variant.stockQuantity),
-  }
-}
-
-const isHttpUrl = (value) => {
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
   }
 }
 
@@ -128,10 +129,8 @@ export function validateFields(fields) {
   else if (!PRICE_PATTERN.test(priceText)) errors.price = 'Rəqəm, ən çox iki onluq (məs. 89,90).'
   else if (price <= 0 || price > LIMITS.maxPrice) errors.price = `Qiymət 0-dan böyük və ən çox ${LIMITS.maxPrice} ₼ olmalıdır.`
 
-  const coverImage = fields.coverImage.trim()
-  if (!coverImage) errors.coverImage = 'Şəkil ünvanını daxil edin.'
-  else if (!isHttpUrl(coverImage) || coverImage.length > LIMITS.coverImage)
-    errors.coverImage = 'Tam http(s) ünvanı daxil edin (məs. https://images.unsplash.com/…).'
+  if (fields.images.length === 0) errors.images = 'Ən azı bir şəkil əlavə edin.'
+  else if (fields.images.length > LIMITS.images) errors.images = `Ən çox ${LIMITS.images} şəkil ola bilər.`
 
   return errors
 }
@@ -185,7 +184,9 @@ const API_ERRORS = {
   invalid_category: ['categoryId', 'Mövcud kateqoriya seçin — bu kateqoriya silinmiş ola bilər.'],
   invalid_fabric: ['fabric', 'Parça tərkibi tələb olunur.'],
   invalid_price: ['price', 'Qiymət 0-dan böyük, ən çox 100 000 ₼, iki onluq rəqəmə qədər.'],
-  invalid_cover_image: ['coverImage', 'Tam http(s) şəkil ünvanı daxil edin.'],
+  invalid_cover_image: ['images', 'Əsas şəkli fayl kimi yükləyin.'],
+  invalid_images: ['images', 'Şəkilləri fayl kimi yükləyin (ən çox 12).'],
+  invalid_image_color: ['images', 'Şəkilə bağlanan rəng məhsulun variantlarında yoxdur.'],
   variants_required: [null, 'Ən azı bir variant əlavə edin.'],
   invalid_size: ['variant', 'Ölçü düzgün deyil.'],
   invalid_color: ['variant', 'Rəng düzgün deyil.'],

@@ -7,6 +7,7 @@ import { useProducts } from '../../context/ProductsContext'
 import { useContentSection } from '../../context/SiteContentContext'
 import { useWishlist } from '../../context/WishlistContext'
 import { SearchModal } from '../search/SearchModal'
+import { Logo } from './Logo'
 
 const categoryPath = (category) => `/katalog?kateqoriya=${encodeURIComponent(category.slug)}`
 
@@ -37,7 +38,9 @@ function MobileDrawer({ open, onClose }) {
       />
       <div className="absolute inset-y-0 left-0 flex w-[min(20rem,85vw)] animate-drawer-in flex-col overflow-y-auto bg-linen-50 px-8 py-6">
         <div className="flex items-center justify-between">
-          <span className="font-display text-xl tracking-[0.04em]">Khazar</span>
+          <Link to="/" onClick={onClose} aria-label="Khazar — ana səhifə">
+            <Logo size="sm" />
+          </Link>
           <button
             type="button"
             aria-label="Bağla"
@@ -166,20 +169,18 @@ export function Header() {
           </div>
 
           {/* Orta: logo */}
-          <Link to="/" className="whitespace-nowrap text-center leading-none" aria-label="Khazar — ana səhifə">
-            <span className="font-display text-xl font-normal tracking-[0.06em] text-ink-900 max-[359px]:text-lg sm:text-[1.625rem]">
-              Khazar
-            </span>
-            <span className="mt-1 block text-[8px] font-medium uppercase tracking-[0.42em] text-ink-500 sm:text-[9px]">
-              Textile
-            </span>
+          <Link to="/" className="whitespace-nowrap" aria-label="Khazar — ana səhifə">
+            <Logo tagline />
           </Link>
 
           {/* Sağ: giriş + axtarış + istək siyahısı + səbət */}
           <div className="-mr-2.5 flex items-center gap-0.5 justify-self-end sm:gap-2">
             {user ? (
-              <div className="mr-3 hidden items-center gap-3 text-[12px] font-medium uppercase tracking-[0.14em] md:flex">
-                <span className="text-ink-500">Salam, {user.firstName}</span>
+              <div className="mr-3 hidden items-center gap-3 text-[12px] font-medium uppercase tracking-[0.14em] lg:flex">
+                {/* One line at every width; a long name is cut instead of pushing the logo off centre. */}
+                <span className="max-w-40 truncate whitespace-nowrap text-ink-500" title={user.firstName}>
+                  Salam, {user.firstName}
+                </span>
                 <button
                   type="button"
                   onClick={logout}
@@ -189,8 +190,10 @@ export function Header() {
                 </button>
               </div>
             ) : (
-              <NavLink to="/giris" className={(state) => `mr-3 hidden md:block ${navLinkClass(state)}`}>
-                Giriş / Qeydiyyat
+              // The logo shares the row with this link; between md and lg only "Giriş" fits without wrapping.
+              <NavLink to="/giris" className={(state) => `mr-3 hidden whitespace-nowrap md:block ${navLinkClass(state)}`}>
+                <span className="lg:hidden">Giriş</span>
+                <span className="hidden lg:inline">Giriş / Qeydiyyat</span>
               </NavLink>
             )}
             <button type="button" aria-label="Axtarışı aç" onClick={() => setSearchOpen(true)} className={iconButtonClass}>
