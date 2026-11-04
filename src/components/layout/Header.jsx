@@ -77,6 +77,13 @@ function MobileDrawer({ open, onClose }) {
           {user ? (
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xs uppercase tracking-[0.14em] text-ink-500">{user.firstName}</span>
+              <Link
+                to="/sifarislerim"
+                onClick={onClose}
+                className="text-xs uppercase tracking-[0.14em] text-ink-700 transition-colors hover:text-clay-600"
+              >
+                Sifarişlərim
+              </Link>
               <button
                 type="button"
                 onClick={() => {
@@ -181,6 +188,12 @@ export function Header() {
                 <span className="max-w-40 truncate whitespace-nowrap text-ink-500" title={user.firstName}>
                   Salam, {user.firstName}
                 </span>
+                <Link
+                  to="/sifarislerim"
+                  className="whitespace-nowrap uppercase tracking-[0.14em] text-ink-700 transition-colors hover:text-clay-600"
+                >
+                  Sifarişlərim
+                </Link>
                 <button
                   type="button"
                   onClick={logout}
