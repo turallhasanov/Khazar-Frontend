@@ -1,5 +1,6 @@
 import { AlertCircle, Check, Info, X } from 'lucide-react'
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { registerApiFaultSink } from '../../services/apiFaults.js'
 
 const TOAST_DURATION_MS = 5000
 
@@ -24,11 +25,20 @@ export function AdminToastProvider({ children }) {
   const toast = useCallback(
     ({ message, tone = 'success', action = null }) => {
       const id = nextId.current++
-      setToasts((current) => [...current.slice(-2), { id, message, tone, action }])
+      setToasts((current) =>
+        // The API client already announces server and network faults; a page reporting the same error again would
+        // stack an identical toast. Only plain error toasts are merged: one with an action (e.g. "Geri al") never is.
+        tone === 'error' && !action && current.some((item) => item.tone === 'error' && !item.action && item.message === message)
+          ? current
+          : [...current.slice(-2), { id, message, tone, action }],
+      )
       setTimeout(() => dismiss(id), TOAST_DURATION_MS)
     },
     [dismiss],
   )
+
+  // While the admin panel is open, unexpected API faults appear here instead of in the storefront notice.
+  useEffect(() => registerApiFaultSink((message) => toast({ message, tone: 'error' }), 1), [toast])
 
   const value = useMemo(() => ({ toast }), [toast])
 
