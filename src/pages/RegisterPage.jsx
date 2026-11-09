@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { AuthAlert, AuthField, AuthShell, authButtonClass } from '../components/auth/AuthShell.jsx'
+import { AuthAlert, AuthField, AuthPasswordField, AuthShell, authButtonClass } from '../components/auth/AuthShell.jsx'
 import { useAuth } from '../context/AuthContext'
 import { describeAuthError } from '../services/authErrors.js'
 
@@ -95,17 +95,15 @@ export function RegisterPage() {
           placeholder="ad@nümunə.az"
           error={errors.email}
         />
-        <AuthField
+        <AuthPasswordField
           label="Şifrə"
-          type="password"
           autoComplete="new-password"
           value={form.password}
           onChange={update('password')}
           error={errors.password}
         />
-        <AuthField
+        <AuthPasswordField
           label="Şifrəni təkrarlayın"
-          type="password"
           autoComplete="new-password"
           value={form.confirmPassword}
           onChange={update('confirmPassword')}

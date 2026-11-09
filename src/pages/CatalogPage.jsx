@@ -25,6 +25,15 @@ const QUERY_CATEGORY_MAP = {
   coat: 'Coat',
 }
 
+/** Resolves a ?kateqoriya= value (case-insensitive slug or legacy alias) to a category name, or null. */
+export function resolveQueryCategory(query, categories) {
+  const key = query?.trim().toLowerCase()
+  if (!key) return null
+  return (
+    categories.find((category) => category.slug?.toLowerCase() === key)?.name ?? QUERY_CATEGORY_MAP[key] ?? null
+  )
+}
+
 /** Price slider range derived from the loaded catalog. */
 function computeBounds(products) {
   const prices = products.map((p) => p.basePrice)
@@ -141,16 +150,18 @@ function CatalogBrowser({ products, categories }) {
   const colors = useMemo(() => collectColors(products), [products])
   const sizes = useMemo(() => collectSizes(products), [products])
   const defaultFilters = useMemo(() => buildDefaultFilters(bounds), [bounds])
+  const queryCategory = resolveQueryCategory(searchParams.get('kateqoriya'), categories)
   const [filters, setFilters] = useState(() => ({
     ...defaultFilters,
     // Header/Footer kateqoriya linklərini filtre ilə aç
-    categories: (() => {
-      const query = searchParams.get('kateqoriya')
-      if (!query) return []
-      const mapped = categories.find((category) => category.slug === query)?.name ?? QUERY_CATEGORY_MAP[query]
-      return mapped ? [mapped] : []
-    })(),
+    categories: queryCategory ? [queryCategory] : [],
   }))
+  // The page stays mounted when a footer/header link only changes ?kateqoriya=, so follow the URL.
+  const [syncedCategory, setSyncedCategory] = useState(queryCategory)
+  if (syncedCategory !== queryCategory) {
+    setSyncedCategory(queryCategory)
+    setFilters((current) => ({ ...current, categories: queryCategory ? [queryCategory] : [] }))
+  }
   const [sort, setSort] = useState('featured')
 
   const visibleProducts = useMemo(

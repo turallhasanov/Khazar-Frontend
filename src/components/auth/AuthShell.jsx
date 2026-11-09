@@ -1,4 +1,6 @@
 /** Shared frame and form controls of the login, register and email verification pages. */
+import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 
 export const authLabelClass = 'block text-[10px] font-medium uppercase tracking-[0.25em] text-ink-400'
 export const authInputClass =
@@ -31,6 +33,37 @@ export function AuthField({ label, error, ...inputProps }) {
           {...inputProps}
           className={`${authInputClass} ${error ? 'border-clay-600' : 'border-ink-900/20'}`}
         />
+      </label>
+      {error && <p className="mt-1.5 text-[11px] text-clay-600">{error}</p>}
+    </div>
+  )
+}
+
+/** AuthField for passwords, with an eye button that toggles between masked and plain text. */
+export function AuthPasswordField({ label, error, ...inputProps }) {
+  const [visible, setVisible] = useState(false)
+  const toggleLabel = visible ? 'Şifrəni gizlət' : 'Şifrəni göstər'
+  return (
+    <div>
+      <label className={authLabelClass}>
+        {label}
+        <span className="relative block">
+          <input
+            {...inputProps}
+            type={visible ? 'text' : 'password'}
+            className={`${authInputClass} pr-11 ${error ? 'border-clay-600' : 'border-ink-900/20'}`}
+          />
+          <button
+            type="button"
+            onClick={() => setVisible((current) => !current)}
+            aria-label={toggleLabel}
+            aria-pressed={visible}
+            title={toggleLabel}
+            className="absolute inset-y-0 right-0 mt-2 flex w-11 items-center justify-center text-ink-400 transition-colors hover:text-ink-900"
+          >
+            {visible ? <EyeOff size={17} strokeWidth={1.6} aria-hidden="true" /> : <Eye size={17} strokeWidth={1.6} aria-hidden="true" />}
+          </button>
+        </span>
       </label>
       {error && <p className="mt-1.5 text-[11px] text-clay-600">{error}</p>}
     </div>
