@@ -23,3 +23,13 @@ export function createOrder({ customer, shipping, payment, items }) {
     }),
   })
 }
+
+/** GET /orders/my-orders — the signed-in customer's own orders, newest first (401 when the session is gone). */
+export function getMyOrders({ signal } = {}) {
+  return apiClient('/orders/my-orders', { signal })
+}
+
+/** GET /orders/my-orders/{orderNumber} — one of the customer's own orders (404 also for someone else's). */
+export function getMyOrder(orderNumber, { signal } = {}) {
+  return apiClient(`/orders/my-orders/${encodeURIComponent(orderNumber)}`, { signal })
+}

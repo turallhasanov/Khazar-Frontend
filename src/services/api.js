@@ -1,3 +1,4 @@
+import { isUnexpectedServerFault, reportApiFault } from './apiFaults.js'
 import { clearSession, getSession, setSession } from './authSession.js'
 
 /**
@@ -59,6 +60,7 @@ async function send(path, init, accessToken) {
     // Aborts are expected when a component unmounts; let callers recognise and ignore them.
     if (error.name === 'AbortError') throw error
     console.error(`[api] ${init?.method ?? 'GET'} ${API_BASE_URL}${path} failed:`, error.message)
+    reportApiFault('network')
     throw new ApiError(`API is unreachable at ${API_BASE_URL}`, { status: 0 })
   }
 }
@@ -66,6 +68,7 @@ async function send(path, init, accessToken) {
 async function parse(response) {
   if (!response.ok) {
     const problem = await readProblem(response)
+    if (isUnexpectedServerFault(response.status, problem)) reportApiFault('server')
     throw new ApiError(problem?.detail ?? problem?.title ?? `API request failed: ${response.status}`, {
       status: response.status,
       problem,

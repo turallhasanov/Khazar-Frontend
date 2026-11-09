@@ -1,9 +1,11 @@
-import { Banknote, Check, CreditCard, Landmark, ShoppingBag } from 'lucide-react'
+import { Banknote, CreditCard, Landmark, ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FREE_SHIPPING_THRESHOLD } from '../components/cart/CartDrawer'
+import { OrderConfirmation } from '../components/checkout/OrderConfirmation.jsx'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { describeOrderError } from '../services/describeOrderError.js'
 import { formatPrice } from '../services/formatPrice.js'
 import { createOrder } from '../services/orderService.js'
 
@@ -83,22 +85,6 @@ function validate(form) {
     if (!/^\d{3,4}$/.test(form.cardCvv)) errors.cardCvv = '3 rəqəmli CVV kodu'
   }
   return errors
-}
-
-/** Maps a failed POST /orders to a customer-facing message (ProblemDetails status codes). */
-function describeOrderError(error) {
-  switch (error.status) {
-    case 0:
-      return 'Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.'
-    case 400:
-      return 'Sifariş məlumatlarında xəta var. Formu yoxlayıb yenidən cəhd edin.'
-    case 404:
-      return 'Səbətinizdəki bəzi məhsullar artıq mövcud deyil. Səbəti yeniləyin.'
-    case 409:
-      return 'Səbətinizdəki bəzi məhsullar üçün kifayət qədər stok yoxdur. Miqdarı azaldın.'
-    default:
-      return 'Sifariş yaradılmadı. Bir az sonra yenidən cəhd edin.'
-  }
 }
 
 function Field({ label, error, children }) {
@@ -182,11 +168,17 @@ export function CheckoutPage() {
         name: created.customerName,
         city: form.city,
         payment: PAYMENT_OPTIONS.find((option) => option.id === form.payment)?.label ?? '',
-        response: created,
+        // Raw response: only the development-only debug block reads it.
+        response: import.meta.env.DEV ? created : null,
       })
       clearCart()
     } catch (error) {
-      console.error('[Khazar] Order creation failed:', error)
+      console.error('[Khazar] Order creation failed:', {
+        status: error?.status,
+        code: error?.code,
+        problem: error?.problem,
+        error,
+      })
       setSubmitError(describeOrderError(error))
     } finally {
       setSubmitting(false)
@@ -195,47 +187,7 @@ export function CheckoutPage() {
 
   // Təsdiq ekranı
   if (order) {
-    return (
-      <main className="flex flex-1 items-center justify-center px-6 py-24">
-        <div className="flex w-full max-w-lg flex-col items-center gap-5 border border-linen-200 bg-linen-100/60 px-8 py-14 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sage-600 text-linen-50">
-            <Check size={26} strokeWidth={1.5} />
-          </span>
-          <h1 className="font-display text-3xl text-ink-900">Sifarişiniz qəbul edildi</h1>
-          <p className="text-sm leading-relaxed text-ink-500">
-            {order.name} — sifariş nömrəniz{' '}
-            <span className="font-medium text-ink-900">{order.number}</span>. {order.city}{' '}
-            üzrə {order.payment.toLowerCase()} ilə ödəniləcək. Təsdiq e-poçtunuz göndərildi.
-          </p>
-          <dl className="mt-2 w-full space-y-2 border-t border-linen-200 pt-5 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-ink-500">Məhsul sayı</dt>
-              <dd className="text-ink-900">{order.itemCount}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-ink-500">Yekun məbləğ</dt>
-              <dd className="font-display text-lg text-ink-900">{formatPrice(order.total)}</dd>
-            </div>
-          </dl>
-          <Link
-            to="/katalog"
-            className="mt-4 border border-ink-900 px-10 py-3.5 text-[11px] uppercase tracking-[0.3em] text-ink-900 transition-colors hover:bg-ink-900 hover:text-linen-50"
-          >
-            Kataloqa qayıt
-          </Link>
-
-          {/* Raw POST /orders response, for development */}
-          <details className="mt-8 w-full border border-linen-200 bg-linen-50 text-left">
-            <summary className="cursor-pointer px-5 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-ink-500 transition-colors hover:text-ink-900">
-              API cavabı (dev)
-            </summary>
-            <pre className="max-h-72 overflow-auto border-t border-linen-200 px-5 py-4 text-[11px] leading-relaxed text-ink-700">
-              {JSON.stringify(order.response, null, 2)}
-            </pre>
-          </details>
-        </div>
-      </main>
-    )
+    return <OrderConfirmation order={order} signedIn={Boolean(user)} />
   }
 
   // Boş sepet — ödənişə keçid yoxdur

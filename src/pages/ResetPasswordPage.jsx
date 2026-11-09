@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { AuthAlert, AuthField, AuthShell, authButtonClass } from '../components/auth/AuthShell.jsx'
+import { AuthAlert, AuthPasswordField, AuthShell, authButtonClass } from '../components/auth/AuthShell.jsx'
 import { useAuth } from '../context/AuthContext'
 import { describeAuthError } from '../services/authErrors.js'
 
@@ -75,16 +75,14 @@ export function ResetPasswordPage() {
       }
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <AuthField
+        <AuthPasswordField
           label="Yeni şifrə"
-          type="password"
           autoComplete="new-password"
           value={form.password}
           onChange={update('password')}
         />
-        <AuthField
+        <AuthPasswordField
           label="Şifrəni təkrarlayın"
-          type="password"
           autoComplete="new-password"
           value={form.confirm}
           onChange={update('confirm')}

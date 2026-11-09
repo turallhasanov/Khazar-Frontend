@@ -5,6 +5,8 @@ import { AboutPage } from './pages/AboutPage.jsx'
 import { CartPage } from './pages/CartPage.jsx'
 import { CatalogPage } from './pages/CatalogPage.jsx'
 import { CheckoutPage } from './pages/CheckoutPage.jsx'
+import { MyOrderDetailPage } from './pages/MyOrderDetailPage.jsx'
+import { MyOrdersPage } from './pages/MyOrdersPage.jsx'
 import { ContactPage } from './pages/ContactPage.jsx'
 import { FaqPage } from './pages/FaqPage.jsx'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.jsx'
@@ -46,6 +48,8 @@ export default function App() {
         <Route path="/mehsul/:slug" element={<ProductDetailPage />} />
         <Route path="/sebet" element={<CartPage />} />
         <Route path="/odeme" element={<CheckoutPage />} />
+        <Route path="/sifarislerim" element={<MyOrdersPage />} />
+        <Route path="/sifarislerim/:orderNumber" element={<MyOrderDetailPage />} />
         <Route path="/journal/:slug" element={<JournalArticlePage />} />
         <Route path="/haqqimizda" element={<AboutPage />} />
         <Route path="/tez-tez-verilen-suallar" element={<FaqPage />} />
